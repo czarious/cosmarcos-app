@@ -1,0 +1,660 @@
+{
+  "exportedAt": "2026-07-15T16:23:06.263Z",
+  "version": 1,
+  "characters": [
+    {
+      "id": "fcb4179e-70be-48d8-9a5b-f68139b0dfe3",
+      "createdAt": "2026-07-03T17:46:26.005Z",
+      "updatedAt": "2026-07-15T16:22:00.153Z",
+      "meta": {
+        "name": "Eccho",
+        "player": "Cesar",
+        "level": 3,
+        "ancestry": "Human",
+        "culture1": "Thaylen",
+        "culture2": "Kharbranthian",
+        "startingKit": "Academic",
+        "paths": "",
+        "purpose": "Buscar Justiça — encontrar e punir o assassino de Kavel",
+        "obstacle": "Rancor — frio, planeja no silêncio",
+        "personality": "Calculista, direto, desconfiado, egoísta até confiar",
+        "appearance": "",
+        "connections": ""
+      },
+      "attributes": {
+        "strength": 1,
+        "speed": 3,
+        "intellect": 3,
+        "willpower": 3,
+        "awareness": 3,
+        "presence": 0
+      },
+      "attributeMods": {
+        "strength": 0,
+        "speed": 0,
+        "intellect": 1,
+        "willpower": 0,
+        "awareness": 0,
+        "presence": 0
+      },
+      "defenses": {
+        "physical": 14,
+        "cognitive": 17,
+        "spiritual": 13
+      },
+      "defenseBonuses": {
+        "physical": 0,
+        "cognitive": 0,
+        "spiritual": 0
+      },
+      "resources": {
+        "healthMax": 21,
+        "healthCur": 21,
+        "focusMax": 5,
+        "focusCur": 4,
+        "investitureMax": 5,
+        "investitureCur": 0,
+        "deflect": 0,
+        "deflectMod": 0,
+        "recoveryDie": "d8",
+        "movement": 30,
+        "liftingCapacity": "200 lb",
+        "carryingCapacity": "100 lb",
+        "sensesRange": "20 ft",
+        "spheres": "",
+        "marks": 65
+      },
+      "skills": [
+        {
+          "key": "athletics",
+          "name": "Athletics",
+          "trait": "strength",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "heavy-weaponry",
+          "name": "Heavy Weaponry",
+          "trait": "strength",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "agility",
+          "name": "Agility",
+          "trait": "speed",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "light-weaponry",
+          "name": "Light Weaponry",
+          "trait": "speed",
+          "rankLevel": 1,
+          "rankTalent": 0,
+          "rank": 1,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "stealth",
+          "name": "Stealth",
+          "trait": "speed",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "thievery",
+          "name": "Thievery",
+          "trait": "speed",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "crafting",
+          "name": "Crafting",
+          "trait": "intellect",
+          "rankLevel": 2,
+          "rankTalent": 0,
+          "rank": 2,
+          "rankBonus": 1,
+          "misc": 0
+        },
+        {
+          "key": "deduction",
+          "name": "Deduction",
+          "trait": "intellect",
+          "rankLevel": 2,
+          "rankTalent": 0,
+          "rank": 2,
+          "rankBonus": 1,
+          "misc": 0
+        },
+        {
+          "key": "lore",
+          "name": "Lore",
+          "trait": "intellect",
+          "rankLevel": 1,
+          "rankTalent": 1,
+          "rank": 2,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "medicine",
+          "name": "Medicine",
+          "trait": "intellect",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "discipline",
+          "name": "Discipline",
+          "trait": "willpower",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "intimidation",
+          "name": "Intimidation",
+          "trait": "willpower",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "insight",
+          "name": "Insight",
+          "trait": "awareness",
+          "rankLevel": 1,
+          "rankTalent": 0,
+          "rank": 1,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "perception",
+          "name": "Perception",
+          "trait": "awareness",
+          "rankLevel": 1,
+          "rankTalent": 0,
+          "rank": 1,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "survival",
+          "name": "Survival",
+          "trait": "awareness",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "deception",
+          "name": "Deception",
+          "trait": "presence",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "leadership",
+          "name": "Leadership",
+          "trait": "presence",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        },
+        {
+          "key": "persuasion",
+          "name": "Persuasion",
+          "trait": "presence",
+          "rankLevel": 0,
+          "rankTalent": 0,
+          "rank": 0,
+          "rankBonus": 0,
+          "misc": 0
+        }
+      ],
+      "conditions": [],
+      "injuries": [],
+      "injuriesCount": 0,
+      "goals": [
+        {
+          "name": "Jurar por um Ideal",
+          "type": "",
+          "achieved": false,
+          "rank": 0
+        },
+        {
+          "name": "Achar Assassino de Kavel",
+          "type": "",
+          "achieved": false,
+          "rank": 0
+        },
+        {
+          "name": "Criar Fabrial de Rastreamento",
+          "type": "",
+          "achieved": false,
+          "rank": 0
+        },
+        {
+          "name": "Origem dos Sprens",
+          "type": "",
+          "achieved": false,
+          "rank": 0
+        },
+        {
+          "name": "Equipamento Fabrial Médio",
+          "type": "",
+          "achieved": false,
+          "rank": 0
+        },
+        {
+          "name": "Equipamento Fabrial Superior",
+          "type": "",
+          "achieved": false,
+          "rank": 0
+        },
+        {
+          "name": "",
+          "type": "",
+          "achieved": false,
+          "rank": 0
+        }
+      ],
+      "expertises": [
+        {
+          "id": "ee19e863-8a6f-4b3f-800c-1d9abf062292",
+          "type": "Specialist",
+          "name": "Manufatura de Fabriais",
+          "source": "custom"
+        },
+        {
+          "id": "68658754-8930-411b-880c-d75d50842a21",
+          "type": "Specialist",
+          "name": "Manufatura de Fabriais perito — via Aquisição Valiosa",
+          "source": "custom"
+        },
+        {
+          "id": "1595055f-a983-46c2-a949-182f8e5bc455",
+          "type": "Cultural",
+          "name": "Navegação",
+          "source": "custom"
+        },
+        {
+          "id": "ebba9dbb-6a6b-454a-8638-43e600b6a639",
+          "type": "Specialist",
+          "name": "Mineralogia/Gemas",
+          "source": "custom"
+        }
+      ],
+      "equipment": "Amuleto de Sorte",
+      "inventory": {
+        "items": [
+          {
+            "id": "c9b23090-9d0b-4e9f-a803-4d6fad348d91",
+            "name": "Mace",
+            "type": "weapon",
+            "sourceId": "weapon:mace",
+            "quantity": 1,
+            "weight": 3,
+            "weightRaw": "3 lb.",
+            "damage": "1d6 impact",
+            "range": {
+              "type": "melee",
+              "reach": 5,
+              "reachBonus": 0,
+              "short": null,
+              "long": null,
+              "label": "Melee"
+            },
+            "rangeLabel": "Melee",
+            "skill": "Light Weaponry",
+            "deflect": "",
+            "traits": [],
+            "expertTraits": [
+              "Momentum"
+            ],
+            "category": "",
+            "equipped": true,
+            "notes": "",
+            "effects": "",
+            "modifiers": [],
+            "isStarting": false
+          },
+          {
+            "id": "f71f14d6-5e4a-4f10-a5ed-3a13f90d71c3",
+            "name": "Oil (1 flask)",
+            "type": "item",
+            "sourceId": "item:oil (1 flask)",
+            "quantity": 1,
+            "weight": 1,
+            "weightRaw": "1 lb.",
+            "damage": "",
+            "range": null,
+            "rangeLabel": "",
+            "skill": "",
+            "deflect": "",
+            "traits": [],
+            "expertTraits": [],
+            "category": "equipment",
+            "equipped": false,
+            "notes": "",
+            "effects": "",
+            "modifiers": [],
+            "isStarting": false
+          },
+          {
+            "id": "d22f40f0-4ee7-4e52-941f-616d796edc38",
+            "name": "Book (reference)",
+            "type": "item",
+            "sourceId": "item:book (reference)",
+            "quantity": 1,
+            "weight": 1,
+            "weightRaw": "1–5 lb.",
+            "damage": "",
+            "range": null,
+            "rangeLabel": "",
+            "skill": "",
+            "deflect": "",
+            "traits": [],
+            "expertTraits": [],
+            "category": "equipment",
+            "equipped": true,
+            "notes": "",
+            "effects": "",
+            "modifiers": [],
+            "isStarting": false
+          }
+        ]
+      },
+      "fabrials": {
+        "standard": [
+          {
+            "id": "6b5e5319-0a43-4a92-9087-e6252469e369",
+            "name": "Clock fabrial",
+            "chargesCur": 3,
+            "chargesMax": 3,
+            "upgrades": [],
+            "drawbacks": [],
+            "transformationEnabled": false,
+            "transformationRanks": 0
+          }
+        ],
+        "custom": [
+          {
+            "id": "50411668-cce3-44bc-a124-037e9eae14ed",
+            "name": "Diapasão",
+            "quality": "Typical",
+            "features": "",
+            "material": "Metal",
+            "gem": "",
+            "effects": "Transfere e carrega energia da tormenta. Gera calor. Item raro.",
+            "chargesCur": 0,
+            "chargesMax": 5,
+            "trackPath": "",
+            "pathRanks": 0,
+            "upgrades": [],
+            "drawbacks": []
+          }
+        ]
+      },
+      "talents": "",
+      "notes": "",
+      "ancestryTalents": [],
+      "rollLog": [],
+      "advancement": {
+        "bonusAttributePoints": 0,
+        "bonusSkillRanks": 0,
+        "bonusTalents": 0,
+        "bonusHealth": 0,
+        "bonusFocus": 0,
+        "bonusInvestiture": 0,
+        "post20TalentChoices": 0
+      },
+      "heroic": {
+        "startingPath": "Scholar",
+        "startingSkillApplied": true,
+        "extraPaths": [],
+        "talents": [
+          {
+            "id": "scholar::key::erudition",
+            "name": "Erudition",
+            "path": "Scholar",
+            "specialty": "Key",
+            "isKey": true
+          },
+          {
+            "id": "scholar::artifabrian::efficient-engineer",
+            "name": "Efficient Engineer",
+            "path": "Scholar",
+            "isKey": false
+          },
+          {
+            "id": "scholar::artifabrian::prized-acquisition",
+            "name": "Prized Acquisition",
+            "path": "Scholar",
+            "isKey": false
+          },
+          {
+            "id": "scholar::artifabrian::fine-handiwork",
+            "name": "Fine Handiwork",
+            "path": "Scholar",
+            "isKey": false
+          }
+        ]
+      },
+      "radiant": {
+        "order": "Elsecaller",
+        "extraOrders": [],
+        "spren": "Mancha",
+        "sprenBonds": [
+          {
+            "id": "1523ef04-fc38-471a-92bd-4fa140bc7e38",
+            "name": "Mancha",
+            "type": "Inkspren",
+            "enlightened": true
+          }
+        ],
+        "sprenBondRange": 30,
+        "sprenBondRangeMod": 0,
+        "idealsText": {
+          "i1": "Life before death. Strength before weakness. Journey before destination.",
+          "i2": "Declare to your inkspren how you wish to improve yourself.",
+          "i3": "Declare to your inkspren how you wish to improve yourself.",
+          "i4": "Declare to your inkspren how you wish to improve yourself.",
+          "i5": ""
+        },
+        "ideals": {
+          "i1": true,
+          "i2": false,
+          "i3": false,
+          "i4": false,
+          "i5": false
+        },
+        "talents": [
+          {
+            "id": "elsecaller::first-ideal-elsecaller-key",
+            "name": "First Ideal (Elsecaller Key)",
+            "order": "Elsecaller",
+            "category": "key",
+            "isKey": true
+          }
+        ],
+        "surgeSkills": [
+          {
+            "id": "transformation",
+            "name": "Transformation",
+            "attribute": "Willpower",
+            "attributeKey": "willpower",
+            "activation": "action2x",
+            "rank": 1,
+            "talents": [
+              {
+                "id": "bloodcasting",
+                "name": "Bloodcasting",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "distant_surgebinding",
+                "name": "Distant Surgebinding",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "expansive_transmuter",
+                "name": "Expansive Transmuter",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "flamecasting",
+                "name": "Flamecasting",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "living_soulcasting",
+                "name": "Living Soulcasting",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "persistent_transformation",
+                "name": "Persistent Transformation",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "soulcast_defense",
+                "name": "Soulcast Defense",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "soulcast_parry",
+                "name": "Soulcast Parry",
+                "learned": false,
+                "notes": ""
+              }
+            ]
+          },
+          {
+            "id": "transportation",
+            "name": "Transportation",
+            "attribute": "Intellect",
+            "attributeKey": "intellect",
+            "activation": "action",
+            "rank": 1,
+            "talents": [
+              {
+                "id": "cognitive_farsight",
+                "name": "Cognitive Farsight",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "cognitive_vision",
+                "name": "Cognitive Vision",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "elsecalling",
+                "name": "Elsecalling",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "elsegate",
+                "name": "Elsegate",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "realmic_evasion",
+                "name": "Realmic Evasion",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "realmic_step",
+                "name": "Realmic Step",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "realmwalker",
+                "name": "Realmwalker",
+                "learned": false,
+                "notes": ""
+              },
+              {
+                "id": "shared_transportation",
+                "name": "Shared Transportation",
+                "learned": false,
+                "notes": ""
+              }
+            ]
+          }
+        ],
+        "surges": [
+          {
+            "name": "",
+            "mod": "",
+            "size": "",
+            "effect": "",
+            "effect2": "",
+            "die": "",
+            "talents": "",
+            "talents2": ""
+          },
+          {
+            "name": "",
+            "mod": "",
+            "size": "",
+            "effect": "",
+            "effect2": "",
+            "die": "",
+            "talents": "",
+            "talents2": ""
+          }
+        ]
+      },
+      "name": "Eccho",
+      "player": "Cesar"
+    }
+  ]
+}

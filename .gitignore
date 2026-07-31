@@ -1,0 +1,33 @@
+# Dependências e build
+node_modules/
+dist/
+.vite/
+
+# ─────────────────────────────────────────────────────────────
+# Conteúdo do livro e tudo que deriva dele — NUNCA sobe.
+# Texto com direitos da Brotherwise Games / Tria-Jambô.
+# Ver escopo/decisoes/0004-hospedagem-github-pages.md e 0016.
+# ─────────────────────────────────────────────────────────────
+
+# PDF do Guia de Regras, prints do D&D Beyond, PDFs do Shards
+# e as 135 transcrições capítulo a capítulo
+referencia/
+
+# Derivados do livro que moram FORA de referencia/
+escopo/notas-do-livro.md
+escopo/conferencia-formulas.md
+
+# Rede de segurança — vale mesmo se algo for movido de lugar
+**/transcricao/
+**/_extrato*.txt
+*.pdf
+
+# Local — config de máquina, não versionar
+.claude/settings.local.json
+.env*
+*.local
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
