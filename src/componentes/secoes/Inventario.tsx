@@ -144,7 +144,7 @@ export default function Inventario({ ficha, alternarEquipada, definirMarcos, adi
   return (
     <div className="secao inventario">
       {/* painel superior — separado visualmente do resto; hoje só cor de
-          fundo, no futuro pode ganhar uma imagem (ver ddb-06) */}
+          fundo, no futuro pode ganhar uma imagem */}
       <div className="inv-topo">
         <div className="inv-resumo">
           <div className="inv-resumo-bloco">
