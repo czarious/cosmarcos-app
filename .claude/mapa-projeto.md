@@ -48,7 +48,7 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | [`escopo/decisoes/cemiterio.md`](../escopo/decisoes/cemiterio.md) | Índice do que foi descartado |
 | [`escopo/decisoes/000N-*.md`](../escopo/decisoes/decisoes.md) | **12 decisões**, uma por arquivo — append-only |
 | [`referencia/README.md`](../referencia/README.md) | Explica a pasta `referencia/` — material de consulta, no `.gitignore` |
-| `referencia/ddb/` | 18 prints do D&D Beyond mobile, renomeados `ddb-NN-assunto.jpg` + [README.md](../referencia/ddb/README.md) explicando cada um e o padrão estrutural do DDB. **Não versionado** (gitignore) |
+| `referencia/ddb/` | Prints de referência de interface, de consulta do César. **Não versionado** (gitignore) — interface de terceiro, nunca sobe |
 | `referencia/shards/` | Export oficial do Eccho: `Eccho-sheet.pdf` (ficha), `pagina completa shards.pdf` (UI), `stormlight-characters-2026-07-03.json`. **Não versionado** |
 | `referencia/livro/` | **Guia de Regras PT-BR** (Guerra das Tempestades v1.01). Desempata as perguntas em aberto. **Não versionado** — texto com direitos |
 | `.gitignore` | Barra `node_modules/`, `dist/` e **`referencia/`** de ir pro repo público |
