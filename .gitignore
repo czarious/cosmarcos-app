@@ -13,9 +13,10 @@ dist/
 # e as 135 transcrições capítulo a capítulo
 referencia/
 
-# Derivados do livro que moram FORA de referencia/
+# Derivados do livro e dos prints do D&D Beyond que moram FORA de referencia/
 escopo/notas-do-livro.md
 escopo/conferencia-formulas.md
+escopo/interface.md
 
 # Rede de segurança — vale mesmo se algo for movido de lugar
 **/transcricao/

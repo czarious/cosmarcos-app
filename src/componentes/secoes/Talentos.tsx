@@ -26,7 +26,7 @@ import {
 //  4. ficha.pericias/especializacoes → as opções e os valores atuais, ao vivo,
 //     complementadas pelos catálogos do livro (culturais fechado; utilidade/
 //     perito só exemplos — o livro não fecha essas duas) + "Outra" (texto livre).
-// Layout inspirado no DDB "Features & Traits" (referencia/ddb/ddb-13 a 18).
+// Layout no padrão de lista de talentos/traços, um card por talento.
 
 type Props = {
   ficha: Personagem

@@ -63,8 +63,7 @@ export default function Acoes({ ficha, escolhasTalento }: Props) {
         {armasEquipadas.length === 0 ? (
           <p className="proximo">Nenhuma arma equipada — vá em Inventário pra equipar.</p>
         ) : (
-          // Layout inspirado no DDB (referencia/ddb/ddb-05-acoes-armas.jpg):
-          // cabeçalho de 3 colunas (Alcance/Acerto/Dano), cada arma em duas
+          // Layout: cabeçalho de 3 colunas (Alcance/Acerto/Dano), cada arma em duas
           // linhas — nome+categoria, depois os 3 valores alinhados na grade.
           <div className="tabela-ataques">
             <div className="tabela-ataques-cabecalho">

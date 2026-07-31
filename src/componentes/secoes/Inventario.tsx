@@ -3,8 +3,7 @@ import { useState } from 'react'
 import type { Personagem, Item } from '../../tipos/personagem'
 import { pesoCarregado, pesoEmKg } from '../../regras/calculos'
 
-// Aba Inventário — layout inspirado no DDB (referencia/ddb/ddb-06-inventario.jpg):
-// resumo de peso carregado/máximo + marcos (moeda) editável no topo, botão
+// Aba Inventário — resumo de peso carregado/máximo + marcos (moeda) editável no topo, botão
 // "Gerenciar Inventário" (adicionar/remover), Armas (com checkbox de
 // equipar — ver Ações), e os itens gerais numa tabela por categoria.
 
