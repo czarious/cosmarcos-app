@@ -18,6 +18,10 @@ escopo/notas-do-livro.md
 escopo/conferencia-formulas.md
 escopo/interface.md
 
+# Decisões que citam trecho literal (livro oficial ou review de terceiro), entre aspas
+escopo/decisoes/0010-regra-provisoria-do-dado-de-trama.md
+escopo/decisoes/0015-regra-do-dado-confirmada-no-livro.md
+
 # Rede de segurança — vale mesmo se algo for movido de lugar
 **/transcricao/
 **/_extrato*.txt
@@ -27,6 +31,9 @@ escopo/interface.md
 .claude/settings.local.json
 .env*
 *.local
+
+# Agentes do Claude Code, não precisam ficar públicos
+.claude/agents/
 
 # Sistema
 .DS_Store
