@@ -1226,8 +1226,24 @@ label.linha-item input[type='checkbox'] {
 
 .rodape-botoes {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
   margin-left: auto;
+}
+
+/* Save que não abriu — fixo no topo do conteúdo até o jogador dispensar.
+   Dado em risco é o aviso mais importante do app: vinho, borda forte. */
+.alerta-save {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.7rem 0.8rem;
+  border: 2px solid var(--cor-destaque);
+  border-radius: 6px;
+  background: var(--cor-painel);
+  color: var(--cor-texto);
+  font-size: 0.85rem;
 }
 
 .rodape-botao {

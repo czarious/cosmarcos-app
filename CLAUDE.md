@@ -69,7 +69,7 @@ Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não 
 | **Desfazer a dúvida antes, não depois** | Entendimentos diferentes levariam a trabalhos diferentes? Pergunto **antes**. Se a diferença é pequena, decido e digo qual suposição usei |
 | **Relatar em comportamento, não em arquivo** | Ele não abre código: o relato diz **o que mudou na tela**, não quais arquivos toquei |
 | **Terminar com o roteiro de conferência** | Ele valida **na tela** — botão, aba, informação nova. Toda entrega fecha com a lista curta: **o que tocar e o que ele deve ver**. Sem isso ele não tem como validar |
-| **Rodar as três conferências antes de dizer que terminei** | `node .claude/verificar.mjs` · `npx tsc --noEmit` · `npm run build` |
+| **Rodar as quatro conferências antes de dizer que terminei** | `node .claude/verificar.mjs` · `npx tsc --noEmit` · `npm test` · `npm run build` |
 
 - **Apresente o raciocínio antes de executar e aguarde confirmação**
 - **Confirmação por ENTREGA, não por arquivo.** Aprovado o raciocínio, executo a mudança inteira e ele confere **na tela**. *(Era "um arquivo por vez" — regra de quando ele revisava cada arquivo; virou cerimônia quando ele parou de abrir código, 12/Set/2026.)*

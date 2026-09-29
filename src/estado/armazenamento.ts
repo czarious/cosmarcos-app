@@ -16,7 +16,8 @@
  *
  * Nada aqui pode quebrar a ficha: localStorage falha de verdade (aba
  * privada, cota cheia, storage bloqueado). Toda leitura/escrita é
- * try/catch e o pior caso é cair na semente, nunca tela branca.
+ * try/catch — e toda falha volta pra quem chama, pra TELA avisar.
+ * Console o César não vê.
  */
 
 import type { Personagem, Fabrial } from '../tipos/personagem'
@@ -25,9 +26,9 @@ import type { EscolhaVaga } from '../regras/talentos'
 
 /**
  * Sobe quando o formato salvo mudar de forma incompatível.
- * Versão desconhecida = descarta e volta pra semente (ver `lerFicha`) —
- * é a migração que o mapa-app.md §3 exige: ficha salva no celular não
- * pode virar lixo silencioso.
+ * Versão sem migração = o save vai pra quarentena e a tela avisa (ver
+ * `lerFicha`). Subiu este número? Escreva a entrada em MIGRACOES — o teste
+ * `armazenamento.test.ts` reprova se faltar.
  */
 export const VERSAO_ESQUEMA = 3
 
@@ -35,7 +36,7 @@ export const VERSAO_ESQUEMA = 3
  * Migrações: save de versão antiga que ainda dá pra aproveitar. Cada entrada
  * leva a ficha da versão N pra N+1 — sem ela, o save cairia no descarte.
  */
-const MIGRACOES: Record<number, (ficha: Personagem) => void> = {
+export const MIGRACOES: Record<number, (ficha: Personagem) => void> = {
   // v1 → v2: especialidade tinha só 'cultural' | 'especialista'; o livro tem 5
   // categorias. 'especialista' do v1 era a de Perito ("Specialist" do Shards).
   1: (ficha) => {
@@ -101,61 +102,119 @@ function pareceFichaSalva(x: unknown): x is FichaSalva {
   )
 }
 
-/** A ficha salva deste personagem, ou `null` se não tem / não presta. */
-export function lerFicha(id: string): FichaSalva | null {
+/**
+ * Leva um save de versão antiga até a atual. `null` = versão sem migração
+ * (mais nova que o app, ou buraco na tabela) — quem chama decide o que fazer.
+ */
+function migrar(dado: FichaSalva): FichaSalva | null {
+  while (dado.versaoEsquema < VERSAO_ESQUEMA && MIGRACOES[dado.versaoEsquema]) {
+    MIGRACOES[dado.versaoEsquema](dado.ficha)
+    dado.versaoEsquema += 1
+  }
+  return dado.versaoEsquema === VERSAO_ESQUEMA ? dado : null
+}
+
+/** Cópia de segurança de um save que não abriu — uma por ocorrência, com data. */
+function chaveDescartado(id: string): string {
+  return `cosmarcos:descartado:${id}:${new Date().toISOString()}`
+}
+
+/**
+ * Save que existia mas não abriu. ANTES de a semente gravar por cima, o texto
+ * cru vai pra uma chave própria — senão o próximo save apagaria a única cópia.
+ * Foi o risco mais caro do app (29/Set/2026): perda total, avisada só no console.
+ */
+function quarentena(id: string, cru: string, motivo: string): Leitura {
+  try {
+    localStorage.setItem(chaveDescartado(id), cru)
+  } catch (e) {
+    console.warn('[cosmarcos] não consegui guardar a cópia do save descartado:', e)
+  }
+  console.warn(`[cosmarcos] ${motivo}`)
+  return { salva: null, problema: motivo }
+}
+
+export type Leitura = {
+  salva: FichaSalva | null
+  /** Havia save, mas não abriu — a tela TEM que avisar (ver `quarentena`). */
+  problema?: string
+}
+
+/** A ficha salva deste personagem — ou `null`, com o motivo se havia save e ele não prestou. */
+export function lerFicha(id: string): Leitura {
   let cru: string | null
   try {
     cru = localStorage.getItem(chave(id))
   } catch (e) {
     console.warn('[cosmarcos] localStorage indisponível pra leitura:', e)
-    return null
+    return { salva: null, problema: 'o navegador bloqueou o armazenamento deste site.' }
   }
-  if (!cru) return null
+  if (!cru) return { salva: null }
 
   let dado: unknown
   try {
     dado = JSON.parse(cru)
   } catch {
-    console.warn(`[cosmarcos] save corrompido em "${chave(id)}" — usando o JSON de semente.`)
-    return null
+    return quarentena(id, cru, 'o save estava corrompido (não é JSON).')
   }
-
   if (!pareceFichaSalva(dado)) {
-    console.warn(`[cosmarcos] save em formato irreconhecível em "${chave(id)}" — usando o JSON de semente.`)
-    return null
+    return quarentena(id, cru, 'o save está num formato que o app não reconhece.')
   }
-  while (dado.versaoEsquema < VERSAO_ESQUEMA && MIGRACOES[dado.versaoEsquema]) {
-    MIGRACOES[dado.versaoEsquema](dado.ficha)
-    dado.versaoEsquema += 1
+  const versao = dado.versaoEsquema
+  const migrado = migrar(dado)
+  if (!migrado) {
+    return quarentena(id, cru, `o save é do esquema v${versao} e o app é v${VERSAO_ESQUEMA}.`)
   }
-  if (dado.versaoEsquema !== VERSAO_ESQUEMA) {
-    console.warn(
-      `[cosmarcos] save é do esquema v${dado.versaoEsquema}, o app é v${VERSAO_ESQUEMA} — ` +
-        'descartado. Importe o JSON do Shards de novo.',
-    )
-    return null
-  }
-  return dado
+  return { salva: migrado }
 }
 
-/** Grava a ficha inteira + as escolhas de vaga. Falha em silêncio avisado. */
+/** O save descartado mais recente deste personagem (texto cru), pra baixar. */
+export function lerDescartado(id: string): string | null {
+  try {
+    const prefixo = `cosmarcos:descartado:${id}:`
+    const chaves = Object.keys(localStorage).filter((k) => k.startsWith(prefixo)).sort()
+    const ultima = chaves.at(-1)
+    return ultima ? localStorage.getItem(ultima) : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Lê um arquivo de BACKUP do app (o mesmo pacote do save). `null` = não é
+ * backup — quem chama tenta como export do Shards. Backup de versão sem
+ * migração vira erro com mensagem, nunca ficha pela metade.
+ */
+export function lerBackup(json: unknown): FichaSalva | null {
+  if (!pareceFichaSalva(json)) return null
+  const versao = json.versaoEsquema
+  const migrado = migrar(json)
+  if (!migrado) throw new Error(`Backup do esquema v${versao}; este app lê até v${VERSAO_ESQUEMA}. Atualize o app.`)
+  return migrado
+}
+
+/** O pacote completo — é o save e é o backup. */
+export function montarPacote(
+  ficha: Personagem,
+  escolhasTalento: Record<string, EscolhaVaga>,
+  semente: Record<string, unknown> | undefined,
+): FichaSalva {
+  return { versaoEsquema: VERSAO_ESQUEMA, salvoEm: new Date().toISOString(), ficha, escolhasTalento, semente }
+}
+
+/** Grava a ficha inteira + as escolhas de vaga. `false` = NÃO salvou, e a tela tem que dizer. */
 export function salvarFicha(
   id: string,
   ficha: Personagem,
   escolhasTalento: Record<string, EscolhaVaga>,
   semente: Record<string, unknown> | undefined,
-): void {
-  const pacote: FichaSalva = {
-    versaoEsquema: VERSAO_ESQUEMA,
-    salvoEm: new Date().toISOString(),
-    ficha,
-    escolhasTalento,
-    semente,
-  }
+): boolean {
   try {
-    localStorage.setItem(chave(id), JSON.stringify(pacote))
+    localStorage.setItem(chave(id), JSON.stringify(montarPacote(ficha, escolhasTalento, semente)))
+    return true
   } catch (e) {
     // Cota cheia ou storage bloqueado. A sessão continua — só não persiste.
     console.warn('[cosmarcos] não consegui salvar a ficha:', e)
+    return false
   }
 }

@@ -36,6 +36,11 @@ export default function App() {
     removerFabrial,
     importarTexto,
     exportarJson,
+    backupJson,
+    salvou,
+    alertaSave,
+    dispensarAlertaSave,
+    saveDescartado,
   } = usePersonagem('./personagens/eccho.json')
   const [secao, setSecao] = useState<Secao>('Principal')
   /** Importar apaga dado — pede confirmação no próprio rodapé, sem `confirm()`. */
@@ -58,17 +63,21 @@ export default function App() {
       setAvisoRodape(ROTULO.exportarSemSemente)
       return
     }
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(new Blob([texto], { type: 'application/json' }))
-    link.download = `${ficha.meta.nome.toLowerCase()}.json`
-    document.body.appendChild(link)
-    link.click()
-    // revogar na hora cancela o download no Chrome — espera ele começar
-    setTimeout(() => {
-      URL.revokeObjectURL(link.href)
-      link.remove()
-    }, 1000)
+    baixarArquivo(`${ficha.meta.nome.toLowerCase()}.json`, texto)
     setAvisoRodape(ROTULO.exportado)
+  }
+
+  function baixarBackup() {
+    const texto = backupJson()
+    if (!texto || !ficha) return
+    const hoje = new Date().toISOString().slice(0, 10)
+    baixarArquivo(`cosmarcos-backup-${ficha.meta.nome.toLowerCase()}-${hoje}.json`, texto)
+    setAvisoRodape(ROTULO.backupBaixado)
+  }
+
+  function baixarDescartado() {
+    const texto = saveDescartado()
+    if (texto) baixarArquivo('cosmarcos-save-que-nao-abriu.json', texto)
   }
 
   if (erro) {
@@ -95,6 +104,22 @@ export default function App() {
         <SeletorSecao ativa={secao} aoTrocar={setSecao} />
       </div>
       <main className="conteudo">
+        {alertaSave && (
+          <div className="alerta-save" role="alert">
+            <p>
+              <strong>{ROTULO.saveNaoAbriu}:</strong> {alertaSave} Uma cópia ficou guardada no aparelho — baixe e
+              mande pro Claude recuperar. A ficha abaixo veio do JSON de semente.
+            </p>
+            <span className="rodape-botoes">
+              <button className="rodape-botao rodape-perigo" onClick={baixarDescartado}>
+                {ROTULO.baixarDescartado}
+              </button>
+              <button className="rodape-botao" onClick={dispensarAlertaSave}>
+                {ROTULO.entendi}
+              </button>
+            </span>
+          </div>
+        )}
         {secao === 'Principal' ? (
           <Principal ficha={ficha} />
         ) : secao === 'Perícias' ? (
@@ -162,7 +187,11 @@ export default function App() {
           </>
         ) : (
           <>
-            <span className="rodape-estado">{avisoRodape ?? ROTULO.fichaSalva}</span>
+            {salvou ? (
+              <span className="rodape-estado">{avisoRodape ?? ROTULO.fichaSalva}</span>
+            ) : (
+              <span className="rodape-aviso">{ROTULO.naoSalvou}</span>
+            )}
             <span className="rodape-botoes">
               <button className="rodape-botao" onClick={() => setConfirmandoImportar(true)}>
                 {ROTULO.importarJson}
@@ -170,10 +199,27 @@ export default function App() {
               <button className="rodape-botao" onClick={exportar}>
                 {ROTULO.exportarJson}
               </button>
+              <button className={salvou ? 'rodape-botao' : 'rodape-botao rodape-perigo'} onClick={baixarBackup}>
+                {ROTULO.baixarBackup}
+              </button>
             </span>
           </>
         )}
       </footer>
     </div>
   )
+}
+
+/** Baixa um texto como arquivo .json — exportar, backup e save descartado usam o mesmo caminho. */
+function baixarArquivo(nome: string, texto: string) {
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(new Blob([texto], { type: 'application/json' }))
+  link.download = nome
+  document.body.appendChild(link)
+  link.click()
+  // revogar na hora cancela o download no Chrome — espera ele começar
+  setTimeout(() => {
+    URL.revokeObjectURL(link.href)
+    link.remove()
+  }, 1000)
 }

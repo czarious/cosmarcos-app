@@ -62,12 +62,19 @@ export function temVagaIndecisa(escolhas: Record<string, EscolhaVaga>): boolean 
  * vagas, a atribuição do app é completa e manda: foi ele quem redistribuiu, e
  * o `graduacaoBonus` do Shards é que ficou velho. É o que preserva o caso
  * "redistribuiu a Erudição depois do descanso longo".
+ *
+ * **Sem vaga nenhuma** (nenhum talento do personagem está no catálogo) não há
+ * decisão do jogador — o Shards manda. Antes deste caso, um PC sem talento
+ * catalogado ficava 1 abaixo, calado; o teste `importarShards.test.ts` pegou
+ * (29/Set/2026). ⚠️ Resta um caso misto não coberto: vagas todas decididas
+ * MAIS um talento fora do catálogo que também dá bônus.
  */
 export function bonusNaoAtribuido(
   pericia: Pericia,
   escolhas: Record<string, EscolhaVaga>,
 ): number {
-  if (!temVagaIndecisa(escolhas)) return 0
+  const semVaga = Object.keys(escolhas).length === 0
+  if (!semVaga && !temVagaIndecisa(escolhas)) return 0
   return Math.max(0, pericia.graduacaoBonus - bonusDeEscolhas(pericia.id, escolhas))
 }
 

@@ -34,6 +34,8 @@ escopo/jogadores.md
 
 # Agentes do Claude Code, não precisam ficar públicos
 .claude/agents/
+# Cópias de trabalho que os agentes criam — cada uma é um clone inteiro
+.claude/worktrees/
 
 # Sistema
 .DS_Store

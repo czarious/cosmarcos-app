@@ -136,9 +136,18 @@ export const ORDEM_ATRIBUTOS: readonly NomeAtributo[] = GRUPOS_FICHA.flatMap((g)
  * pra cá** — fica onde é usado.
  */
 export const ROTULO = {
-  /** Mesmo botão pro primeiro JSON e pra cada atualização — aparece 2× no rodapé. */
-  importarJson: 'Importar JSON Shards',
+  /** Mesmo botão pro export do Shards e pro backup do app — aparece 2× no rodapé. */
+  importarJson: 'Importar JSON',
   fichaSalva: 'Ficha salva neste aparelho.',
+  /** A gravação falhou (cota cheia, storage bloqueado) — a tela nunca diz "salva" nesse caso. */
+  naoSalvou: 'NÃO salvou neste aparelho — baixe um backup agora.',
+  /** Backup completo do app: ficha + escolhas + JSON do Shards. Volta pelo Importar. */
+  baixarBackup: 'Baixar backup',
+  backupBaixado: 'Backup baixado — guarde o arquivo. Ele volta pelo Importar.',
+  /** Aviso fixo quando o save deste aparelho não abriu (foi pra quarentena). */
+  saveNaoAbriu: 'O save deste aparelho não abriu',
+  baixarDescartado: 'Baixar o save que não abriu',
+  entendi: 'Entendi',
   /** Baixa o JSON que o Shards importa (Files → Import JSON). */
   exportarJson: 'Exportar pro Shards',
   exportado: 'Baixado — no Shards: Files → Import JSON.',

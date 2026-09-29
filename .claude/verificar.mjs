@@ -25,7 +25,7 @@ const RAIZ = process.cwd()
  *    convenção nossa — ver organizacao.md → "Como eu decido uma convenção".
  * Tirar `referencia` daqui reprovaria a transcrição inteira, errado.
  */
-const IGNORAR = ['node_modules', '.git', 'referencia', 'dist']
+const IGNORAR = ['node_modules', '.git', 'referencia', 'dist', 'worktrees'] // worktrees = clones dos agentes
 
 function varrer(dir, ext, achados = []) {
   for (const nome of readdirSync(dir)) {

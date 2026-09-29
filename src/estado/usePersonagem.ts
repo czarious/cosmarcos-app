@@ -5,7 +5,7 @@ import { importarShards, ErroImportacao } from './importarShards'
 import { exportarShards } from './exportarShards'
 import { CATALOGO_TALENTOS, chaveVaga, type EscolhaVaga, type TipoVaga } from '../regras/talentos'
 import { vinculosDe } from '../regras/especialidades'
-import { lerFicha, salvarFicha } from './armazenamento'
+import { lerFicha, salvarFicha, lerBackup, lerDescartado, montarPacote } from './armazenamento'
 
 // O estado VIVO da ficha — e quem decide de ONDE ela vem (item 2.3):
 // localStorage primeiro, JSON do Shards só como SEMENTE. Depois da primeira
@@ -49,8 +49,9 @@ type Retorno = {
   salvarFabrial: (f: Fabrial) => void
   removerFabrial: (idFabrial: string) => void
   /**
-   * Importa o texto de um JSON exportado pelo Shards (item 3.1). Devolve a
-   * mensagem de erro, ou `null` se deu certo.
+   * Importa o texto de um JSON — export do Shards (item 3.1) OU backup do
+   * próprio app (reconhecido pelo formato). Devolve a mensagem de erro, ou
+   * `null` se deu certo.
    * ⚠️ SOBRESCREVE TUDO — não existe fusão do que foi mudado no app com o
    * JSON novo. Trazer um JSON desatualizado é perda de dado, e a ficha não
    * tem como adivinhar qual lado está certo.
@@ -58,6 +59,15 @@ type Retorno = {
   importarTexto: (texto: string) => string | null
   /** JSON pro Shards importar (Files → Import JSON), ou `null` se ainda não há semente — ver exportarShards.ts. */
   exportarJson: () => string | null
+  /** Backup COMPLETO do app (ficha + escolhas + semente) — volta pelo `importarTexto`. */
+  backupJson: () => string | null
+  /** `false` = a última gravação falhou. A tela não pode dizer "salva". */
+  salvou: boolean
+  /** O save deste aparelho não abriu e foi pra quarentena — aviso fixo até o jogador dispensar. */
+  alertaSave: string | null
+  dispensarAlertaSave: () => void
+  /** Texto cru do save que não abriu, pra baixar e recuperar. */
+  saveDescartado: () => string | null
 }
 
 /**
@@ -66,7 +76,7 @@ type Retorno = {
  * só estado vivo: o jogador pode trocar no dropdown a qualquer momento,
  * sem precisar editar código nem reimportar o JSON.
  */
-function semearEscolhas(ficha: Personagem): Record<string, EscolhaVaga> {
+export function semearEscolhas(ficha: Personagem): Record<string, EscolhaVaga> {
   const seed: Record<string, EscolhaVaga> = {}
   // Vínculo é POR PERSONAGEM. Quem não tem entrada nasce com as vagas vazias —
   // e o total da perícia se vira com o bônus cru do Shards, marcado.
@@ -117,12 +127,15 @@ export function usePersonagem(caminhoJson: string): Retorno {
    * antes de terminar de lê-lo.
    */
   const podeSalvar = useRef(false)
+  const [salvou, setSalvou] = useState(true)
+  const [alertaSave, setAlertaSave] = useState<string | null>(null)
 
   // CARGA — o localStorage manda; o JSON é o plano B (ver escopo/premissas.md).
   useEffect(() => {
     podeSalvar.current = false
 
-    const salva = lerFicha(id)
+    const { salva, problema } = lerFicha(id)
+    if (problema) setAlertaSave(problema)
     if (salva) {
       setFicha(salva.ficha)
       setEscolhasTalento(salva.escolhasTalento)
@@ -160,7 +173,7 @@ export function usePersonagem(caminhoJson: string): Retorno {
   // — localStorage é sincrono, mas nessa ordem de grandeza não pesa.
   useEffect(() => {
     if (!podeSalvar.current || !ficha) return
-    salvarFicha(id, ficha, escolhasTalento, semente)
+    setSalvou(salvarFicha(id, ficha, escolhasTalento, semente))
   }, [id, ficha, escolhasTalento, semente])
 
   const importarTexto = useCallback((texto: string): string | null => {
@@ -169,6 +182,21 @@ export function usePersonagem(caminhoJson: string): Retorno {
       json = JSON.parse(texto)
     } catch {
       return 'Esse arquivo não é um JSON — exporte de novo no Shards (Files → Export current JSON).'
+    }
+    // Backup do app primeiro: restaura TUDO, inclusive o que o Shards não tem.
+    let backup
+    try {
+      backup = lerBackup(json)
+    } catch (e) {
+      return String(e instanceof Error ? e.message : e)
+    }
+    if (backup) {
+      setFicha(backup.ficha)
+      setEscolhasTalento(backup.escolhasTalento)
+      setSemente(backup.semente)
+      setErro(null)
+      podeSalvar.current = true
+      return null
     }
     let novaFicha: Personagem
     try {
@@ -333,6 +361,13 @@ export function usePersonagem(caminhoJson: string): Retorno {
     setFicha((atual) => (atual ? { ...atual, fabriais: atual.fabriais.filter((f) => f.id !== idFabrial) } : atual))
   }, [])
 
+  const backupJson = useCallback(
+    (): string | null => (ficha ? JSON.stringify(montarPacote(ficha, escolhasTalento, semente), null, 2) : null),
+    [ficha, escolhasTalento, semente],
+  )
+  const dispensarAlertaSave = useCallback(() => setAlertaSave(null), [])
+  const saveDescartado = useCallback(() => lerDescartado(id), [id])
+
   return {
     ficha,
     erro,
@@ -354,5 +389,10 @@ export function usePersonagem(caminhoJson: string): Retorno {
     removerFabrial,
     importarTexto,
     exportarJson,
+    backupJson,
+    salvou,
+    alertaSave,
+    dispensarAlertaSave,
+    saveDescartado,
   }
 }

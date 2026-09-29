@@ -44,7 +44,7 @@
 1. **Pela tela** funciona para texto, atributos, marcos e **adicionar** item do catálogo (digitar no campo, clicar a opção, clicar **+ Add**).
 2. ⚠️ **Defeito do Shards 3.5.0:** mudar **quantidade** ou **equipar** um item dá `ReferenceError: updateEquippedGearSection is not defined` e **não salva** — a tela mostra o valor, mas o F5 perde. Contorno: gravar direto no IndexedDB (ler o registro, alterar, `put`) e **recarregar a página logo em seguida**, antes que a tela salve por cima.
 3. Conferir sempre relendo o IndexedDB depois do F5 — a tela mente enquanto não salva.
-4. Exportar: **Files → Export current JSON** → baixa `eccho.json` em `Downloads` → no app, **Importar JSON Shards** (ou copiar pra `public/personagens/eccho.json`, a semente do primeiro carregamento).
+4. Exportar: **Files → Export current JSON** → baixa `eccho.json` em `Downloads` → no app, **Importar JSON** (o mesmo botão aceita o backup do app; ou copiar pra `public/personagens/eccho.json`, a semente do primeiro carregamento).
 5. Voltar do app: **Exportar pro Shards** no rodapé do app → no Shards, **Files → Import JSON**. O Shards substitui a ficha de mesmo `id` (`bulkPut`, conferido no código dele).
 
 ## O que o tradutor precisa saber (resumo — detalhe no código)

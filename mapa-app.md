@@ -32,7 +32,8 @@
 | `src/main.tsx` | Ponto de entrada — monta o React no `#raiz` |
 | `src/App.tsx` | Compõe a ficha: cabeçalho fixo + abas + conteúdo + rodapé (estado do save, importar arquivo do Shards, exportar pro Shards). Roteia pras abas prontas — resto é placeholder |
 | `src/estado/usePersonagem.ts` | **Estado VIVO** — recursos, escolhas de vaga, `alternarEquipada`, `definirMarcos`, `adicionarItem`/`removerItem`, fabriais, `importarTexto`/`exportarJson`. Carrega do save; o JSON é semente e base da exportação |
-| `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save irreconhecível → descarta e avisa, nunca quebra |
+| `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre → **quarentena** (cópia guardada) + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
+| `src/estado/armazenamento.test.ts` | Testes do save: migração sem buraco, quarentena, gravação que falha, backup ida e volta |
 | `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo TOTAL: identidade + 3 grupos + derivados. **O recurso é BOTÃO** — abre o `ControleRecurso` |
 | `src/componentes/ControleRecurso.tsx` | **Popover de ±**: botões − e + de ±1 + entrada numérica. Serve a qualquer contador atual/máximo — os 3 recursos e as cargas de fabrial |
 | `src/componentes/FormularioFabrial.tsx` | Montador de fabrial (novo/editar): padrão ou único, efeito, qualidade, aprimoramentos, revezes e características do livro, com avisos que não bloqueiam |
@@ -55,6 +56,7 @@
 | `src/regras/fabriais.ts` | **Regras de fabrial** (Cap. 7): 13 padrão, 15 efeitos únicos, aprimoramentos/revezes gerais com requisito, características avançadas, qualidade, patamar, recarga — e as contas (cargas pela regra, avisos, fabrial de uma arma) |
 | `src/regras/acoes.ts` | 17 ações padrão (Cap. 10) + ações de talento (Cap. 5, ex. Inspirar Luz) + Habilidades de Espreno (Cap. 5, condicional em `ficha.radiante`) |
 | `src/estado/importarShards.ts` | **O TRADUTOR** — JSON do Shards → schema. **Grita** no que não reconhecer. Unidades pelos números do livro, inclusive com o Shards em métrico |
+| `src/estado/importarShards.test.ts` | Testes do tradutor com o `eccho.json`: valores prontos, as 18 perícias contra a conta refeita do JSON cru, ida e volta do export |
 | `src/estado/exportarShards.ts` | **O caminho de volta** — ficha → JSON que o Shards importa. Parte do JSON cru da importação e aplica só o que o app edita; o resto volta idêntico |
 | `src/estado/deparaShards.ts` | **Os de-para** EN→PT-BR do tradutor, um mapa por categoria — só dado. Fonte: `referencia/livro/dicionario-en-ptbr.md` |
 | `public/personagens/eccho.json` | Cópia do export do Shards — o que o app carrega. Deve obedecer ao schema |
@@ -110,7 +112,7 @@ tipos/personagem.ts  ← a raiz de tudo
 | `regras/acoes.ts` | `secoes/Acoes.tsx` | Ações padrão + concedidas por talento |
 | `regras/fabriais.ts` | `secoes/Fabriais.tsx` · `FormularioFabrial.tsx` · `secoes/Acoes.tsx` · `estado/importarShards.ts` · `estado/armazenamento.ts` | Ids de efeito/aprimoramento são o que a ficha salva — **renomear um id quebra o save**. Regra do livro: conferir contra `transcricao/07-itens/09-manufaturando.md` |
 | `regras/dados.ts` (Fase 4) | rolador · [`escopo/interface.md`](escopo/interface.md) → "Tela de dados" | Regra provisória ([premissas](escopo/premissas.md) → "O Dado de Trama e a vantagem seguem o livro") |
-| `estado/armazenamento.ts` ⚠️ | `estado/usePersonagem.ts` · `tipos/personagem.ts` | Salva a ficha inteira. Mudou o schema → **o save do celular vira lixo**: subir `VERSAO_ESQUEMA` descarta o velho, e o César perde o que ajustou |
+| `estado/armazenamento.ts` ⚠️ | `estado/usePersonagem.ts` · `tipos/personagem.ts` | Salva a ficha inteira. Mudou o schema → subir `VERSAO_ESQUEMA` **e** escrever a entrada em `MIGRACOES` — o teste reprova se faltar. Sem migração o save vai pra quarentena e a ficha volta pra semente |
 | `estado/usePersonagem.ts` | `CabecalhoFixo.tsx` · `ControleRecurso.tsx` · `secoes/Talentos.tsx` · seções com custo | É a fonte do estado vivo |
 | `src/variaveis.ts` | `CabecalhoFixo` · `ControleRecurso` · `PopoverDetalhe` · `Pericias` · `Talentos` · `Acoes` · `Inventario` · `Anotacoes` · `App` · `regras/calculos.ts` | Rótulo/símbolo que a tela mostra. **Alcance largo:** trocar um glifo muda o app inteiro — que é o objetivo |
 | `src/estilos/base.css` | Todos os componentes | Fonte única de cor/tipo — tema Shards ([premissas](escopo/premissas.md) → "Tema Shards fiel") |
