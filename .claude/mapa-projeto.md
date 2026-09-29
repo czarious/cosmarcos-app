@@ -56,6 +56,8 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | `.gitignore` | Barra `node_modules/`, `dist/` e **`referencia/`** de ir pro repo público |
 | `.claude/mapa-projeto.md` | **Onde.** Este arquivo: mapa de arquivos + dependências |
 | [`.claude/mapa-shards.md`](mapa-shards.md) | **Onde, no site do Shards:** telas, catálogos, banco do navegador, defeitos conhecidos e como exportar |
+| `.claude/gerar-icones.mjs` | Gera os PNG do PWA a partir de `public/icone.svg`. Usa `sharp` |
+| `.github/workflows/deploy.yml` | Push em main → build → GitHub Pages (Fase 2.4). Exige Settings → Pages → Source = "GitHub Actions" |
 | `.claude/verificar.mjs` | A revisão de organização executável: `node .claude/verificar.mjs`. Links, mapas × disco, versão copiada |
 | [`.claude/organizacao.md`](organizacao.md) | **Como a estrutura se mantém.** A regra do CLAUDE.md, pastas por papel, gatilhos de refatoração. A organização é responsabilidade do Claude |
 | `.claude/settings.local.json` | Configuração local do Claude Code. Não é do app |
@@ -68,7 +70,6 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 
 | Arquivo | Quando |
 |---|---|
-| `.github/workflows/deploy.yml` | Fase 2.4 — build + deploy automático (GitHub Actions → Pages) |
 | `BUGS.md` | Quando houver o que registrar |
 
 ## Mapa de dependências

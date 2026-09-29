@@ -1,0 +1,8 @@
+<!-- arquivo: icone.svg — fonte dos ícones do PWA; PNGs gerados por .claude/gerar-icones.mjs -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- fundo vinho (cor-destaque) sangrando até a borda: serve também de maskable -->
+  <rect width="512" height="512" fill="#a03b2e"/>
+  <!-- estrela de 4 pontas (✦) em creme (cor-painel); em path pra não depender de fonte.
+       Raio de 150px: dentro da zona segura do maskable (círculo de 205px) -->
+  <path fill="#f2ecdd" d="M256 106 C266 190 322 246 406 256 C322 266 266 322 256 406 C246 322 190 266 106 256 C190 246 246 190 256 106 Z"/>
+</svg>
