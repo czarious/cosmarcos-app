@@ -1,6 +1,7 @@
 /* arquivo: Anotacoes.tsx */
 import { useState } from 'react'
 import type { Personagem } from '../../tipos/personagem'
+import { ICONE, ROTULO } from '../../variaveis'
 
 // Aba Anotações — blocos livres de título + conteúdo, 100% do app (o Shards
 // não tem esse conceito; nasce vazio na importação — tipos/personagem.ts).
@@ -38,8 +39,8 @@ function FormularioAnotacao({
       <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
           <span className="cr-titulo">{tituloInicial ? 'Editar Anotação' : 'Nova Anotação'}</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label="Fechar">
-            ✕
+          <button className="cr-fechar" onClick={aoFechar} aria-label={ROTULO.fechar}>
+            {ICONE.fechar}
           </button>
         </div>
 

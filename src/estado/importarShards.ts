@@ -3,7 +3,7 @@
 /**
  * O TRADUTOR — JSON do Shards → nosso schema (Personagem).
  *
- * A ÚNICA porta de entrada de dado no app (decisão 0007). O Shards está na 0.1.0
+ * A ÚNICA porta de entrada de dado no app (premissas.md → "Schema próprio em português + tradutor na entrada"). O Shards está na 3.5.0
  * e VAI mudar de formato. Quando mudar, este arquivo é o único que quebra — e o
  * risco é quebrar CALADO (campo some, tela zera, ninguém vê). Por isso aqui a
  * regra é: validar o que dá, e GRITAR (throw) no que não reconhecer.
@@ -13,7 +13,6 @@
 
 import type {
   Personagem,
-  NomeAtributo,
   Atributos,
   Pericia,
   Talento,
@@ -25,7 +24,35 @@ import type {
   Fluxo,
   Radiante,
   Especializacao,
+  Anotacao,
 } from '../tipos/personagem'
+import {
+  ATRIBUTO,
+  PERICIA_NOME,
+  PERICIA_NOME_POR_INGLES,
+  TIPO_DANO,
+  ARMA_NOME,
+  ITEM_NOME,
+  ANCESTRALIDADE,
+  CULTURA,
+  CONJUNTO_INICIAL,
+  TRILHA_HEROICA,
+  ORDEM,
+  ESPRENO,
+  FLUXO,
+  TALENTO_FLUXO,
+  CATEGORIA_ITEM,
+  traduz,
+  TRACO_ARMA,
+  TRACO_COM_DISTANCIA,
+  TIPO_ESPECIALIDADE,
+  FABRIAL_PADRAO_ID,
+  APRIMORAMENTO_ID,
+  REVES_ID,
+  QUALIDADE_FABRIAL,
+  ESPECIALIDADE_CULTURAL,
+} from './deparaShards'
+import { efeitoPorNome, ID_PROPRIO, CARACTERISTICAS_AVANCADAS } from '../regras/fabriais'
 
 /** Erro com contexto — diz QUAL personagem e QUAL campo, pra caçar rápido. */
 export class ErroImportacao extends Error {
@@ -33,63 +60,6 @@ export class ErroImportacao extends Error {
     super(`[importarShards] ${mensagem}`)
     this.name = 'ErroImportacao'
   }
-}
-
-// ── mapas de nome: inglês do Shards → português nosso ──────────────
-const ATRIBUTO: Record<string, NomeAtributo> = {
-  strength: 'forca',
-  speed: 'velocidade',
-  intellect: 'intelecto',
-  willpower: 'vontade',
-  awareness: 'consciencia',
-  presence: 'presenca',
-}
-
-/** As 18 perícias (Cap. 3, "As 18 Perícias") — chave estável do Shards → nome canônico do livro. */
-const PERICIA_NOME: Record<string, string> = {
-  athletics: 'Atletismo',
-  'heavy-weaponry': 'Armamento Pesado',
-  agility: 'Agilidade',
-  'light-weaponry': 'Armamento Leve',
-  stealth: 'Furtividade',
-  thievery: 'Ladinagem',
-  crafting: 'Manufatura',
-  deduction: 'Dedução',
-  lore: 'Saber',
-  medicine: 'Medicina',
-  discipline: 'Disciplina',
-  intimidation: 'Intimidação',
-  insight: 'Intuição',
-  perception: 'Percepção',
-  survival: 'Sobrevivência',
-  deception: 'Dissimulação',
-  leadership: 'Liderança',
-  persuasion: 'Persuasão',
-}
-
-/** Mesmas 18, mas pelo NOME em inglês (é o que `inventory.items[].skill` traz pra armas, não a chave). */
-const PERICIA_NOME_POR_INGLES: Record<string, string> = Object.fromEntries(
-  Object.entries(PERICIA_NOME).map(([chave, ptbr]) => [
-    chave
-      .split('-')
-      .map((p) => p[0].toUpperCase() + p.slice(1))
-      .join(' '),
-    ptbr,
-  ]),
-)
-
-/**
- * Tipo de dano em inglês → PT-BR (Cap. 9, "Tipos de Dano"). Só "impact" foi
- * confirmado contra dado real do Shards (arma do Eccho); os demais são
- * inferência de boa-fé (cognatos óbvios) — ⚠️ conferir quando aparecer arma
- * de outro tipo na ficha.
- */
-const TIPO_DANO: Record<string, string> = {
-  impact: 'impactante',
-  sharp: 'afiado', // ⚠️ não confirmado com dado real
-  energy: 'energético', // ⚠️ não confirmado com dado real
-  spiritual: 'espiritual', // ⚠️ não confirmado com dado real
-  vital: 'vital', // ⚠️ não confirmado com dado real
 }
 
 /** "1d6 impact" → { dado: "1d6", tipoDano: "impactante" }. Palavra não mapeada passa crua. */
@@ -101,76 +71,20 @@ function separaDano(bruto: string): { dado: string; tipoDano: string } {
 }
 
 /**
- * Nomes de arma — Cap. 7 (Armamento Leve/Pesado + Armas Especiais).
- * Conferido campo a campo contra a lista de equipamento do Shards
- * (19-20/Jul/2026). Cada entrada diz se foi vista de verdade no Shards
- * (✅) ou é inferência (🤔) — corrigir se aparecer errado numa ficha.
+ * "Thrown [30/120]" · "Thrown (20/60)" · "Loaded [1]" → PT-BR. O Shards usa
+ * colchete ou parêntese conforme a arma; a saída é sempre colchete, como o
+ * livro. Distância de traço vem em pés mesmo com o Shards em métrico.
  */
-const ARMA_NOME: Record<string, string> = {
-  // Armamento Leve
-  Shortbow: 'Arco Curto', // ✅ confirmado (uma palavra, sem espaço)
-  Javelin: 'Azagaia', // ✅ confirmado
-  Staff: 'Cajado', // ✅ confirmado
-  Sidesword: 'Espada Lateral', // ✅ confirmado
-  Knife: 'Faca', // ✅ confirmado
-  Sling: 'Funda', // ✅ confirmado
-  Shortspear: 'Lança Curta', // ✅ confirmado (uma palavra, sem espaço)
-  Mace: 'Maça', // ✅ confirmado
-  Rapier: 'Rapieira', // ✅ confirmado
-  // Armamento Pesado
-  Halberd: 'Alabarda',
-  Longbow: 'Arco Longo', // 🤔 inferência (literal, sem confirmação direta)
-  Crossbow: 'Besta', // ✅ confirmado
-  Shield: 'Escudo', // ✅ confirmado
-  Longsword: 'Espada Longa', // ✅ confirmado
-  Longspear: 'Lança Longa', // ✅ confirmado (uma palavra, sem espaço)
-  Axe: 'Machado', // ✅ confirmado
-  Hammer: 'Martelo', // ✅ confirmado
-  Greatsword: 'Montante', // ✅ confirmado
-  // Armas Especiais (Cap. 7) — perito, raras
-  // Grandbow = arma canônica da história (arco gigante de aço, Navani Kholin) —
-  // bate com os traços do Hiperarco já transcritos (Desajeitada [5], Perfurante,
-  // Armamento Pesado). Duas fontes convergindo (lore + mecânica) — confiança alta.
-  Grandbow: 'Hiperarco',
-  Warhammer: 'Martelo de Guerra', // ✅ confirmado — DIFERENTE do "Hammer" comum
-  Shardblade: 'Espada Fractal', // ✅ confirmado
-  'Shardblade (Radiant)': 'Espada Fractal Radiante', // ✅ confirmado
-  // ⚠️ "Poleaxe" apareceu no Shards mas não existe em nada que já
-  // transcrevi do livro — deixado sem mapear de propósito.
-  // Fora das 18 básicas
-  'Improvised Weapon': 'Arma Improvisada', // ✅ confirmado
-  'Unarmed Attack': 'Ataque Desarmado', // ✅ confirmado
-}
-
-/**
- * Traços de arma — Cap. 7. ⚠️ Só "Momentum" → "Ímpeto" foi CONFIRMADO
- * (traço de perito da Maça do Eccho). Os demais são inferência.
- */
-const TRACO_ARMA: Record<string, string> = {
-  Thrown: 'Arremesso',
-  Loaded: 'Carregada',
-  Defensive: 'Defensiva',
-  Unwieldy: 'Desajeitada',
-  Discreet: 'Discreta',
-  'Two-Handed': 'Duas Mãos',
-  Fragile: 'Frágil',
-  Momentum: 'Ímpeto', // ✅ confirmado
-  Indirect: 'Indireta',
-  'Off-Hand': 'Mão Inábil',
-  Deadly: 'Mortal',
-  Piercing: 'Perfurante',
-  Dangerous: 'Perigosa',
-  'Quick Draw': 'Saque Rápido',
-  Unique: 'Única',
-}
-
-/** Traduz um traço preservando valor entre colchetes não traduzido (ex.: "Thrown [9/36]" → "Arremesso [9/36]"). */
 function traduzTraco(bruto: string): string {
-  const m = bruto.match(/^([^[]+?)\s*(\[.*\])?$/)
+  const m = bruto.trim().match(/^([^[(]+?)\s*(?:[[(]([^\])]*)[\])])?$/)
   if (!m) return bruto
   const [, nome, valor] = m
-  const traduzido = TRACO_ARMA[nome.trim()] ?? nome.trim()
-  return valor ? `${traduzido} ${valor}` : traduzido
+  const traduzido = TRACO_ARMA[nome] ?? nome
+  if (valor === undefined) return traduzido
+  const valorFinal = TRACO_COM_DISTANCIA.has(nome)
+    ? valor.split('/').map((v) => fmt(ftParaM(Number(v)))).join('/')
+    : valor
+  return `${traduzido} [${valorFinal}]`
 }
 
 // ── ajudantes de leitura segura ────────────────────────────────────
@@ -196,28 +110,68 @@ function lista(v: unknown): unknown[] {
   return Array.isArray(v) ? v : []
 }
 
-// ── unidades: o Shards manda imperial; a mesa joga em METROS e KG ──────
-// Convenção das mesas BR: 5 ft = 1,5 m (×0,3) · 2 lb = 1 kg (×0,5).
-// As contas saem redondas (30ft→9m · 20ft→6m · 100lb→50kg).
-// ⚠️ Se o Guia de Regras PT-BR imprimir outros números, o livro desempata.
+// ── unidades: a mesa joga em METROS e KG, com os números do livro ─────
+// O Guia PT-BR usa 5 ft = 1,5 m (×0,3) e 2 lb = 1 kg (×0,5) — ex.: Maça
+// 3 lb = 1,5 kg (07-itens/04-armas.md); movimento e sentidos batem também.
+// Então a conta parte SEMPRE do número imperial.
+//
+// ⚠️ O Shards tem modo métrico (Settings → Units) e ele é inconsistente:
+//  - converte só o INVENTÁRIO (peso e alcance de arma), com fator exato
+//    (Maça = 1,4 kg — o livro diz 1,5 kg);
+//  - movimento, sentidos, capacidades e alcance do espreno continuam em pés/
+//    libras, só com o RÓTULO trocado ("20 m" = 20 ft).
+// Por isso: número do inventário em métrico volta pra imperial (desfazendo o
+// fator exato) e o resto ignora o rótulo. Conferido em 27/Set/2026.
+type SistemaUnidades = 'imperial' | 'metrico'
+
+const LB_POR_KG_EXATO = 1 / 0.45359237
+const FT_POR_M_EXATO = 1 / 0.3048
+
+function arredonda(n: number, passo: number): number {
+  return Math.round(n / passo) * passo
+}
+
+/**
+ * 1.5 → "1,5" — número de tela em PT-BR, sem zeros de ponto flutuante. Sem
+ * separador de milhar: `pesoEmKg` (regras/calculos.ts) lê "1250 kg" de volta.
+ */
+function fmt(n: number): string {
+  return Number(n.toFixed(2)).toLocaleString('pt-BR', { useGrouping: false })
+}
+
 function ftParaM(ft: number): number {
-  return ft * 0.3
+  return Number((ft * 0.3).toFixed(2))
 }
 
 function lbParaKg(lb: number): number {
-  return lb * 0.5
+  return Number((lb * 0.5).toFixed(2))
 }
 
-/** "20 ft" → "6 m". Texto sem "ft" passa reto. */
-function converteDistancia(txt: string): string {
-  const m = txt.match(/([\d.]+)\s*ft/i)
-  return m ? `${ftParaM(Number(m[1]))} m` : txt
+/** Peso de item do Shards → kg do livro. */
+function pesoItem(v: number, sistema: SistemaUnidades): number {
+  return lbParaKg(sistema === 'metrico' ? arredonda(v * LB_POR_KG_EXATO, 0.5) : v)
 }
 
-/** "100 lb" → "50 kg". Texto sem "lb" passa reto. */
-function convertePeso(txt: string): string {
-  const m = txt.match(/([\d.]+)\s*lb/i)
-  return m ? `${lbParaKg(Number(m[1]))} kg` : txt
+/** Distância de arma do Shards → m do livro. */
+function distanciaItem(v: number, sistema: SistemaUnidades): number {
+  return ftParaM(sistema === 'metrico' ? arredonda(v * FT_POR_M_EXATO, 5) : v)
+}
+
+/** O Shards não diz o sistema no export: o `weightRaw` dos itens entrega ("1.4 kg" × "3 lb."). */
+function detectaSistema(itens: unknown[]): SistemaUnidades {
+  return itens.some((it) => ehObjeto(it) && /\bkg\b/i.test(texto(it.weightRaw))) ? 'metrico' : 'imperial'
+}
+
+/** "20 ft" ou "20 m" (rótulo falso do Shards) → "6 m". O número é sempre pés. */
+function distanciaDerivada(txt: string): string {
+  const m = txt.match(/([\d.]+)/)
+  return m ? `${fmt(ftParaM(Number(m[1])))} m` : txt
+}
+
+/** "100 lb" ou "100 kg" (rótulo falso do Shards) → "50 kg". O número é sempre libras. */
+function pesoDerivado(txt: string): string {
+  const m = txt.match(/([\d.]+)/)
+  return m ? `${fmt(lbParaKg(Number(m[1])))} kg` : txt
 }
 
 /** Traduz os 6 atributos. Campo que faltar = grita (é a espinha da ficha). */
@@ -253,8 +207,9 @@ function traduzPericias(bruto: unknown): Pericia[] {
 function traduzEspecializacoes(bruto: unknown): Especializacao[] {
   return lista(bruto).map((e) => {
     const o = ehObjeto(e) ? e : {}
-    // Shards: "Specialist" | "Cultural"
-    const tipo = texto(o.type).toLowerCase() === 'cultural' ? 'cultural' : 'especialista'
+    const bruto = texto(o.type)
+    const tipo = TIPO_ESPECIALIDADE[bruto]
+    if (!tipo) throw new ErroImportacao(`expertises: tipo desconhecido "${bruto}" (${texto(o.name)})`)
     return { tipo, nome: texto(o.name) }
   })
 }
@@ -286,18 +241,20 @@ function traduzTalentos(raiz: Obj): Talento[] {
 function separaInventario(bruto: unknown): { armas: Arma[]; itens: Item[] } {
   const armas: Arma[] = []
   const itens: Item[] = []
+  const sistema = detectaSistema(lista(bruto))
   for (const it of lista(bruto)) {
     if (!ehObjeto(it)) continue
     if (texto(it.type) === 'weapon') {
       const r = ehObjeto(it.range) ? it.range : {}
       const alcance =
         texto(r.type) === 'melee'
-          ? `Corpo a corpo (${ftParaM(num(r.reach ?? 5, 'range.reach'))} m)`
-          : converteDistancia(texto(it.rangeLabel) || texto(r.label))
+          ? `Corpo a corpo (${fmt(distanciaItem(num(r.reach ?? (sistema === 'metrico' ? 1.5 : 5), 'range.reach'), sistema))} m)`
+          : `À distância [${fmt(distanciaItem(num(r.short ?? 0, 'range.short'), sistema))}/${fmt(distanciaItem(num(r.long ?? 0, 'range.long'), sistema))} m]`
       const { dado, tipoDano } = separaDano(texto(it.damage))
       const nomePericia = texto(it.skill)
       const nomeArma = texto(it.name)
       armas.push({
+        idShards: texto(it.id) || undefined,
         nome: ARMA_NOME[nomeArma] ?? nomeArma,
         pericia: PERICIA_NOME_POR_INGLES[nomePericia] ?? nomePericia,
         dano: dado,
@@ -305,15 +262,17 @@ function separaInventario(bruto: unknown): { armas: Arma[]; itens: Item[] } {
         alcance,
         tracos: lista(it.traits).map(texto).map(traduzTraco),
         tracosPerito: lista(it.expertTraits).map(texto).map(traduzTraco),
-        peso: lbParaKg(num(it.weight ?? 0, 'weapon.weight')),
+        peso: pesoItem(num(it.weight ?? 0, 'weapon.weight'), sistema),
         equipada: it.equipped === true,
       })
     } else {
+      const categoria = texto(it.category) || texto(it.type)
       itens.push({
-        nome: texto(it.name),
-        tipo: texto(it.category) || texto(it.type),
+        idShards: texto(it.id) || undefined,
+        nome: traduz(ITEM_NOME, texto(it.name)),
+        tipo: traduz(CATEGORIA_ITEM, categoria),
         qtd: num(it.quantity ?? 1, 'item.quantity'),
-        peso: lbParaKg(num(it.weight ?? 0, 'item.weight')), // já em kg
+        peso: pesoItem(num(it.weight ?? 0, 'item.weight'), sistema),
         equipado: it.equipped === true,
       })
     }
@@ -321,25 +280,61 @@ function separaInventario(bruto: unknown): { armas: Arma[]; itens: Item[] } {
   return { armas, itens }
 }
 
+
+/** Upgrades/drawbacks do Shards → ids de regras/fabriais.ts. */
+function traduzOpcoes(bruto: unknown, mapa: Record<string, string>, efeitoConhecido: boolean): string[] {
+  return lista(bruto).map((u) => {
+    const nome = texto(ehObjeto(u) ? u.name : u)
+    // Fora da lista geral, num efeito único conhecido, só pode ser o
+    // aprimoramento/revés PRÓPRIO do efeito — o Shards só oferece os gerais e
+    // um campo livre (ex.: "Double Attack" do Projétil do Eccho).
+    // característica avançada não tem select no Shards — vai pelo nome em PT (estado/exportarShards.ts)
+    const avancada = CARACTERISTICAS_AVANCADAS.find((c) => c.nome === nome)
+    return mapa[nome] ?? avancada?.id ?? (efeitoConhecido ? ID_PROPRIO : nome)
+  })
+}
+
 /** Fabriais vêm em dois blocos com formatos diferentes — unificamos. */
 function traduzFabriais(bruto: unknown): Fabrial[] {
   if (!ehObjeto(bruto)) return []
-  const um = (f: unknown, padrao: boolean): Fabrial => {
+  const padrao = (f: unknown): Fabrial => {
     const o = ehObjeto(f) ? f : {}
     return {
-      nome: texto(o.name),
+      id: texto(o.id) || crypto.randomUUID(),
+      nome: traduz(ITEM_NOME, texto(o.name)),
+      tipo: 'padrao',
+      modelo: FABRIAL_PADRAO_ID[texto(o.name)],
       cargas: {
         atual: num(o.chargesCur ?? 0, 'fabrial.chargesCur'),
         max: num(o.chargesMax ?? 0, 'fabrial.chargesMax'),
       },
-      padrao,
-      efeitos: texto(o.effects) || undefined,
+      aprimoramentos: traduzOpcoes(o.upgrades, APRIMORAMENTO_ID, false),
+      revezes: traduzOpcoes(o.drawbacks, REVES_ID, false),
     }
   }
-  return [
-    ...lista(bruto.standard).map((f) => um(f, true)),
-    ...lista(bruto.custom).map((f) => um(f, false)),
-  ]
+  const unico = (f: unknown): Fabrial => {
+    const o = ehObjeto(f) ? f : {}
+    const nome = texto(o.name)
+    // O Shards não guarda QUAL efeito o fabrial único usa — casa pelo nome.
+    const efeito = efeitoPorNome(nome)
+    return {
+      id: texto(o.id) || crypto.randomUUID(),
+      nome,
+      tipo: 'unico',
+      modelo: efeito?.id,
+      cargas: {
+        atual: num(o.chargesCur ?? 0, 'fabrial.chargesCur'),
+        max: num(o.chargesMax ?? 0, 'fabrial.chargesMax'),
+      },
+      qualidade: QUALIDADE_FABRIAL[texto(o.quality)],
+      aprimoramentos: traduzOpcoes(o.upgrades, APRIMORAMENTO_ID, efeito !== undefined),
+      revezes: traduzOpcoes(o.drawbacks, REVES_ID, efeito !== undefined),
+      gema: texto(o.gem) || undefined,
+      material: texto(o.material) || undefined,
+      notas: texto(o.effects) || undefined,
+    }
+  }
+  return [...lista(bruto.standard).map(padrao), ...lista(bruto.custom).map(unico)]
 }
 
 function traduzObjetivos(bruto: unknown): Objetivo[] {
@@ -362,8 +357,9 @@ function traduzIdeais(radiant: Obj): Ideal[] {
   const ideais: Ideal[] = []
   for (let n = 1 as 1 | 2 | 3 | 4 | 5; n <= 5; n = (n + 1) as 1 | 2 | 3 | 4 | 5) {
     const chave = `i${n}`
-    const texto_ = texto(textos[chave])
     const jurado = jurados[chave] === true
+    // Ideal não jurado vem com o texto-modelo do Shards, em inglês ("Declare to your…") — não é do jogador.
+    const texto_ = jurado || !texto(textos[chave]).startsWith('Declare to your') ? texto(textos[chave]) : ''
     if (texto_ !== '' || jurado) ideais.push({ n, jurado, texto: texto_ })
   }
   return ideais
@@ -377,13 +373,13 @@ function traduzFluxos(bruto: unknown): Fluxo[] {
     if (!atributo) throw new ErroImportacao(`surgeSkills[${i}].attributeKey desconhecido: "${attr}"`)
     return {
       id: texto(s.id),
-      nome: texto(s.name),
+      nome: traduz(FLUXO, texto(s.name)),
       atributo,
       graduacao: num(s.rank ?? 0, `surgeSkills[${i}].rank`),
       ativacao: traduzAtivacao(texto(s.activation)),
       talentos: lista(s.talents).map((t) => {
         const o = ehObjeto(t) ? t : {}
-        return { id: texto(o.id), nome: texto(o.name), aprendido: o.learned === true }
+        return { id: texto(o.id), nome: traduz(TALENTO_FLUXO, texto(o.name)), aprendido: o.learned === true }
       }),
     }
   })
@@ -409,10 +405,10 @@ function traduzRadiante(bruto: unknown): Radiante | undefined {
 
   const vinculo = ehObjeto(lista(bruto.sprenBonds)[0]) ? (lista(bruto.sprenBonds)[0] as Obj) : {}
   return {
-    ordem,
+    ordem: traduz(ORDEM, ordem),
     spren: {
       nome: texto(vinculo.name),
-      tipo: texto(vinculo.type),
+      tipo: traduz(ESPRENO, texto(vinculo.type)),
       iluminado: vinculo.enlightened === true,
     },
     alcanceSpren: ftParaM(num(bruto.sprenBondRange ?? 0, 'radiant.sprenBondRange')), // em metros
@@ -421,9 +417,41 @@ function traduzRadiante(bruto: unknown): Radiante | undefined {
   }
 }
 
+/**
+ * O campo NOTES do Shards vira o primeiro bloco da aba Anotações. O resto da
+ * aba é do app — e some ao reimportar, como toda a ficha.
+ */
+export const ID_NOTAS_SHARDS = 'shards-notes'
+export const TITULO_NOTAS_SHARDS = 'Notas (do Shards)'
+
+/**
+ * O campo NOTES do Shards vira a aba Anotações. O Shards tem UM campo; o app,
+ * vários blocos — na exportação cada bloco vira "### Título" + texto
+ * (estado/exportarShards.ts), e aqui o caminho inverso. Texto antes do
+ * primeiro "### " é o bloco "Notas (do Shards)".
+ */
+function anotacoesDoShards(c: Obj): Anotacao[] {
+  const partes = texto(c.notes).split(/^### /m)
+  const blocos: Anotacao[] = []
+  const solto = partes[0].trim()
+  if (solto !== '') blocos.push({ id: ID_NOTAS_SHARDS, titulo: TITULO_NOTAS_SHARDS, conteudo: solto })
+  partes.slice(1).forEach((p, i) => {
+    const quebra = p.indexOf('\n')
+    const titulo = (quebra < 0 ? p : p.slice(0, quebra)).trim()
+    const conteudo = quebra < 0 ? '' : p.slice(quebra + 1).trim()
+    blocos.push({ id: `nota-${i + 1}`, titulo, conteudo })
+  })
+  return blocos
+}
+
 /** Traduz UM personagem. */
 function traduzPersonagem(c: unknown, indice: number): Personagem {
   if (!ehObjeto(c)) throw new ErroImportacao(`personagem [${indice}] não é objeto`)
+  // O Shards 3.x também faz ficha de Mistborn — outro sistema, outro schema.
+  const sistema = texto(ehObjeto(c.system) ? c.system.type : '') || texto(c.characterType)
+  if (sistema !== '' && sistema !== 'stormlight') {
+    throw new ErroImportacao(`personagem [${indice}] é de "${sistema}" — o app só lê ficha de Stormlight`)
+  }
 
   const meta = ehObjeto(c.meta) ? c.meta : {}
   const rec = ehObjeto(c.resources) ? c.resources : {}
@@ -434,7 +462,7 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
   if (!ehObjeto(c.attributes)) throw new ErroImportacao(`personagem [${indice}] sem "attributes"`)
   if (!ehObjeto(c.resources)) throw new ErroImportacao(`personagem [${indice}] sem "resources"`)
 
-  const culturas = [texto(meta.culture1), texto(meta.culture2)].filter((x) => x !== '')
+  const culturas = [texto(meta.culture1), texto(meta.culture2)].filter((x) => x !== '').map((x) => traduz(CULTURA, x))
   const { armas, itens } = separaInventario(ehObjeto(c.inventory) ? c.inventory.items : [])
 
   return {
@@ -442,11 +470,11 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
       nome: texto(meta.name),
       jogador: texto(meta.player),
       nivel: num(meta.level ?? 0, 'meta.level'),
-      ancestralidade: texto(meta.ancestry),
+      ancestralidade: traduz(ANCESTRALIDADE, texto(meta.ancestry)),
       culturas,
-      kitInicial: texto(meta.startingKit),
-      trilhaHeroica: texto(ehObjeto(c.heroic) ? c.heroic.startingPath : ''),
-      trilhaRadiante: texto(ehObjeto(c.radiant) ? c.radiant.order : '') || undefined,
+      kitInicial: traduz(CONJUNTO_INICIAL, texto(meta.startingKit)),
+      trilhaHeroica: traduz(TRILHA_HEROICA, texto(ehObjeto(c.heroic) ? c.heroic.startingPath : '')),
+      trilhaRadiante: traduz(ORDEM, texto(ehObjeto(c.radiant) ? c.radiant.order : '')) || undefined,
     },
     atributos: traduzAtributos(c.attributes, 'attributes'),
     atributosMod: ehObjeto(c.attributeMods)
@@ -476,13 +504,18 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
     },
     derivados: {
       dadoRecuperacao: texto(rec.recoveryDie),
-      movimento: `${ftParaM(num(rec.movement ?? 0, 'resources.movement'))} m`,
-      alcanceSentidos: converteDistancia(texto(rec.sensesRange)),
-      capacidadeCarga: convertePeso(texto(rec.carryingCapacity)),
-      capacidadeLevantamento: convertePeso(texto(rec.liftingCapacity)),
+      // número em pés/libras mesmo com rótulo "m"/"kg" — ver "unidades", no topo
+      movimento: `${fmt(ftParaM(num(rec.movement ?? 0, 'resources.movement')))} m`,
+      alcanceSentidos: distanciaDerivada(texto(rec.sensesRange)),
+      capacidadeCarga: pesoDerivado(texto(rec.carryingCapacity)),
+      capacidadeLevantamento: pesoDerivado(texto(rec.liftingCapacity)),
     },
     pericias: traduzPericias(c.skills),
-    especializacoes: traduzEspecializacoes(c.expertises),
+    // As 2 culturais vêm das culturas escolhidas — o Shards não as põe em `expertises`.
+    especializacoes: [
+      ...[texto(meta.culture1), texto(meta.culture2)].filter((x) => x !== '').map((x) => ({ tipo: 'cultural' as const, nome: traduz(ESPECIALIDADE_CULTURAL, x) })),
+      ...traduzEspecializacoes(c.expertises),
+    ],
     talentos: traduzTalentos(c),
     armas,
     itens,
@@ -505,7 +538,7 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
       const tipo = texto(o.type).toLowerCase().startsWith('perman') ? 'permanente' : 'temporaria'
       return { tipo, descricao: texto(o.description) }
     }),
-    anotacoes: [], // o Shards não tem isso — nasce vazio, o jogador preenche no app
+    anotacoes: anotacoesDoShards(c),
   }
 }
 

@@ -3,21 +3,21 @@ import { useState } from 'react'
 import type { Personagem, Talento } from '../../tipos/personagem'
 import {
   CATALOGO_TALENTOS,
-  SIMBOLO_ATIVACAO,
   chaveVaga,
   type EscolhaVaga,
   type TipoVaga,
   type VagaTalento,
 } from '../../regras/talentos'
 import { bonusDeEscolhas } from '../../regras/calculos'
-import { VINCULO_TALENTO_ECCHO } from '../../regras/especialidades'
+import { ICONE, SIMBOLO_ATIVACAO } from '../../variaveis'
+import { vinculosDe } from '../../regras/especialidades'
 import { ESPECIALIDADES_CULTURAIS } from '../../regras/especialidadesCulturais'
 import {
   ESPECIALIDADES_UTILIDADE_EXEMPLO,
   ESPECIALIDADES_PERITO_EXEMPLO,
 } from '../../regras/especialidadesUtilidadePerito'
 
-// Aba Talentos — cruza 4 fontes pra cada talento do Eccho:
+// Aba Talentos — cruza 4 fontes pra cada talento do personagem carregado:
 //  1. ficha.talentos          → o que o Shards diz que ele TEM (dado)
 //  2. CATALOGO_TALENTOS       → o que o talento FAZ (regra, universal)
 //  3. escolhasTalento         → o que o JOGADOR escolheu pras vagas em
@@ -89,7 +89,7 @@ function CampoVaga({
     ...ESPECIALIDADES_CULTURAIS.filter((c) => !nomesExistentes.has(c.nome)).map((c) => c.nome),
   ]
   const utilidadePerito = [
-    ...ficha.especializacoes.filter((e) => e.tipo === 'especialista').map((e) => e.nome),
+    ...ficha.especializacoes.filter((e) => e.tipo === 'utilidade' || e.tipo === 'perito').map((e) => e.nome),
     ...[...ESPECIALIDADES_UTILIDADE_EXEMPLO, ...ESPECIALIDADES_PERITO_EXEMPLO].filter(
       (n) => !nomesExistentes.has(n),
     ),
@@ -176,7 +176,7 @@ function VagasTalento({
 /** Fallback pra talento SEM vaga editável (ex.: Aquisição Valiosa — sem ambiguidade,
  * o próprio Shards já rotula a origem). Lê o vínculo estático, só leitura. */
 function ConcessaoFixa({ id, ficha }: { id: string; ficha: Personagem }) {
-  const vinculo = VINCULO_TALENTO_ECCHO[id]
+  const vinculo = vinculosDe(ficha.meta.nome)[id]
   if (!vinculo) return null
 
   const pericias = (vinculo.periciasIds ?? []).map((periciaId) => {
@@ -229,7 +229,7 @@ export default function Talentos({ ficha, escolhasTalento, definirEscolhaVaga }:
                   <li className="talento" key={t.id || t.nome}>
                     <div className="talento-cabeca">
                       <span className="talento-nome">
-                        {t.chave && <i className="talento-chave-marca">★</i>} {nomeExibido}
+                        {t.chave && <i className="talento-chave-marca">{ICONE.talentoChave}</i>} {nomeExibido}
                         {!info && <i className="talento-sem-traducao"> (sem tradução)</i>}
                       </span>
                       {info?.fonte && <span className="talento-fonte">{info.fonte}</span>}

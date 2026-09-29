@@ -12,6 +12,17 @@
  * destes exemplos — ver Talentos.tsx.
  */
 
+import type { TipoEspecializacao } from '../tipos/personagem'
+
+/** Rótulo de cada uma das 5 categorias (Cap. 3, "Categorias de especialidade"). */
+export const CATEGORIA_ESPECIALIDADE: Record<TipoEspecializacao, string> = {
+  arma: 'Arma',
+  armadura: 'Armadura',
+  cultural: 'Cultural',
+  utilidade: 'Utilidade',
+  perito: 'Perito',
+}
+
 export const ESPECIALIDADES_UTILIDADE_EXEMPLO: string[] = [
   'Andar a Cavalo',
   'Cuidado de Animais',

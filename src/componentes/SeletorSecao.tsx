@@ -7,6 +7,7 @@ export const SECOES = [
   'Principal',
   'Perícias',
   'Ações',
+  'Fabriais',
   'Condições',
   'Radiante',
   'Inventário',

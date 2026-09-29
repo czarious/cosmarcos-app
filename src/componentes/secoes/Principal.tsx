@@ -1,5 +1,6 @@
 /* arquivo: Principal.tsx */
 import type { Personagem } from '../../tipos/personagem'
+import { CATEGORIA_ESPECIALIDADE } from '../../regras/especialidadesUtilidadePerito'
 
 // Aba Principal — atributos, defesas, recursos E derivados subiram todos pro
 // CabecalhoFixo (pedido do César: a parte fixa é a ficha oficial em miniatura).
@@ -15,7 +16,7 @@ export default function Principal({ ficha }: Props) {
       <ul className="lista-chips">
         {especializacoes.map((e) => (
           <li className="chip" key={e.nome}>
-            <i>{e.tipo === 'cultural' ? 'Cultural' : 'Especialista'}</i>
+            <i>{CATEGORIA_ESPECIALIDADE[e.tipo]}</i>
             {e.nome}
           </li>
         ))}

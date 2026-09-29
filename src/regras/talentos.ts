@@ -5,11 +5,11 @@ import type { Ativacao, Pericia } from '../tipos/personagem'
  * CATÁLOGO DE TALENTOS — a regra em si, universal (vale pra qualquer
  * personagem com o talento, não só o Eccho). O Shards só manda
  * `{id, nome, origem, chave}` (ver tipos/personagem.ts); ativação e efeito
- * são REGRA, não dado — decisão 0012 ("a ficha inteligente").
+ * são REGRA, não dado — premissas.md → "A ficha inteligente é o objetivo".
  *
  * Fonte: transcrição do Guia de Regras PT-BR (referencia/livro/transcricao/,
  * não versionada). Texto aqui é PARÁFRASE própria, nunca cópia do livro —
- * este arquivo é público no repo (decisão 0004), diferente da transcrição.
+ * este arquivo é público no repo (premissas.md → "GitHub Pages, repositório público"), diferente da transcrição.
  *
  * Organizado em blocos por TRILHA de origem — mesma divisão da transcrição
  * (04-trilhas-heroicas/, 05-trilhas-radiantes/). Cresce um bloco por vez.
@@ -54,16 +54,8 @@ export type EntradaTalento = {
   vagas?: VagaTalento[]
 }
 
-/** Símbolo de exibição pro tipo de ativação — mesmos símbolos do livro (Introdução p.10). */
-export const SIMBOLO_ATIVACAO: Record<Ativacao, string> = {
-  '1acao': '▶',
-  '2acoes': '▶▶',
-  '3acoes': '▶▶▶',
-  livre: '▷',
-  reacao: '↻',
-  especial: '★',
-  sempre: '∞',
-}
+// O símbolo de exibição de cada ativação mudou de casa: é rótulo de tela, não
+// catálogo de talento. Mora em `variaveis.ts` → SIMBOLO_ATIVACAO.
 
 // ── Cap. 4 · Trilha heroica: Erudito ──────────────────────────────
 const TALENTOS_ERUDITO: Record<string, EntradaTalento> = {
@@ -104,7 +96,7 @@ const TALENTOS_ERUDITO: Record<string, EntradaTalento> = {
     preRequisitos: 'talento-chave Erudição',
     ativacao: 'especial',
     descricao:
-      'Ao adquirir, ganha uma especialidade de perito em Manufatura de Fabrial e uma gema especialmente lapidada, usada como matéria-prima para um fabrial. Na primeira tentativa com essa gema, o tempo normal para atrair um espreno e manufaturar é ignorado. A gema não pode ser vendida nem trocada; se perdida, pode ser substituída após um descanso longo (a critério do MJ). Durante o recesso, é possível desfazer o fabrial pra recuperar a gema e reaproveitá-la.',
+      'Ao adquirir, ganha uma especialidade de perito em Manufatura de Fabrial e uma gema especialmente lapidada, usada como matéria-prima para um fabrial — ela vale como a gema de um fabrial único do patamar atual do personagem. Na primeira tentativa com essa gema, o tempo normal para atrair um espreno e manufaturar é ignorado. A gema não pode ser vendida nem trocada; se perdida, pode ser substituída após um descanso longo (a critério do MJ). Durante o recesso, é possível desfazer o fabrial pra recuperar a gema e reaproveitá-la.',
   },
   'scholar::artifabrian::fine-handiwork': {
     nome: 'Trabalho Manual Refinado',

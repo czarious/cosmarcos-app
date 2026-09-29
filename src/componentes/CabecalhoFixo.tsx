@@ -3,36 +3,19 @@ import { useState } from 'react'
 import type { Personagem, NomeAtributo } from '../tipos/personagem'
 import type { NomeRecurso } from '../estado/usePersonagem'
 import ControleRecurso from './ControleRecurso'
+import { ATRIBUTO, RECURSO, GRUPOS_FICHA } from '../variaveis'
 
 // O cabeçalho fixo TOTAL: identidade reduzida + os 3 grupos da ficha oficial
 // lado a lado. Cada grupo: [atributo] [DEFESA no meio] [atributo] + recurso.
 // Item 1.2/1.3: o recurso é um BOTÃO — toca e abre o ControleRecurso (dano/cura).
+//
+// Rótulos e símbolos vêm do variaveis.ts: o ControleRecurso mostra os mesmos,
+// e antes disso cada um tinha a própria cópia.
 
 type Props = {
   ficha: Personagem
   alterarRecurso: (qual: NomeRecurso, delta: number) => void
 }
-
-const ABREV: Record<NomeAtributo, string> = {
-  forca: 'FOR',
-  velocidade: 'VEL',
-  intelecto: 'INT',
-  vontade: 'VON',
-  consciencia: 'CON',
-  presenca: 'PRE',
-}
-
-const ROTULO_RECURSO: Record<string, string> = {
-  vida: 'VIDA',
-  foco: 'FOCO',
-  investidura: 'INVEST',
-}
-
-const GRUPOS = [
-  { nome: 'Física', defesa: 'fisica', atribs: ['forca', 'velocidade'], recurso: 'vida', simbolo: '♥' },
-  { nome: 'Cognitiva', defesa: 'cognitiva', atribs: ['intelecto', 'vontade'], recurso: 'foco', simbolo: '◆' },
-  { nome: 'Espiritual', defesa: 'espiritual', atribs: ['consciencia', 'presenca'], recurso: 'investidura', simbolo: '✦' },
-] as const
 
 export default function CabecalhoFixo({ ficha, alterarRecurso }: Props) {
   const { meta, atributos, atributosMod, defesas, recursos, deflect, derivados } = ficha
@@ -50,15 +33,16 @@ export default function CabecalhoFixo({ ficha, alterarRecurso }: Props) {
       </div>
 
       <div className="cf-grupos">
-        {GRUPOS.map((g) => {
+        {GRUPOS_FICHA.map((g) => {
           const r = recursos[g.recurso]
           const vazio = r.max === 0
+          const rec = RECURSO[g.recurso]
           return (
             <div className="cf-grupo" key={g.defesa}>
               <span className="cfg-titulo">{g.nome}</span>
               <div className="cfg-linha-atrib">
                 <span className="cfg-atrib">
-                  <i>{ABREV[g.atribs[0]]}</i>
+                  <i>{ATRIBUTO[g.atribs[0]].abrev}</i>
                   <b>{efetivo(g.atribs[0])}</b>
                 </span>
                 <span className="cfg-defesa" title={`Defesa ${g.nome}`}>
@@ -66,7 +50,7 @@ export default function CabecalhoFixo({ ficha, alterarRecurso }: Props) {
                   <b>{defesas[g.defesa]}</b>
                 </span>
                 <span className="cfg-atrib">
-                  <i>{ABREV[g.atribs[1]]}</i>
+                  <i>{ATRIBUTO[g.atribs[1]].abrev}</i>
                   <b>{efetivo(g.atribs[1])}</b>
                 </span>
               </div>
@@ -74,11 +58,11 @@ export default function CabecalhoFixo({ ficha, alterarRecurso }: Props) {
               <button
                 className={`cfg-recurso${vazio ? ' cf-vazio' : ''}`}
                 onClick={() => setAberto(g.recurso)}
-                title={`Alterar ${g.nome === 'Física' ? 'Vida' : g.recurso}`}
+                title={`Alterar ${rec.nome}`}
               >
-                <span className="cf-simbolo">{g.simbolo}</span>
+                <span className="cf-simbolo">{rec.simbolo}</span>
                 <span className="cfg-recurso-corpo">
-                  <i>{ROTULO_RECURSO[g.recurso]}</i>
+                  <i>{rec.abrev}</i>
                   <span className="cf-valor">
                     {r.atual}
                     <span className="cf-max">/{r.max}</span>
@@ -104,9 +88,9 @@ export default function CabecalhoFixo({ ficha, alterarRecurso }: Props) {
 
       {aberto && (
         <ControleRecurso
-          qual={aberto}
+          rotulo={RECURSO[aberto]}
           recurso={recursos[aberto]}
-          alterar={alterarRecurso}
+          alterar={(delta) => alterarRecurso(aberto, delta)}
           aoFechar={() => setAberto(null)}
         />
       )}

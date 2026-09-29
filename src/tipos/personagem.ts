@@ -5,12 +5,12 @@
  *
  * Este arquivo É o contrato: tudo que a tela mostra e toda regra que roda
  * lê a ficha por estes tipos. Conferido campo a campo contra o export real
- * do Shards (Eccho, nível 3) — ver escopo/dados.md no Drive.
+ * do Shards (Eccho, nível 3) — ver escopo/dados.md.
  *
  * Regras que mandam aqui:
- *  - decisão 0007: formato PRÓPRIO em português + tradutor (importarShards.ts)
- *  - decisão 0009: ler primeiro, calcular depois (FIXO × PROVISÓRIO)
- *  - decisão 0012: a ficha inteligente é o objetivo
+ *  - premissas.md → "Schema próprio em português + tradutor na entrada" (importarShards.ts)
+ *  - premissas.md → "Ler primeiro, calcular depois" (FIXO × PROVISÓRIO)
+ *  - premissas.md → "A ficha inteligente é o objetivo"
  *  - princípio 1:  nenhum personagem escrito no código — valores vêm do JSON
  */
 
@@ -56,14 +56,17 @@ export type Pericia = {
   misc: number
 }
 
+/** As 5 categorias do livro (Cap. 3, "Categorias de especialidade"). */
+export type TipoEspecializacao = 'arma' | 'armadura' | 'cultural' | 'utilidade' | 'perito'
+
 export type Especializacao = {
-  tipo: 'cultural' | 'especialista'
+  tipo: TipoEspecializacao
   nome: string // "Manufatura de Fabriais"
 }
 
 /**
  * Talento — o Shards só manda id/nome/origem/chave.
- * Ativação e resumo são REGRA (vêm de regras/ordens.ts, não do JSON) — decisão 0012.
+ * Ativação e resumo são REGRA (vêm de regras/ordens.ts, não do JSON) — premissas.md → "A ficha inteligente é o objetivo".
  */
 export type Talento = {
   id: string
@@ -74,6 +77,8 @@ export type Talento = {
 
 /** Arma — no Shards é item de inventário com type: "weapon"; o tradutor separa. */
 export type Arma = {
+  /** Id do item no Shards — é o que liga a arma de volta na exportação (estado/exportarShards.ts). */
+  idShards?: string
   nome: string
   pericia: string        // "Armamento Leve"
   dano: string           // "1d6"
@@ -86,6 +91,8 @@ export type Arma = {
 }
 
 export type Item = {
+  /** Id no Shards; item criado no app não tem — vira item novo na exportação. */
+  idShards?: string
   nome: string
   tipo: string // "item" | "equipment" | ...
   qtd: number
@@ -94,11 +101,28 @@ export type Item = {
 }
 
 /** Fabrial — cargas são estado vivo (Clock 3/3, Diapasão 0/5). */
+/** Resultado do teste de Manufatura (Cap. 7, "Inventando Fabriais Únicos"). */
+export type QualidadeFabrial = 'ruim' | 'tipica' | 'qualidade' | 'excepcional' | 'personalizada'
+
+/**
+ * Fabrial — padrão (comprado, da tabela do livro) ou único (inventado).
+ * O que cada `modelo`/aprimoramento/revés SIGNIFICA é regra: regras/fabriais.ts.
+ */
 export type Fabrial = {
+  id: string
   nome: string
+  tipo: 'padrao' | 'unico'
+  /** Id em regras/fabriais.ts — fabrial padrão ("relogio") ou efeito único ("projetil"). Sem modelo = fabrial livre (ex.: Diapasão da Guilda). */
+  modelo?: string
   cargas: Recurso
-  padrao: boolean  // true = "standard" do Shards; false = "custom"
-  efeitos?: string // texto livre do custom ("Transfere e carrega energia da tormenta…")
+  /** Só fabrial único. */
+  qualidade?: QualidadeFabrial
+  /** Ids de regras/fabriais.ts ("amplificado", "proprio", "capacidade-expandida"…) — ou texto livre, se o Mestre inventou. */
+  aprimoramentos: string[]
+  revezes: string[]
+  gema?: string
+  material?: string
+  notas?: string
 }
 
 export type Objetivo = {
@@ -124,7 +148,7 @@ export type Fluxo = {
 }
 
 export type Radiante = {
-  ordem: string // "Elsecaller" → regras/ordens.ts sabe o que isso significa (decisão 0012)
+  ordem: string // "Elsecaller" → regras/ordens.ts sabe o que isso significa (premissas.md → "A ficha inteligente é o objetivo")
   spren: {
     nome: string      // "Mancha"
     tipo: string      // "Inkspren"
@@ -172,12 +196,12 @@ export type Personagem = {
   atributos: Atributos
   atributosMod: Atributos
 
-  /** As 3 defesas — vêm CALCULADAS do Shards; o app só lê (decisão 0009). */
+  /** As 3 defesas — vêm CALCULADAS do Shards; o app só lê (premissas.md → "Ler primeiro, calcular depois"). */
   defesas: { fisica: number; cognitiva: number; espiritual: number }
   defesasBonus: { fisica: number; cognitiva: number; espiritual: number }
   deflect: number
 
-  /** O coração da mesa — o que o cabeçalho fixo mostra sempre (decisão 0008). */
+  /** O coração da mesa — o que o cabeçalho fixo mostra sempre (premissas.md → "Os vitais grudam no topo"). */
   recursos: {
     vida: Recurso
     foco: Recurso
@@ -212,7 +236,7 @@ export type Personagem = {
 
   radiante?: Radiante
 
-  // estado vivo — ⚠️ o Shards TAMBÉM manda (reimportar pode sobrescrever — pergunta 7)
+  // estado vivo — ⚠️ o Shards TAMBÉM manda, e importar sobrescreve a ficha inteira
   condicoes: Condicao[]
   lesoes: Lesao[]
 

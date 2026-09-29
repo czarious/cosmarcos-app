@@ -1,11 +1,11 @@
 {
-  "exportedAt": "2026-07-15T16:23:06.263Z",
+  "format": "cosmere-v3",
   "version": 1,
   "characters": [
     {
       "id": "fcb4179e-70be-48d8-9a5b-f68139b0dfe3",
       "createdAt": "2026-07-03T17:46:26.005Z",
-      "updatedAt": "2026-07-15T16:22:00.153Z",
+      "updatedAt": "2026-09-28T02:26:07.533Z",
       "meta": {
         "name": "Eccho",
         "player": "Cesar",
@@ -19,27 +19,29 @@
         "obstacle": "Rancor — frio, planeja no silêncio",
         "personality": "Calculista, direto, desconfiado, egoísta até confiar",
         "appearance": "",
-        "connections": ""
+        "connections": "Kavel — mestre assassinado; membro secreto da Guilda Vrizl; pesquisava com Navani\nNavani Kholin — encontrada nas Planícies; deu missão ao grupo; futura patrona (objetivo ●○○)\nEmul (Vriztan) — suspeito principal pelo assassinato de Kavel; nobre thaylenês\nBordin — Capitão\nEllar — Sargento; quartel no Acampamento Kholin\nBettani — Porteira; Bettani's Bunker\nHishali — responsável pela Blueworks\nKashik — aliado; Cantor disfarçado; tem Cultivationspren\nTaln — Arauto da Guerra; Honorblade roubada por Ylt em Rathalas\nCalvon — conhecido; avô é de Thaylena; deu a Faca e a Azagaia\nAmaram — Alto Príncipe, Filhos da Honra; veio questionar o grupo sobre a conversa com Taln",
+        "characterType": "stormlight",
+        "setting": "stormlight"
       },
       "attributes": {
         "strength": 1,
         "speed": 3,
-        "intellect": 3,
-        "willpower": 3,
+        "intellect": 4,
+        "willpower": 2,
         "awareness": 3,
         "presence": 0
       },
       "attributeMods": {
         "strength": 0,
         "speed": 0,
-        "intellect": 1,
+        "intellect": 0,
         "willpower": 0,
         "awareness": 0,
         "presence": 0
       },
       "defenses": {
         "physical": 14,
-        "cognitive": 17,
+        "cognitive": 16,
         "spiritual": 13
       },
       "defenseBonuses": {
@@ -50,19 +52,19 @@
       "resources": {
         "healthMax": 21,
         "healthCur": 21,
-        "focusMax": 5,
+        "focusMax": 4,
         "focusCur": 4,
         "investitureMax": 5,
-        "investitureCur": 0,
+        "investitureCur": 5,
         "deflect": 0,
         "deflectMod": 0,
-        "recoveryDie": "d8",
+        "recoveryDie": "d6",
         "movement": 30,
-        "liftingCapacity": "200 lb",
-        "carryingCapacity": "100 lb",
-        "sensesRange": "20 ft",
+        "liftingCapacity": "200 kg",
+        "carryingCapacity": "100 kg",
+        "sensesRange": "20 m",
         "spheres": "",
-        "marks": 65
+        "marks": 109
       },
       "skills": [
         {
@@ -253,8 +255,8 @@
         {
           "name": "Jurar por um Ideal",
           "type": "",
-          "achieved": false,
-          "rank": 0
+          "achieved": true,
+          "rank": 1
         },
         {
           "name": "Achar Assassino de Kavel",
@@ -278,7 +280,7 @@
           "name": "Equipamento Fabrial Médio",
           "type": "",
           "achieved": false,
-          "rank": 0
+          "rank": 3
         },
         {
           "name": "Equipamento Fabrial Superior",
@@ -287,39 +289,51 @@
           "rank": 0
         },
         {
-          "name": "",
+          "name": "Treinar com Faca",
           "type": "",
           "achieved": false,
-          "rank": 0
+          "rank": 2
+        },
+        {
+          "name": "Treinar com Azagaia",
+          "type": "",
+          "achieved": false,
+          "rank": 2
+        },
+        {
+          "name": "Ter Navani como Patrona",
+          "type": "",
+          "achieved": false,
+          "rank": 1
         }
       ],
       "expertises": [
         {
-          "id": "ee19e863-8a6f-4b3f-800c-1d9abf062292",
-          "type": "Specialist",
-          "name": "Manufatura de Fabriais",
-          "source": "custom"
-        },
-        {
           "id": "68658754-8930-411b-880c-d75d50842a21",
           "type": "Specialist",
-          "name": "Manufatura de Fabriais perito — via Aquisição Valiosa",
+          "name": "Manufatura de Fabrial",
           "source": "custom"
         },
         {
           "id": "1595055f-a983-46c2-a949-182f8e5bc455",
-          "type": "Cultural",
+          "type": "Utility",
           "name": "Navegação",
           "source": "custom"
         },
         {
           "id": "ebba9dbb-6a6b-454a-8638-43e600b6a639",
-          "type": "Specialist",
+          "type": "Utility",
           "name": "Mineralogia/Gemas",
+          "source": "custom"
+        },
+        {
+          "id": "7318f8f8-3fcf-43c4-900d-41df44a8f4fd",
+          "type": "Utility",
+          "name": "Manufatura de Arma",
           "source": "custom"
         }
       ],
-      "equipment": "Amuleto de Sorte",
+      "equipment": "Amuleto de Sorte\nTelepena: a outra do par ficou com Navani Kholin.",
       "inventory": {
         "items": [
           {
@@ -328,15 +342,15 @@
             "type": "weapon",
             "sourceId": "weapon:mace",
             "quantity": 1,
-            "weight": 3,
-            "weightRaw": "3 lb.",
+            "weight": 1.4,
+            "weightRaw": "1.4 kg",
             "damage": "1d6 impact",
             "range": {
               "type": "melee",
-              "reach": 5,
+              "reach": 1.5,
               "reachBonus": 0,
-              "short": null,
-              "long": null,
+              "short": 0,
+              "long": 0,
               "label": "Melee"
             },
             "rangeLabel": "Melee",
@@ -359,8 +373,8 @@
             "type": "item",
             "sourceId": "item:oil (1 flask)",
             "quantity": 1,
-            "weight": 1,
-            "weightRaw": "1 lb.",
+            "weight": 0.5,
+            "weightRaw": "0.5 kg",
             "damage": "",
             "range": null,
             "rangeLabel": "",
@@ -381,8 +395,8 @@
             "type": "item",
             "sourceId": "item:book (reference)",
             "quantity": 1,
-            "weight": 1,
-            "weightRaw": "1–5 lb.",
+            "weight": 0.5,
+            "weightRaw": "0.5 kg",
             "damage": "",
             "range": null,
             "rangeLabel": "",
@@ -396,6 +410,223 @@
             "effects": "",
             "modifiers": [],
             "isStarting": false
+          },
+          {
+            "id": "47c33550-6416-4a03-9508-94d5f515537d",
+            "sourceId": "",
+            "name": "PROJÉTIL",
+            "type": "weapon",
+            "quantity": 1,
+            "weight": 0,
+            "weightRaw": "",
+            "damage": "1d10 Impact",
+            "range": {
+              "type": "ranged",
+              "reach": null,
+              "reachBonus": 0,
+              "short": 9,
+              "long": 36,
+              "label": "Ranged [9/36]"
+            },
+            "rangeLabel": "Ranged [9/36]",
+            "skill": "Light Weaponry",
+            "deflect": "",
+            "traits": [
+              "Offhand"
+            ],
+            "expertTraits": [],
+            "category": "FABRIAL ÚNICO DE PATAMAR 2",
+            "equipped": true,
+            "notes": "Fabrial único de patamar 2 (Projétil). Gasta 1 carga por disparo — ver o fabrial PROJÉTIL.\nCriado por Eccho com Engenheiro Eficiente e Trabalho Manual Refinado.\nEspecialidade: Manufatura de Arma.",
+            "effects": "",
+            "modifiers": []
+          },
+          {
+            "id": "cc412f61-f656-48b3-beee-c8862c6cb0f3",
+            "sourceId": "weapon:knife",
+            "name": "Knife",
+            "type": "weapon",
+            "quantity": 1,
+            "weight": 0.5,
+            "weightRaw": "0.5 kg",
+            "damage": "1d4 keen",
+            "range": {
+              "type": "melee",
+              "reach": 1.5,
+              "reachBonus": 0,
+              "label": "Melee"
+            },
+            "rangeLabel": "Melee",
+            "skill": "Light Weaponry",
+            "deflect": "",
+            "traits": [
+              "Discreet"
+            ],
+            "expertTraits": [
+              "Offhand",
+              "Thrown (20/60)"
+            ],
+            "category": "",
+            "equipped": true,
+            "notes": "",
+            "effects": "",
+            "modifiers": []
+          },
+          {
+            "id": "a3e53b28-6351-4e1a-b6e9-bebdd2898fe7",
+            "sourceId": "weapon:javelin",
+            "name": "Javelin",
+            "type": "weapon",
+            "quantity": 1,
+            "weight": 0.9,
+            "weightRaw": "0.9 kg",
+            "damage": "1d6 keen",
+            "range": {
+              "type": "melee",
+              "reach": 1.5,
+              "reachBonus": 0,
+              "label": "Melee"
+            },
+            "rangeLabel": "Melee",
+            "skill": "Light Weaponry",
+            "deflect": "",
+            "traits": [
+              "Thrown [30/120]"
+            ],
+            "expertTraits": [
+              "Indirect"
+            ],
+            "category": "",
+            "equipped": true,
+            "notes": "",
+            "effects": "",
+            "modifiers": []
+          },
+          {
+            "id": "31199c19-51e0-45c2-a44e-5e87935d6b6c",
+            "sourceId": "item:soap*",
+            "name": "Soap*",
+            "type": "item",
+            "quantity": 1,
+            "weight": 0,
+            "weightRaw": "0 kg",
+            "damage": "",
+            "range": null,
+            "rangeLabel": "",
+            "skill": "",
+            "deflect": "",
+            "traits": [],
+            "expertTraits": [],
+            "category": "equipment",
+            "equipped": false,
+            "notes": "",
+            "effects": "",
+            "modifiers": []
+          },
+          {
+            "id": "c6350758-4e98-44f5-8555-b8b4e5fc5791",
+            "sourceId": "item:waterskin*",
+            "name": "Waterskin*",
+            "type": "item",
+            "quantity": 1,
+            "weight": 0.5,
+            "weightRaw": "0.5 kg",
+            "damage": "",
+            "range": null,
+            "rangeLabel": "",
+            "skill": "",
+            "deflect": "",
+            "traits": [],
+            "expertTraits": [],
+            "category": "equipment",
+            "equipped": false,
+            "notes": "",
+            "effects": "",
+            "modifiers": []
+          },
+          {
+            "id": "8ec0f913-4556-459b-8cea-161255f89eae",
+            "sourceId": "item:blanket*",
+            "name": "Blanket*",
+            "type": "item",
+            "quantity": 1,
+            "weight": 0.9,
+            "weightRaw": "0.9 kg",
+            "damage": "",
+            "range": null,
+            "rangeLabel": "",
+            "skill": "",
+            "deflect": "",
+            "traits": [],
+            "expertTraits": [],
+            "category": "equipment",
+            "equipped": false,
+            "notes": "",
+            "effects": "",
+            "modifiers": []
+          },
+          {
+            "id": "d5681de2-fa5c-41d6-bf4f-750da56888ee",
+            "sourceId": "item:clothing (common)",
+            "name": "Clothing (common)",
+            "type": "item",
+            "quantity": 1,
+            "weight": 1.4,
+            "weightRaw": "1.4 kg",
+            "damage": "",
+            "range": null,
+            "rangeLabel": "",
+            "skill": "",
+            "deflect": "",
+            "traits": [],
+            "expertTraits": [],
+            "category": "equipment",
+            "equipped": false,
+            "notes": "",
+            "effects": "",
+            "modifiers": []
+          },
+          {
+            "id": "bc49e373-0b69-4c79-8616-7211ca561a9a",
+            "sourceId": "item:backpack*",
+            "name": "Backpack*",
+            "type": "item",
+            "quantity": 1,
+            "weight": 2.3,
+            "weightRaw": "2.3 kg",
+            "damage": "",
+            "range": null,
+            "rangeLabel": "",
+            "skill": "",
+            "deflect": "",
+            "traits": [],
+            "expertTraits": [],
+            "category": "equipment",
+            "equipped": false,
+            "notes": "",
+            "effects": "",
+            "modifiers": []
+          },
+          {
+            "id": "6972c4da-d6ae-4a81-8ec6-8158aaa808e1",
+            "sourceId": "item:food (ration, 1 day)",
+            "name": "Food (ration, 1 day)",
+            "type": "item",
+            "quantity": 20,
+            "weight": 0.2,
+            "weightRaw": "0.2 kg",
+            "damage": "",
+            "range": null,
+            "rangeLabel": "",
+            "skill": "",
+            "deflect": "",
+            "traits": [],
+            "expertTraits": [],
+            "category": "equipment",
+            "equipped": false,
+            "notes": "",
+            "effects": "",
+            "modifiers": []
           }
         ]
       },
@@ -404,6 +635,16 @@
           {
             "id": "6b5e5319-0a43-4a92-9087-e6252469e369",
             "name": "Clock fabrial",
+            "chargesCur": 3,
+            "chargesMax": 3,
+            "upgrades": [],
+            "drawbacks": [],
+            "transformationEnabled": false,
+            "transformationRanks": 0
+          },
+          {
+            "id": "56de46e0-ee08-402b-ac17-1aed0e3bb190",
+            "name": "Spanreed (1 pair)",
             "chargesCur": 3,
             "chargesMax": 3,
             "upgrades": [],
@@ -427,11 +668,43 @@
             "pathRanks": 0,
             "upgrades": [],
             "drawbacks": []
+          },
+          {
+            "id": "fdd1c6d8-9a6b-41f8-a0d9-645a363d0ee6",
+            "name": "PROJÉTIL",
+            "quality": "Quality",
+            "features": "",
+            "material": "Artifabriano: Eccho",
+            "gem": "",
+            "effects": "Gaste 1 carga: arma à distância [9/36], Armamento Leve (+4), traço Mão Inábil, 1d10 impactante. Criação de Qualidade: 2 aprimoramentos (Amplificado, Ataque Duplo) + 1 revés (Ineficiente).",
+            "chargesCur": 5,
+            "chargesMax": 5,
+            "trackPath": "",
+            "pathRanks": 0,
+            "upgrades": [
+              {
+                "id": "d33da8ff-4199-4248-9c4c-7d6f3368ca46",
+                "name": "Amplified",
+                "description": "Attacks made with this fabrial gain advantage."
+              },
+              {
+                "id": "bbe5ef7a-f493-4cbf-bb6a-a819db7836cc",
+                "name": "Double Attack",
+                "description": "Spend 2 charges in the same turn to attack 2 different targets with a single attack action."
+              }
+            ],
+            "drawbacks": [
+              {
+                "id": "4ae043f3-00e7-4124-9679-34dc279c4677",
+                "name": "Inefficient",
+                "description": "GM can spend to expend an additional charge when you roll nearby."
+              }
+            ]
           }
         ]
       },
       "talents": "",
-      "notes": "",
+      "notes": "Os vínculos entre Radiantes e esprenos foram criados pelo Arauto Ishar.\nKavel era membro secreto da Guilda Vrizl; pesquisava com Navani.\nDiapasão — item raro da Guilda, ensinado por Kavel.\nPara criar Alertador: Heliodoro (~70%) + espreno de Sinew; CD 15; custo ~125 marcos com Engenheiro Eficiente.\nAmaram, Alto Príncipe dos Filhos da Honra, veio questionar o grupo sobre Taln.\nPróxima missão: viagem a Rathalas.\nMancha (inkspren): ~2,5 cm, preta como obsidiana, traços angulosos. Ordem Elsecaller é segredo — o Mestre não sabe. 1º Ideal jurado em 18/Jun/2026.",
       "ancestryTalents": [],
       "rollLog": [],
       "advancement": {
@@ -484,13 +757,35 @@
             "id": "1523ef04-fc38-471a-92bd-4fa140bc7e38",
             "name": "Mancha",
             "type": "Inkspren",
-            "enlightened": true
+            "order": "Elsecaller",
+            "enlightened": true,
+            "ideals": {
+              "i1": true,
+              "i2": false,
+              "i3": false,
+              "i4": false,
+              "i5": false
+            },
+            "idealsText": {
+              "i1": "Vida antes da morte. Força antes da fraqueza. Jornada antes do destino.",
+              "i2": "Declare to your inkspren how you wish to improve yourself.",
+              "i3": "Declare to your inkspren how you wish to improve yourself.",
+              "i4": "Declare to your inkspren how you wish to improve yourself.",
+              "i5": ""
+            },
+            "idealMilestones": {
+              "i1": 3,
+              "i2": 0,
+              "i3": 0,
+              "i4": 0,
+              "i5": 0
+            }
           }
         ],
         "sprenBondRange": 30,
         "sprenBondRangeMod": 0,
         "idealsText": {
-          "i1": "Life before death. Strength before weakness. Journey before destination.",
+          "i1": "Vida antes da morte. Força antes da fraqueza. Jornada antes do destino.",
           "i2": "Declare to your inkspren how you wish to improve yourself.",
           "i3": "Declare to your inkspren how you wish to improve yourself.",
           "i4": "Declare to your inkspren how you wish to improve yourself.",
@@ -520,6 +815,7 @@
             "attributeKey": "willpower",
             "activation": "action2x",
             "rank": 1,
+            "rankBonus": 0,
             "talents": [
               {
                 "id": "bloodcasting",
@@ -578,6 +874,7 @@
             "attributeKey": "intellect",
             "activation": "action",
             "rank": 1,
+            "rankBonus": 0,
             "talents": [
               {
                 "id": "cognitive_farsight",
@@ -654,7 +951,15 @@
         ]
       },
       "name": "Eccho",
-      "player": "Cesar"
+      "player": "Cesar",
+      "system": {
+        "id": "cosmere-rpg",
+        "type": "stormlight",
+        "setting": "stormlight",
+        "era": "Roshar"
+      },
+      "setting": "stormlight",
+      "characterType": "stormlight"
     }
   ]
 }

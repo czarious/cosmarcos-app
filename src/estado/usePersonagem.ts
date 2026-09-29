@@ -1,15 +1,18 @@
 /* arquivo: usePersonagem.ts */
-import { useEffect, useState, useCallback } from 'react'
-import type { Personagem, Item, Anotacao } from '../tipos/personagem'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import type { Personagem, Item, Anotacao, Fabrial } from '../tipos/personagem'
 import { importarShards, ErroImportacao } from './importarShards'
+import { exportarShards } from './exportarShards'
 import { CATALOGO_TALENTOS, chaveVaga, type EscolhaVaga, type TipoVaga } from '../regras/talentos'
-import { VINCULO_TALENTO_ECCHO } from '../regras/especialidades'
+import { vinculosDe } from '../regras/especialidades'
+import { lerFicha, salvarFicha } from './armazenamento'
 
-// O estado VIVO da ficha. Carrega o JSON (via tradutor) e guarda em estado
-// React — a partir daqui os recursos são MUTÁVEIS (dano, cura, gastar foco).
-// Persistência em localStorage é o item 2.3 (Fase 2); por ora, em memória.
+// O estado VIVO da ficha — e quem decide de ONDE ela vem (item 2.3):
+// localStorage primeiro, JSON do Shards só como SEMENTE. Depois da primeira
+// importação o app é dono da ficha (ver escopo/premissas.md); recarregar do
+// JSON é ato explícito, o `importarTexto` (arquivo que o jogador escolhe).
 
-export type NomeRecurso = 'vida' | 'foco' | 'investidura'
+export type NomeRecurso = keyof Personagem['recursos']
 
 type Retorno = {
   ficha: Personagem | null
@@ -36,6 +39,25 @@ type Retorno = {
   editarAnotacao: (id: string, titulo: string, conteudo: string) => void
   /** Remove uma anotação pelo id. */
   removerAnotacao: (id: string) => void
+  /** Soma `delta` às cargas de um fabrial, travando entre 0 e o máximo. */
+  alterarCargas: (idFabrial: string, delta: number) => void
+  /** Grantormenta: todo fabrial volta ao máximo (01-usando-itens.md → "Recarregando Itens"). */
+  recarregarTodos: () => void
+  /** Descanso curto: 1 ponto de Investidura vira 1 carga do fabrial. */
+  recarregarComInvestidura: (idFabrial: string) => void
+  /** Cria ou substitui (mesmo id) um fabrial. */
+  salvarFabrial: (f: Fabrial) => void
+  removerFabrial: (idFabrial: string) => void
+  /**
+   * Importa o texto de um JSON exportado pelo Shards (item 3.1). Devolve a
+   * mensagem de erro, ou `null` se deu certo.
+   * ⚠️ SOBRESCREVE TUDO — não existe fusão do que foi mudado no app com o
+   * JSON novo. Trazer um JSON desatualizado é perda de dado, e a ficha não
+   * tem como adivinhar qual lado está certo.
+   */
+  importarTexto: (texto: string) => string | null
+  /** JSON pro Shards importar (Files → Import JSON), ou `null` se ainda não há semente — ver exportarShards.ts. */
+  exportarJson: () => string | null
 }
 
 /**
@@ -46,10 +68,13 @@ type Retorno = {
  */
 function semearEscolhas(ficha: Personagem): Record<string, EscolhaVaga> {
   const seed: Record<string, EscolhaVaga> = {}
+  // Vínculo é POR PERSONAGEM. Quem não tem entrada nasce com as vagas vazias —
+  // e o total da perícia se vira com o bônus cru do Shards, marcado.
+  const vinculos = vinculosDe(ficha.meta.nome)
   for (const t of ficha.talentos) {
     const vagas = CATALOGO_TALENTOS[t.id]?.vagas
     if (!vagas) continue
-    const vinculo = VINCULO_TALENTO_ECCHO[t.id]
+    const vinculo = vinculos[t.id]
     for (const vaga of vagas) {
       const valor =
         vaga.tipo === 'pericia'
@@ -70,24 +95,99 @@ function trava(valor: number, max: number): number {
   return Math.max(0, Math.min(valor, max))
 }
 
+/**
+ * "./personagens/eccho.json" → "eccho" — a chave do save.
+ * Vira `meta.nome` quando o item 3.1 (UI de importar) chegar: lá o arquivo
+ * não mora mais no repositório e o caminho deixa de identificar ninguém.
+ */
+function idDoCaminho(caminho: string): string {
+  return caminho.split('/').pop()?.replace(/\.json$/i, '') ?? 'ficha'
+}
+
 export function usePersonagem(caminhoJson: string): Retorno {
+  const id = idDoCaminho(caminhoJson)
   const [ficha, setFicha] = useState<Personagem | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   const [escolhasTalento, setEscolhasTalento] = useState<Record<string, EscolhaVaga>>({})
+  /** O personagem cru do Shards — base da exportação de volta. */
+  const [semente, setSemente] = useState<Record<string, unknown> | undefined>(undefined)
+  /**
+   * Trava do save. Sem ela o primeiro render (ficha ainda `null`) e o
+   * intervalo da importação poderiam gravar por cima de um save válido
+   * antes de terminar de lê-lo.
+   */
+  const podeSalvar = useRef(false)
 
+  // CARGA — o localStorage manda; o JSON é o plano B (ver escopo/premissas.md).
   useEffect(() => {
+    podeSalvar.current = false
+
+    const salva = lerFicha(id)
+    if (salva) {
+      setFicha(salva.ficha)
+      setEscolhasTalento(salva.escolhasTalento)
+      setSemente(salva.semente)
+      setErro(null)
+      podeSalvar.current = true
+      return
+    }
+
+    // Nada salvo (primeira vez, ou a importação acabou de limpar) → semente.
+    let cancelado = false // StrictMode monta 2× em dev: descarta o fetch órfão
     fetch(caminhoJson)
       .then((r) => {
         if (!r.ok) throw new Error(`não achei o JSON (HTTP ${r.status})`)
         return r.json()
       })
       .then((json) => {
+        if (cancelado) return
         const novaFicha = importarShards(json)[0]
         setFicha(novaFicha)
         setEscolhasTalento(semearEscolhas(novaFicha))
+        setSemente(json.characters[0])
+        setErro(null)
+        podeSalvar.current = true // a própria semente já vira save
       })
-      .catch((e) => setErro(e instanceof ErroImportacao ? e.message : String(e)))
-  }, [caminhoJson])
+      .catch((e) => {
+        if (!cancelado) setErro(e instanceof ErroImportacao ? e.message : String(e))
+      })
+    return () => {
+      cancelado = true
+    }
+  }, [caminhoJson, id])
+
+  // GRAVA a cada mudança de ficha ou de escolha. A ficha do Eccho dá ~10 KB
+  // — localStorage é sincrono, mas nessa ordem de grandeza não pesa.
+  useEffect(() => {
+    if (!podeSalvar.current || !ficha) return
+    salvarFicha(id, ficha, escolhasTalento, semente)
+  }, [id, ficha, escolhasTalento, semente])
+
+  const importarTexto = useCallback((texto: string): string | null => {
+    let json: unknown
+    try {
+      json = JSON.parse(texto)
+    } catch {
+      return 'Esse arquivo não é um JSON — exporte de novo no Shards (Files → Export current JSON).'
+    }
+    let novaFicha: Personagem
+    try {
+      novaFicha = importarShards(json)[0]
+    } catch (e) {
+      return e instanceof ErroImportacao ? e.message : String(e)
+    }
+    setFicha(novaFicha)
+    setEscolhasTalento(semearEscolhas(novaFicha))
+    setSemente((json as { characters: Record<string, unknown>[] }).characters[0])
+    setErro(null)
+    podeSalvar.current = true
+    return null
+  }, [])
+
+  const exportarJson = useCallback(
+    (): string | null => (ficha && semente ? exportarShards(ficha, semente) : null),
+    [ficha, semente],
+  )
 
   const definirEscolhaVaga = useCallback(
     (talentoId: string, tipo: TipoVaga, indice: number, valor: string | undefined) => {
@@ -180,6 +280,59 @@ export function usePersonagem(caminhoJson: string): Retorno {
     )
   }, [])
 
+  const mudaFabrial = useCallback((idFabrial: string, muda: (f: Fabrial) => Fabrial) => {
+    setFicha((atual) =>
+      atual ? { ...atual, fabriais: atual.fabriais.map((f) => (f.id === idFabrial ? muda(f) : f)) } : atual,
+    )
+  }, [])
+
+  const alterarCargas = useCallback(
+    (idFabrial: string, delta: number) => {
+      mudaFabrial(idFabrial, (f) => ({ ...f, cargas: { ...f.cargas, atual: trava(f.cargas.atual + delta, f.cargas.max) } }))
+    },
+    [mudaFabrial],
+  )
+
+  const recarregarTodos = useCallback(() => {
+    setFicha((atual) =>
+      atual
+        ? { ...atual, fabriais: atual.fabriais.map((f) => ({ ...f, cargas: { ...f.cargas, atual: f.cargas.max } })) }
+        : atual,
+    )
+  }, [])
+
+  const recarregarComInvestidura = useCallback((idFabrial: string) => {
+    setFicha((atual) => {
+      if (!atual) return atual
+      const inv = atual.recursos.investidura
+      const alvo = atual.fabriais.find((f) => f.id === idFabrial)
+      if (!alvo || inv.atual <= 0 || alvo.cargas.atual >= alvo.cargas.max) return atual
+      return {
+        ...atual,
+        recursos: { ...atual.recursos, investidura: { ...inv, atual: inv.atual - 1 } },
+        fabriais: atual.fabriais.map((f) =>
+          f.id === idFabrial ? { ...f, cargas: { ...f.cargas, atual: f.cargas.atual + 1 } } : f,
+        ),
+      }
+    })
+  }, [])
+
+  const salvarFabrial = useCallback((novo: Fabrial) => {
+    setFicha((atual) => {
+      if (!atual) return atual
+      const existe = atual.fabriais.some((f) => f.id === novo.id)
+      const ajustado = { ...novo, cargas: { ...novo.cargas, atual: trava(novo.cargas.atual, novo.cargas.max) } }
+      return {
+        ...atual,
+        fabriais: existe ? atual.fabriais.map((f) => (f.id === novo.id ? ajustado : f)) : [...atual.fabriais, ajustado],
+      }
+    })
+  }, [])
+
+  const removerFabrial = useCallback((idFabrial: string) => {
+    setFicha((atual) => (atual ? { ...atual, fabriais: atual.fabriais.filter((f) => f.id !== idFabrial) } : atual))
+  }, [])
+
   return {
     ficha,
     erro,
@@ -194,5 +347,12 @@ export function usePersonagem(caminhoJson: string): Retorno {
     adicionarAnotacao,
     editarAnotacao,
     removerAnotacao,
+    alterarCargas,
+    recarregarTodos,
+    recarregarComInvestidura,
+    salvarFabrial,
+    removerFabrial,
+    importarTexto,
+    exportarJson,
   }
 }

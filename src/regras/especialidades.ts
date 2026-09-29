@@ -10,7 +10,7 @@
  *    rankBonus=1 (ambas cognitivas) — bate com a regra da Erudição, então
  *    atribuímos aqui manualmente (confirmado com o César).
  *  - `expertises[].name` — às vezes o PRÓPRIO César rotulou a origem no nome
- *    (ex.: "...via Aquisição Valiosa"); nesses casos não há ambiguidade.
+ *    (ex.: a de perito, que só pode vir da Aquisição Valiosa); nesses casos não há ambiguidade.
  *
  * ⚠️ Isto é uma EXCEÇÃO CONSCIENTE ao princípio "nenhum personagem escrito
  * no código" (CLAUDE.md) — não tem outro jeito de linkar um dado que o
@@ -32,15 +32,31 @@ export type ConcessaoTalento = {
   especialidades?: string[]
 }
 
-export const VINCULO_TALENTO_ECCHO: Record<string, ConcessaoTalento> = {
-  'scholar::key::erudition': {
-    // confirmado com o César, 19/Jul/2026 — as 2 únicas perícias com
-    // rankBonus=1 no export, ambas cognitivas (bate com a regra do talento)
-    periciasIds: ['crafting', 'deduction'],
-    especialidades: ['Mineralogia/Gemas'],
+/** Vínculos conhecidos, POR PERSONAGEM — a chave é `ficha.meta.nome`. */
+export const VINCULOS_POR_PERSONAGEM: Record<string, Record<string, ConcessaoTalento>> = {
+  Eccho: {
+    'scholar::key::erudition': {
+      // confirmado com o César, 19/Jul/2026 — as 2 únicas perícias com
+      // rankBonus=1 no export, ambas cognitivas (bate com a regra do talento)
+      periciasIds: ['crafting', 'deduction'],
+      especialidades: ['Mineralogia/Gemas'],
+    },
+    'scholar::artifabrian::prized-acquisition': {
+      // a única de perito do Eccho (renomeada pro termo do livro em 27/Set/2026)
+      especialidades: ['Manufatura de Fabrial'],
+    },
   },
-  'scholar::artifabrian::prized-acquisition': {
-    // rotulada pelo próprio César no Shards — sem ambiguidade
-    especialidades: ['Manufatura de Fabriais perito — via Aquisição Valiosa'],
-  },
+}
+
+/**
+ * Os vínculos deste personagem — `{}` pra quem não tem entrada.
+ *
+ * **Personagem sem vínculo NÃO fica com a ficha errada:** as vagas nascem
+ * vazias, e o total da perícia passa a contar o `graduacaoBonus` que o Shards
+ * exportou, marcado como "origem não identificada" (regras/calculos.ts →
+ * `bonusNaoAtribuido`). O jogador atribui na aba Talentos quando quiser, e aí
+ * a marca some.
+ */
+export function vinculosDe(nomePersonagem: string): Record<string, ConcessaoTalento> {
+  return VINCULOS_POR_PERSONAGEM[nomePersonagem] ?? {}
 }

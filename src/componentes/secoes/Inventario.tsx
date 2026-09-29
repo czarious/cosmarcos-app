@@ -2,6 +2,12 @@
 import { useState } from 'react'
 import type { Personagem, Item } from '../../tipos/personagem'
 import { pesoCarregado, pesoEmKg } from '../../regras/calculos'
+import { ICONE, ROTULO } from '../../variaveis'
+
+/** 14.5 → "14,5" — peso na tela em PT-BR. */
+function kg(n: number, casas?: number): string {
+  return n.toLocaleString('pt-BR', { minimumFractionDigits: casas ?? 0, maximumFractionDigits: casas ?? 2 })
+}
 
 // Aba Inventário — resumo de peso carregado/máximo + marcos (moeda) editável no topo, botão
 // "Gerenciar Inventário" (adicionar/remover), Armas (com checkbox de
@@ -51,8 +57,8 @@ function GerenciarInventario({
       <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
           <span className="cr-titulo">Gerenciar Inventário</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label="Fechar">
-            ✕
+          <button className="cr-fechar" onClick={aoFechar} aria-label={ROTULO.fechar}>
+            {ICONE.fechar}
           </button>
         </div>
 
@@ -150,7 +156,7 @@ export default function Inventario({ ficha, alternarEquipada, definirMarcos, adi
           <div className="inv-resumo-bloco">
             <span className="inv-resumo-rotulo">Peso carregado</span>
             <span className="inv-resumo-valor">
-              {carregado.toFixed(2)} <i>kg</i>
+              {kg(carregado, 2)} <i>kg</i>
               {maximo > 0 && <span className="inv-peso-max"> / {maximo} kg</span>}
             </span>
             {maximo > 0 && (
@@ -204,9 +210,9 @@ export default function Inventario({ ficha, alternarEquipada, definirMarcos, adi
               <label className="linha-item" key={a.nome}>
                 <input type="checkbox" checked={a.equipada} onChange={() => alternarEquipada(a.nome)} />
                 <span>{a.nome}</span>
-                <span>{a.peso} kg</span>
+                <span>{kg(a.peso)} kg</span>
                 <span>1</span>
-                <span>{a.peso} kg</span>
+                <span>{kg(a.peso)} kg</span>
               </label>
             ))}
           </div>
@@ -235,9 +241,9 @@ export default function Inventario({ ficha, alternarEquipada, definirMarcos, adi
                   <div className="linha-item" key={`${item.nome}-${i}`}>
                     <span />
                     <span>{item.nome}</span>
-                    <span>{item.peso} kg</span>
+                    <span>{kg(item.peso)} kg</span>
                     <span>{item.qtd}</span>
-                    <span>{(item.peso * item.qtd).toFixed(2)} kg</span>
+                    <span>{kg(item.peso * item.qtd, 2)} kg</span>
                   </div>
                 ))}
               </div>

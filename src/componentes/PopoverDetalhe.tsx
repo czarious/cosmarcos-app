@@ -1,5 +1,6 @@
 /* arquivo: PopoverDetalhe.tsx */
 import type { DetalhePericia } from '../regras/calculos'
+import { ICONE, ROTULO } from '../variaveis'
 
 // Popover SÓ-LEITURA que abre ao tocar num número calculado (ex.: o +4 de
 // acerto de um ataque) e mostra de onde vem cada parcela — mesmo visual do
@@ -16,8 +17,8 @@ export default function PopoverDetalhe({ detalhe, aoFechar }: Props) {
       <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
           <span className="cr-titulo">{detalhe.titulo}</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label="Fechar">
-            ✕
+          <button className="cr-fechar" onClick={aoFechar} aria-label={ROTULO.fechar}>
+            {ICONE.fechar}
           </button>
         </div>
 

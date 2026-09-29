@@ -3,7 +3,7 @@ import type { Ativacao } from '../tipos/personagem'
 
 /**
  * CATÁLOGO DE AÇÕES — Cap. 10 (Ações e Reações). Paráfrase própria, nunca
- * cópia do livro (arquivo público, decisão 0004).
+ * cópia do livro (arquivo público, premissas.md → "GitHub Pages, repositório público").
  */
 
 export type EntradaAcao = {
@@ -43,11 +43,11 @@ export const ACOES_PADRAO: EntradaAcao[] = [
   { nome: 'Evitar Perigo', ativacao: 'reacao', resumo: 'Teste de Agilidade contra um perigo do ambiente — CD = resultado do teste acionador, ou 15 se não houver.' },
   { nome: 'Falar', ativacao: 'livre', resumo: 'Fala livremente; algo mais elaborado exige Usar uma Perícia.' },
   { nome: 'Ganhar Vantagem', ativacao: '1acao', resumo: 'Teste de perícia vs. defesa — sucesso dá vantagem no PRÓXIMO teste, com perícia diferente.' },
-  { nome: 'Golpe Reativo', ativacao: 'reacao', resumo: 'Gasta 1 foco pra atacar corpo a corpo quem sai voluntariamente do seu alcance.' },
-  { nome: 'Golpear', ativacao: '1acao', resumo: 'Ataca com arma ou desarmado contra a defesa Física; atacar com a mão inábil custa 2 de foco.' },
+  { nome: 'Golpe Reativo', ativacao: 'reacao', resumo: 'Gasta 1 foco pra atacar corpo a corpo quem sai voluntariamente do seu alcance. Não vale contra quem se move com Transporte ou instantaneamente.' },
+  { nome: 'Golpear', ativacao: '1acao', resumo: 'Ataca com arma ou desarmado contra a defesa Física. Pode repetir no turno, cada ataque com uma mão diferente; com a mão inábil custa 2 de foco.' },
   { nome: 'Interagir', ativacao: '1acao', resumo: 'Interage rápido com um objeto, sem teste — pode repetir no turno.' },
-  { nome: 'Largar', ativacao: 'livre', resumo: 'Larga qualquer quantidade de itens das mãos.' },
-  { nome: 'Mover', ativacao: '1acao', resumo: 'Move até sua taxa de movimento; rastejar, escalar, nadar ou ser furtivo deixa Lento durante o movimento.' },
+  { nome: 'Largar', ativacao: 'livre', resumo: 'Larga qualquer quantidade de itens das mãos. No turno de outro personagem, só com Preparar.' },
+  { nome: 'Mover', ativacao: '1acao', resumo: 'Move até sua taxa de movimento; pode repetir no turno. Rastejar, escalar, nadar ou ser furtivo deixa Lento; saltar ou escalar pode pedir teste de Agilidade ou Atletismo.' },
   { nome: 'Preparar', ativacao: '1acao', resumo: 'Reserva 1▶ + o custo da ação escolhida, pra usar em resposta a um gatilho antes do seu próximo turno.' },
   { nome: 'Proteger', ativacao: '1acao', resumo: 'Atrás de cobertura a até 1,5 m, ataques contra você sofrem desvantagem até você atacar ou se mover.' },
   { nome: 'Recuperar', ativacao: '2acoes', resumo: 'Rola o dado de recuperação como um descanso curto; só uma vez por cena.' },
@@ -89,7 +89,7 @@ export const ACOES_ESPRENO: EntradaAcao[] = [
     nome: 'Reconhecer Escondido',
     ativacao: 'especial',
     resumo:
-      'Custa 2 de foco. Ao longo de minutos, o espreno faz reconhecimento furtivo de uma área na distância do vínculo e reporta o que viu.',
+      'Custa 2 de foco. Ao longo de minutos, o espreno faz reconhecimento furtivo de uma área na distância do vínculo e reporta o que viu. Pra certas informações, o Mestre pode pedir teste de Consciência.',
   },
   {
     nome: 'Encorajar Juramento',
@@ -107,6 +107,6 @@ export const ACOES_ESPRENO: EntradaAcao[] = [
     nome: 'Traduzir',
     ativacao: '2acoes',
     resumo:
-      'Custa 2 de foco. Por 1 minuto, o espreno traduz línguas rosharanas faladas/escritas — o Radiante entende e é entendido.',
+      'Custa 2 de foco. Por 1 minuto, o espreno traduz línguas rosharanas faladas/escritas (inclusive de Shadesmar) — o Radiante entende e é entendido; ou o espreno lê em voz alta uma página que ele não sabe ler.',
   },
 ]

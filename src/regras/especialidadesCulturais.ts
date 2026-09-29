@@ -9,7 +9,7 @@
  * em ficha.especializacoes (ex.: se o Eccho ainda não tem "Thaylena" mas
  * o jogador quer escolhê-la numa vaga de talento).
  *
- * Texto = paráfrase própria, nunca cópia do livro (arquivo público, decisão 0004).
+ * Texto = paráfrase própria, nunca cópia do livro (arquivo público, premissas.md → "GitHub Pages, repositório público").
  */
 
 export type EspecialidadeCultural = {

@@ -1,5 +1,5 @@
 /* arquivo: base.css */
-/* Tema Shards fiel — claro, pergaminho (decisão 0013).
+/* Tema Shards fiel — claro, pergaminho (premissas.md → "Tema Shards fiel").
    Fonte única dos tokens de cor e tipo. Nenhum componente inventa cor:
    se precisa de uma, ela nasce aqui com nome. */
 
@@ -89,7 +89,7 @@ body {
   flex-direction: column;
 }
 
-/* ── topo fixo: cabeçalho + abas grudados juntos (decisão 0008) ── */
+/* ── topo fixo: cabeçalho + abas grudados juntos (premissas.md → "Os vitais grudam no topo") ── */
 .topo-fixo {
   position: sticky;
   top: 0;
@@ -1197,4 +1197,350 @@ label.linha-item input[type='checkbox'] {
 .cr-btn:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+/* ════════ RODAPÉ — estado do save + volta pra semente (item 2.3) ════════ */
+
+.rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem 1.2rem;
+  border-top: 1px solid var(--cor-borda);
+  font-size: 0.75rem;
+  color: var(--cor-texto-suave);
+}
+
+.rodape-estado::before {
+  content: '✓ ';
+  color: var(--cor-ok);
+  font-weight: bold;
+}
+
+.rodape-aviso {
+  flex: 1 1 100%;
+  color: var(--cor-destaque);
+}
+
+.rodape-botoes {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.rodape-botao {
+  font-family: var(--fonte);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  color: var(--cor-texto-suave);
+  cursor: pointer;
+}
+
+/* Apaga dado — vinho, a cor de ação primária/perigo do tema */
+.rodape-perigo {
+  color: var(--cor-destaque);
+  border-color: var(--cor-destaque);
+  font-weight: bold;
+}
+
+/* ════════ ABA PERÍCIAS (item 1.4) ════════ */
+
+.grupo-pericias + .grupo-pericias {
+  margin-top: 1.1rem;
+}
+
+.lista-pericias {
+  list-style: none;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--cor-painel);
+}
+
+.linha-pericia {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  min-height: var(--alvo-toque);
+}
+
+.linha-pericia + .linha-pericia {
+  border-top: 1px solid var(--cor-borda);
+}
+
+/* bolinhas de graduação — largura fixa pra os nomes alinharem entre linhas */
+.pericia-graduacao {
+  flex: none;
+  display: flex;
+  gap: 0.1rem;
+  font-size: 0.7rem;
+  line-height: 1;
+  font-style: normal;
+}
+
+.pericia-graduacao i {
+  font-style: normal;
+}
+
+.grad-cheia  { color: var(--cor-ok); }
+.grad-vazia  { color: var(--cor-borda); }
+.grad-bonus  { color: var(--cor-destaque); } /* isenta do teto — cor de destaque */
+
+.pericia-nome {
+  flex: 1;
+  min-width: 0;
+}
+
+/* O número que se soma ao d20 rolado na mão: maior que o padrão, de propósito */
+.pericia-total {
+  flex: none;
+  font-size: 1.1rem;
+  min-width: 2.6rem;
+  min-height: var(--alvo-toque);
+  text-align: center;
+}
+
+.legenda-pericias {
+  margin-top: 0.8rem;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+/* graduação bônus que veio do Shards sem talento identificado — conta no
+   total, mas não finge saber a origem (regras/calculos.ts) */
+.grad-sem-origem {
+  color: var(--cor-borda-forte);
+  opacity: 0.65;
+  font-style: normal;
+}
+
+/* ════════ FABRIAIS — cartões + montador (item 3.2) ════════
+   Reaproveita .anotacao (cartão recolhível) e .cr-* (painel e botões). */
+
+.fab-topo {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.fab-regra {
+  color: var(--cor-texto-suave);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin: 0.4rem 0;
+}
+
+.fab-cabeca {
+  cursor: default;
+  padding: 0;
+}
+
+.fab-titulo-botao {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--fonte);
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  min-height: var(--alvo-toque);
+  cursor: pointer;
+}
+
+.fab-etiqueta {
+  display: block;
+  color: var(--cor-texto-suave);
+  font-weight: normal;
+  font-size: 0.72rem;
+}
+
+.fab-cargas-botao {
+  font-family: var(--fonte);
+  font-weight: bold;
+  font-size: 1rem;
+  color: var(--cor-titulo);
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: 8px;
+  padding: 0.3rem 0.6rem;
+  margin-right: 0.6rem;
+  min-height: var(--alvo-toque);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  cursor: pointer;
+}
+
+.fab-cargas-botao small {
+  color: var(--cor-texto-suave);
+  font-weight: normal;
+}
+
+.fab-corpo {
+  white-space: normal; /* .anotacao-conteudo usa pre-wrap; aqui o texto vem do JSX */
+}
+
+.fab-corpo p {
+  margin: 0 0 0.4rem;
+}
+
+.fab-notas {
+  white-space: pre-wrap;
+  font-style: italic;
+}
+
+.fab-lista h4 {
+  color: var(--cor-titulo);
+  font-variant: small-caps;
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0.2rem;
+}
+
+.fab-lista ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.fab-lista-reves h4 {
+  color: var(--cor-destaque);
+}
+
+.fab-avisos {
+  list-style: none;
+  margin: 0.4rem 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--cor-destaque);
+  border-radius: 6px;
+  color: var(--cor-destaque);
+  font-size: 0.78rem;
+}
+
+.fab-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.fab-botoes .cr-btn {
+  flex: 1 1 auto;
+  font-size: 0.85rem;
+}
+
+.fab-botoes-edicao {
+  justify-content: flex-end;
+}
+
+.ataque-fabrial {
+  align-items: center;
+}
+
+.ataque-fabrial .fab-cargas-botao {
+  cursor: default;
+}
+
+/* montador — painel mais largo e rolável (é alto) */
+.fab-painel {
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.fab-tipo {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.fab-tipo-botao {
+  flex: 1;
+  font-family: var(--fonte);
+  font-size: 0.85rem;
+  padding: 0.5rem;
+  min-height: var(--alvo-toque);
+  background: var(--cor-campo);
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.fab-tipo-ativo {
+  background: var(--cor-destaque);
+  color: var(--cor-painel);
+  border-color: var(--cor-destaque);
+}
+
+.fab-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  font-size: 0.75rem;
+  color: var(--cor-texto-suave);
+}
+
+.fab-cargas {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.fab-grupo {
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem 0.6rem;
+}
+
+.fab-grupo legend {
+  color: var(--cor-titulo);
+  font-weight: bold;
+  font-size: 0.85rem;
+  padding: 0 0.3rem;
+}
+
+.fab-opcao {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.3rem 0;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.fab-opcao input {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.fab-opcao-nao-cabe {
+  opacity: 0.55;
+}
+
+.fab-nao-cabe {
+  color: var(--cor-destaque);
+}
+
+.fab-sub {
+  color: var(--cor-texto-suave);
+  font-size: 0.72rem;
+  margin: 0.5rem 0 0.1rem;
+}
+
+.fab-livre {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+
+.fab-livre .cr-btn {
+  flex: 0 0 3rem;
 }

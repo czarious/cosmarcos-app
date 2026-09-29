@@ -1,7 +1,8 @@
 /* arquivo: Acoes.tsx */
 import { useState } from 'react'
 import type { Personagem, Pericia } from '../../tipos/personagem'
-import { CATALOGO_TALENTOS, SIMBOLO_ATIVACAO, type EscolhaVaga } from '../../regras/talentos'
+import { CATALOGO_TALENTOS, type EscolhaVaga } from '../../regras/talentos'
+import { SIMBOLO_ATIVACAO } from '../../variaveis'
 import {
   ACOES_PADRAO,
   ACOES_CONCEDIDAS,
@@ -12,6 +13,8 @@ import {
 } from '../../regras/acoes'
 import { totalPericia, periciaPorNome, detalhePericia } from '../../regras/calculos'
 import PopoverDetalhe from '../PopoverDetalhe'
+import { fabrialDaArma, usosDoFabrial } from '../../regras/fabriais'
+import { CARGAS } from '../../variaveis'
 
 // Aba Ações — categorizada como o cartão de referência oficial (Actions /
 // Reactions / Stormlight Actions / Radiant Spren):
@@ -27,6 +30,8 @@ import PopoverDetalhe from '../PopoverDetalhe'
 type Props = {
   ficha: Personagem
   escolhasTalento: Record<string, EscolhaVaga>
+  /** Arma que é fabrial (ex.: PROJÉTIL) gasta carga daqui — ver regras/fabriais.ts → fabrialDaArma. */
+  alterarCargas: (idFabrial: string, delta: number) => void
 }
 
 function LinhaAcaoPadrao({ acao }: { acao: EntradaAcao }) {
@@ -41,7 +46,7 @@ function LinhaAcaoPadrao({ acao }: { acao: EntradaAcao }) {
   )
 }
 
-export default function Acoes({ ficha, escolhasTalento }: Props) {
+export default function Acoes({ ficha, escolhasTalento, alterarCargas }: Props) {
   const armasEquipadas = ficha.armas.filter((a) => a.equipada)
   const [detalheAberto, setDetalheAberto] = useState<Pericia | null>(null)
 
@@ -120,6 +125,23 @@ export default function Acoes({ ficha, escolhasTalento }: Props) {
                       ))}
                     </ul>
                   )}
+                  {(() => {
+                    const fab = fabrialDaArma(a.nome, ficha)
+                    if (!fab) return null
+                    return (
+                      <div className="fab-botoes ataque-fabrial">
+                        <span className="fab-cargas-botao">
+                          {CARGAS.simbolo} {fab.cargas.atual}
+                          <small>/{fab.cargas.max}</small>
+                        </span>
+                        {usosDoFabrial(fab).map((u) => (
+                          <button key={u.rotulo} className="cr-btn cr-menos" disabled={fab.cargas.atual < u.custo} onClick={() => alterarCargas(fab.id, -u.custo)}>
+                            {u.rotulo} (−{u.custo})
+                          </button>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             })}

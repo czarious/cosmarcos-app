@@ -3,21 +3,19 @@
 /**
  * Cálculos derivados que cruzam a ficha (FIXO, vem do Shards) com as
  * escolhas do jogador feitas no app (VIVO — ex.: qual perícia recebe o
- * bônus da Erudição). Decisão 0009: ler primeiro, calcular depois.
+ * bônus da Erudição). Ver premissas.md → "Ler primeiro, calcular depois".
  */
 
 import { CATALOGO_TALENTOS, type EscolhaVaga } from './talentos'
-import type { Personagem, Pericia, NomeAtributo } from '../tipos/personagem'
+import type { Personagem, Pericia } from '../tipos/personagem'
+import { ATRIBUTO, ROTULO } from '../variaveis'
 
-/** Nome completo do atributo, pra exibir num detalhamento (CabecalhoFixo já tem a versão abreviada, local). */
-export const NOME_ATRIBUTO: Record<NomeAtributo, string> = {
-  forca: 'Força',
-  velocidade: 'Velocidade',
-  intelecto: 'Intelecto',
-  vontade: 'Vontade',
-  consciencia: 'Consciência',
-  presenca: 'Presença',
-}
+// ⚠️ Ressalva conhecida: `regras/` não deveria conhecer a tela, e aqui ele
+// importa um RÓTULO (o nome do atributo) pra montar o detalhamento da perícia.
+// O conserto de verdade é `detalhePericia` devolver a CHAVE do atributo e o
+// componente resolver o nome — refatoração maior, anotada e não feita.
+// O que está aqui já era assim antes; a mudança só tirou a duplicação (o nome
+// completo vivia aqui e a abreviação no CabecalhoFixo).
 
 export type ParcelaBonus = { origem: string; valor: number }
 
@@ -46,16 +44,48 @@ export function bonusDeEscolhas(periciaId: string, escolhas: Record<string, Esco
   return origensBonusPericia(periciaId, escolhas).reduce((soma, p) => soma + p.valor, 0)
 }
 
+/** Alguma vaga de talento que o jogador ainda não decidiu? */
+export function temVagaIndecisa(escolhas: Record<string, EscolhaVaga>): boolean {
+  return Object.values(escolhas).some((e) => !e.valor)
+}
+
+/**
+ * Graduação bônus que o Shards exportou (`graduacaoBonus`) e que o app NÃO
+ * consegue atribuir a nenhum talento.
+ *
+ * ⚠️ Existe pra o app servir a QUALQUER personagem, não só aos que têm vínculo
+ * cadastrado. Sem isto, um PC novo apareceria com a perícia **1 abaixo** da
+ * ficha dele no Shards, calado — o número inventado com cara de número certo
+ * que o projeto proíbe.
+ *
+ * **Só conta enquanto houver vaga indecisa.** Se o jogador já decidiu todas as
+ * vagas, a atribuição do app é completa e manda: foi ele quem redistribuiu, e
+ * o `graduacaoBonus` do Shards é que ficou velho. É o que preserva o caso
+ * "redistribuiu a Erudição depois do descanso longo".
+ */
+export function bonusNaoAtribuido(
+  pericia: Pericia,
+  escolhas: Record<string, EscolhaVaga>,
+): number {
+  if (!temVagaIndecisa(escolhas)) return 0
+  return Math.max(0, pericia.graduacaoBonus - bonusDeEscolhas(pericia.id, escolhas))
+}
+
 /**
  * O TOTAL de uma perícia — a fórmula confirmada (escopo/conferencia-formulas.md):
  * atributo efetivo + graduação + bônus + misc.
  *
- * ⚠️ Usa `bonusDeEscolhas` (o que o JOGADOR escolheu no app), NÃO o
- * `graduacaoBonus` cru que o Shards exporta — são a mesma coisa no
- * primeiro carregamento (a escolha nasce semeada do Shards), mas divergem
- * assim que o jogador redistribuir um talento tipo Erudição. Um talento
- * futuro que dê bônus de perícia SEM vaga cadastrada em regras/talentos.ts
- * não entra nessa conta ainda — precisa ganhar uma vaga primeiro.
+ * O bônus entra por dois caminhos, e a ordem importa:
+ *  1. `bonusDeEscolhas` — o que o JOGADOR atribuiu no app. Manda sempre.
+ *  2. `bonusNaoAtribuido` — o que o Shards exportou e ninguém atribuiu ainda.
+ *     Só entra enquanto sobrar vaga indecisa, e aparece marcado no detalhamento.
+ *
+ * Assim a escolha do jogador sobrevive a uma redistribuição (Erudição depois
+ * do descanso longo) SEM que um personagem novo, ainda sem vínculo cadastrado,
+ * apareça com a perícia 1 abaixo da ficha dele no Shards.
+ *
+ * ⚠️ Talento que dê bônus de perícia sem vaga cadastrada em regras/talentos.ts
+ * ainda não entra no caminho 1 — mas agora cai no 2, marcado, em vez de sumir.
  */
 export function totalPericia(
   pericia: Pericia,
@@ -63,7 +93,13 @@ export function totalPericia(
   escolhas: Record<string, EscolhaVaga>,
 ): number {
   const atributoEfetivo = ficha.atributos[pericia.atributo] + ficha.atributosMod[pericia.atributo]
-  return atributoEfetivo + pericia.graduacao + bonusDeEscolhas(pericia.id, escolhas) + pericia.misc
+  return (
+    atributoEfetivo +
+    pericia.graduacao +
+    bonusDeEscolhas(pericia.id, escolhas) +
+    bonusNaoAtribuido(pericia, escolhas) +
+    pericia.misc
+  )
 }
 
 /** Acha a perícia da ficha pelo NOME (é como uma Arma referencia sua perícia). */
@@ -85,10 +121,13 @@ export function detalhePericia(
 ): DetalhePericia {
   const atributoEfetivo = ficha.atributos[pericia.atributo] + ficha.atributosMod[pericia.atributo]
   const linhas: ParcelaBonus[] = [
-    { origem: NOME_ATRIBUTO[pericia.atributo], valor: atributoEfetivo },
+    { origem: ATRIBUTO[pericia.atributo].nome, valor: atributoEfetivo },
     { origem: 'Graduação', valor: pericia.graduacao },
     ...origensBonusPericia(pericia.id, escolhas),
   ]
+  // Honestidade: o app mostra o número certo E diz que não sabe de onde veio.
+  const naoAtribuido = bonusNaoAtribuido(pericia, escolhas)
+  if (naoAtribuido > 0) linhas.push({ origem: ROTULO.bonusSemOrigem, valor: naoAtribuido })
   if (pericia.misc !== 0) linhas.push({ origem: 'Outros (misc)', valor: pericia.misc })
   return {
     titulo: pericia.nome,
@@ -97,7 +136,7 @@ export function detalhePericia(
   }
 }
 
-/** "50 kg" → 50. Usado pra comparar com o peso carregado (ambos em kg, decisão 0007). */
+/** "50 kg" → 50. Usado pra comparar com o peso carregado (ambos em kg — o tradutor converte na entrada). */
 export function pesoEmKg(texto: string): number {
   const m = texto.match(/[\d.,]+/)
   return m ? Number(m[0].replace(',', '.')) : 0
