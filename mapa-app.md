@@ -27,8 +27,10 @@
 | `mapa-app.md` | Este arquivo |
 | `package.json` | Nome, **versão do app** (fonte única) e dependências |
 | `tsconfig.json` | TypeScript `strict` — o contrato ficha × tela |
-| `vite.config.ts` | Config do Vite. `base: './'` já pronto pro GitHub Pages |
-| `index.html` | Casca do Vite (não é a ficha). `<div id="raiz">` |
+| `vite.config.ts` | Config do Vite. `base: './'` pro GitHub Pages · `vite-plugin-pwa` (manifest, service worker, pré-cache incluindo `personagens/*.json`) |
+| `index.html` | Casca do Vite (não é a ficha). `<div id="raiz">` · theme-color · apple-touch-icon |
+| `public/icone.svg` | Fonte do ícone do PWA (✦ creme sobre vinho) |
+| `public/icones/*.png` | Ícones 192, 512, maskable 512 e apple-touch 180 — gerados de `icone.svg` por `.claude/gerar-icones.mjs` |
 | `src/main.tsx` | Ponto de entrada — monta o React no `#raiz` |
 | `src/App.tsx` | Compõe a ficha: cabeçalho fixo + abas + conteúdo + rodapé (estado do save, importar arquivo do Shards, exportar pro Shards). Roteia pras abas prontas — resto é placeholder |
 | `src/estado/usePersonagem.ts` | **Estado VIVO** — recursos, escolhas de vaga, `alternarEquipada`, `definirMarcos`, `adicionarItem`/`removerItem`, fabriais, `importarTexto`/`exportarJson`. Carrega do save; o JSON é semente e base da exportação |
@@ -70,8 +72,6 @@
 
 ```
 (raiz do projeto)
-├── public/
-│   └── icones/                   ← ícones do PWA (Fase 2)
 ├── src/
 │   ├── regras/                   ← lógica do sistema, sem UI
 │   │   ├── ordens.ts             ← regras do Elsecaller/inkspren: Ações de Luz e do

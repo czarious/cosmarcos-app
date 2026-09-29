@@ -40,6 +40,7 @@ Pages em repo privado exige plano pago. O repo é público **por causa do custo 
 
 **O que sobe e o que não sobe** (César, 29/Set/2026): **a fonte nunca sobe** — PDF, transcrição, notas tiradas dela. **O app sobe** — regras e conteúdo feitos a partir da transcrição, em palavras próprias (nome e número exatos; frase copiada, não). **Nome de jogador também não sobe** — só o de personagem ([personagens.md](personagens.md)).
 
+- 🔒 **Publicado com a porta fechada** (29/Set/2026): a página só roda o que vem dela mesma — sem script de terceiro, sem conexão pra fora (política no `vite.config.ts`). O teste falhando barra a publicação. O que fica público: o app e a ficha-semente do Eccho; nome de jogador e livro, nunca. Dependência do app: 0 vulnerabilidades no `npm audit` (as ferramentas de dev têm 2 moderadas, fora do app).
 - ⛔ **Limite duro:** se um dia o app embutir o compêndio com texto do livro, o repo **tem** que virar privado — e aí o Pages deixa de servir. A saída é **Cloudflare Pages** ou **Netlify** (aceitam repo privado no plano grátis). Decidir **antes** de trazer o texto, nunca depois.
 
 ### React + TypeScript + Vite

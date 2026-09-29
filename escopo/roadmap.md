@@ -34,10 +34,10 @@
 
 | # | Funcionalidade | Critério de pronto |
 |---|---|---|
-| 2.1 | **Instalável** (`vite-plugin-pwa`) | "Adicionar à tela inicial" no Android; abre em tela cheia |
-| 2.2 | **Offline** | Modo avião → app abre e funciona |
+| 2.1 | 🔶 **Instalável** (`vite-plugin-pwa`) | "Adicionar à tela inicial" no Android; abre em tela cheia. Feito; falta conferir na tela |
+| 2.2 | 🔶 **Offline** | Modo avião → app abre e funciona. Feito; falta conferir na tela |
 | 2.3 | ✅ **Persistência** (localStorage) | ✅ Fecho com Vida 14/21, reabro depois: continua 14/21. Salva a **ficha inteira**, não só o estado vivo — ver [premissas](premissas.md) → "O Shards é SEMENTE; o app é dono da ficha" |
-| 2.4 | **Deploy automático** (GitHub Actions → Pages) | `git push` → alguns minutos → celular já tem a versão nova |
+| 2.4 | 🔶 **Deploy automático** (GitHub Actions → Pages) | `git push` → alguns minutos → celular já tem a versão nova. Feito; falta o passo manual Settings → Pages → Source = "GitHub Actions" e ver o 1º deploy |
 
 ## Fase 3 — Dados
 
