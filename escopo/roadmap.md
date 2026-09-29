@@ -18,7 +18,7 @@
 | 1.2 | ✅ **Dano e cura** | ▲/▼ na Vida + toque no número pra entrada numérica. Spec: [interface.md](interface.md) → "Recursos" | ✅ Toco na Vida, abre o controle, digito 7 e "− Dano", Vida cai de 21 → 14. Trava em 0 e no máx |
 | 1.3 | ✅ **Foco e Investidura** | **O mesmo componente da 1.2** (`ControleRecurso`), usado nos 3 recursos | ✅ Toco no Foco, ▼: 4 → 3. Labels viram "Gastar/Recuperar" |
 | **1.4** | ✅ **Lista de Perícias** | 18 perícias agrupadas por atributo, com a bolinha de graduação e o total **CALCULADO** (`regras/calculos.ts`) | ✅ Dedução com ◎ e **+7 calculado**, batendo com o Shards; as 18 conferidas contra a fórmula |
-| 1.5 | **Condições e buffs** | Adicionar/remover condições ativas | Marco "Atordoado", ele aparece; removo, some |
+| 1.5 | 🔶 **Condições e buffs** | Aba Condições: as 14 do livro com checkbox; colchetes pedem o valor; Aprimorado/Exausto entram no total da perícia, Lento/Imobilizado no movimento, Atordoado/Surpreendido nas ações do turno. Faixa no cabeçalho em qualquer aba | Marco "Atordoado", ele aparece no cabeçalho e "Agora" mostra 1 ▶ no turno lento; desmarco, some |
 
 **Pronta quando:** o César joga uma sessão inteira só com o celular na mão e o dado na outra, sem abrir o PDF nem o Shards.
 
@@ -48,7 +48,7 @@
 |---|---|---|
 | 3.1 | ✅ **UI de importar** · 🔶 **exportar pro Shards** — o JSON sai certo (ida e volta idêntica), mas o **download pelo botão não foi confirmado na tela** (27/Set/2026) | Baixo o export no celular, toco em "Importar", escolho o arquivo, a ficha atualiza. "Exportar pro Shards" baixa o JSON que o Shards importa, com o que mudei no app |
 | 3.2 | ✅ **Fabriais com cargas** | Aba Fabriais: gasto e recupero carga (± , Investidura, grantormenta); monto fabrial único com as opções do livro; o PROJÉTIL gasta carga em Ações |
-| 3.3 | **Lesões com contagem de dias** | Temporária conta dias; permanente não some sozinha |
+| 3.3 | 🔶 **Lesões com contagem de dias** | Temporária conta dias; permanente não some sozinha. Rolagem guiada (d20 + deflexão − 5 por lesão → gravidade), efeito d8 vira condição. Junto: **descanso** curto e longo |
 
 > ✅ **Respondido (12/Set/2026): ZERA.** Importar sobrescreve a ficha inteira, sem fusão — o app é dono da ficha depois da importação, e trazer um JSON desatualizado é perda de dado assumida por quem importa. O 3.1 é só a interface de escolher o arquivo; a semântica já está no item 2.3. Ver [premissas](premissas.md) → "O Shards é SEMENTE; o app é dono da ficha".
 
@@ -169,8 +169,7 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 |---|---|
 | **Ações do Mancha com custo de Foco** | ⬅️ **Veio da Fase 1** (era o item 1.6) — sem fonte de dados. O texto existe em `radiante-alternauta-03.md`, só não vem do Shards. Volta quando a pergunta 9 for decidida |
 | **Base de regras Cosmere própria** | Evolução natural da [premissas](premissas.md) → "Ler primeiro, calcular depois": conforme o livro for transcrito, PROVISÓRIO vira FIXO calculado. **Não é pré-requisito de nada** — o Shards já entrega as contas prontas |
-| Descanso — recuperar Foco/Investidura de uma vez | Depende da regra de descanso — confirmar no livro |
-| Dado de Recuperação | ✅ `resources.recoveryDie` = `"d8"`. Falta a ação de usar |
+| Descanso e dado de recuperação | 🔶 Entrou junto com o 3.3 (aba Condições). Pelo livro o descanso recupera **Vida e Foco**, não Investidura — Investidura volta por Inspirar Luz das Tempestades |
 | Objetivos — marcar como concluído | ✅ `achieved: boolean` + `rank`. ⚠️ **Não é barra de progresso** — a ideia antiga vinha do schema errado |
 | Ideais radiantes — marcar como jurado | ✅ `radiant.ideals.{i1..i5}`. O Eccho tem os 5 como `false` |
 | Exportar estado / backup manual | Contra perder tudo se limpar o navegador. Cresce de importância se a Fase 5 não sair |

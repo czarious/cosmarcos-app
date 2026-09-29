@@ -318,6 +318,34 @@ body {
   font-size: 0.74rem;
 }
 
+/* Número que a condição mudou (movimento com Lento…) — vinho + asterisco */
+.cf-derivados .cf-alterado b {
+  color: var(--cor-destaque);
+}
+
+/* Faixa de condições ativas — só aparece se houver; toque leva pra aba */
+.cf-condicoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.cf-condicao {
+  font-family: var(--fonte);
+  font-size: 0.66rem;
+  font-weight: bold;
+  padding: 0.1rem 0.4rem;
+  color: var(--cor-painel);
+  background: var(--cor-destaque);
+  border-radius: 4px;
+}
+
 /* ── barra de abas (rolável na horizontal) ── */
 .seletor-secao {
   display: flex;
@@ -1261,6 +1289,156 @@ label.linha-item input[type='checkbox'] {
 .rodape-perigo {
   color: var(--cor-destaque);
   border-color: var(--cor-destaque);
+  font-weight: bold;
+}
+
+/* ════════ ABA CONDIÇÕES (itens 1.5 e 3.3) ════════ */
+
+.condicoes > div + div {
+  margin-top: 1.2rem;
+}
+
+.condicoes ul {
+  list-style: none;
+}
+
+.cond-agora {
+  padding: 0.6rem 0.8rem;
+  border: 2px solid var(--cor-destaque);
+  border-radius: 6px;
+  background: var(--cor-painel);
+  font-size: 0.9rem;
+}
+
+.cond-agora .proximo,
+.condicoes .proximo {
+  margin-top: 0.3rem;
+}
+
+.cond-lembretes li::before {
+  content: '• ';
+  color: var(--cor-destaque);
+}
+
+.cond-item {
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.cond-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--alvo-toque);
+  cursor: pointer;
+}
+
+.cond-linha input[type='checkbox'] {
+  width: 1.3rem;
+  height: 1.3rem;
+  accent-color: var(--cor-destaque);
+}
+
+.cond-nome {
+  flex: 1;
+  font-weight: bold;
+}
+
+.cond-marcada .cond-nome {
+  color: var(--cor-destaque);
+}
+
+.cond-resumo {
+  margin: 0.15rem 0 0 1.8rem;
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+}
+
+.cond-instancias,
+.cond-origem {
+  margin-left: 1.8rem;
+  font-size: 0.85rem;
+}
+
+.cond-x {
+  margin-left: 0.4rem;
+  min-width: 2rem;
+  background: none;
+  border: none;
+  color: var(--cor-destaque);
+  cursor: pointer;
+}
+
+.cond-parametro,
+.lesao-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.4rem 0 0 1.8rem;
+}
+
+.lesao-acoes {
+  margin-left: 0;
+}
+
+/* .cr-input nasceu pro número grande do ControleRecurso — aqui fica compacto */
+.condicoes .cr-input {
+  width: auto;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.5rem;
+  margin-bottom: 0;
+}
+
+.condicoes .cond-numero {
+  width: 4.2rem;
+}
+
+/* O botão do rodapé é miúdo de propósito; aqui é jogada no meio da mesa — alvo de dedo */
+.condicoes .rodape-botao {
+  min-height: var(--alvo-toque);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+}
+
+.cond-descanso p + p,
+.cond-descanso .lesao-acoes + p {
+  margin-top: 0.7rem;
+}
+
+.lesao-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.lesao-nova {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  background: var(--cor-painel);
+}
+
+/* Número que uma condição alterou (perícia, acerto, dano) — o jogador não pode
+   ler "+5" achando que é o normal. Mesmo código do movimento no cabeçalho. */
+.numero-alterado {
+  color: var(--cor-destaque) !important;
+}
+
+.numero-alterado::after {
+  content: '*';
+}
+
+/* Perícias: vantagem/desvantagem vinda de condição */
+.pericia-vant {
+  color: var(--cor-ok);
+  font-weight: bold;
+}
+
+.pericia-desv {
+  color: var(--cor-destaque);
   font-weight: bold;
 }
 

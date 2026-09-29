@@ -1,6 +1,7 @@
 /* arquivo: usePersonagem.ts */
 import { useEffect, useState, useCallback, useRef } from 'react'
-import type { Personagem, Item, Anotacao, Fabrial } from '../tipos/personagem'
+import type { Personagem, Item, Anotacao, Fabrial, Condicao, Lesao } from '../tipos/personagem'
+import { descansoCurto, descansoLongo } from '../regras/descanso'
 import { importarShards, ErroImportacao } from './importarShards'
 import { exportarShards } from './exportarShards'
 import { CATALOGO_TALENTOS, chaveVaga, type EscolhaVaga, type TipoVaga } from '../regras/talentos'
@@ -59,6 +60,15 @@ type Retorno = {
   importarTexto: (texto: string) => string | null
   /** JSON pro Shards importar (Files → Import JSON), ou `null` se ainda não há semente — ver exportarShards.ts. */
   exportarJson: () => string | null
+  adicionarCondicao: (c: Omit<Condicao, 'uid'>) => void
+  removerCondicao: (uid: string) => void
+  /** Cria ou substitui (mesmo `uid`) uma lesão. */
+  salvarLesao: (l: Lesao) => void
+  removerLesao: (uid: string) => void
+  /** Soma o que o jogador distribuiu do dado de recuperação (rolado na mão). */
+  fazerDescansoCurto: (vida: number, foco: number) => void
+  /** Vida e Foco cheios, Exausto −1, lesão superficial cura. */
+  fazerDescansoLongo: () => void
   /** Backup COMPLETO do app (ficha + escolhas + semente) — volta pelo `importarTexto`. */
   backupJson: () => string | null
   /** `false` = a última gravação falhou. A tela não pode dizer "salva". */
@@ -361,6 +371,36 @@ export function usePersonagem(caminhoJson: string): Retorno {
     setFicha((atual) => (atual ? { ...atual, fabriais: atual.fabriais.filter((f) => f.id !== idFabrial) } : atual))
   }, [])
 
+  // CONDIÇÕES, LESÕES E DESCANSO (itens 1.5 e 3.3) — o que cada uma faz mora
+  // em regras/condicoes.ts e regras/descanso.ts; aqui só se grava.
+  const adicionarCondicao = useCallback((c: Omit<Condicao, 'uid'>) => {
+    setFicha((atual) => (atual ? { ...atual, condicoes: [...atual.condicoes, { ...c, uid: crypto.randomUUID() }] } : atual))
+  }, [])
+
+  const removerCondicao = useCallback((uid: string) => {
+    setFicha((atual) => (atual ? { ...atual, condicoes: atual.condicoes.filter((c) => c.uid !== uid) } : atual))
+  }, [])
+
+  const salvarLesao = useCallback((l: Lesao) => {
+    setFicha((atual) => {
+      if (!atual) return atual
+      const existe = atual.lesoes.some((x) => x.uid === l.uid)
+      return { ...atual, lesoes: existe ? atual.lesoes.map((x) => (x.uid === l.uid ? l : x)) : [...atual.lesoes, l] }
+    })
+  }, [])
+
+  const removerLesao = useCallback((uid: string) => {
+    setFicha((atual) => (atual ? { ...atual, lesoes: atual.lesoes.filter((l) => l.uid !== uid) } : atual))
+  }, [])
+
+  const fazerDescansoCurto = useCallback((vida: number, foco: number) => {
+    setFicha((atual) => (atual ? descansoCurto(atual, vida, foco) : atual))
+  }, [])
+
+  const fazerDescansoLongo = useCallback(() => {
+    setFicha((atual) => (atual ? descansoLongo(atual) : atual))
+  }, [])
+
   const backupJson = useCallback(
     (): string | null => (ficha ? JSON.stringify(montarPacote(ficha, escolhasTalento, semente), null, 2) : null),
     [ficha, escolhasTalento, semente],
@@ -387,6 +427,12 @@ export function usePersonagem(caminhoJson: string): Retorno {
     recarregarComInvestidura,
     salvarFabrial,
     removerFabrial,
+    adicionarCondicao,
+    removerCondicao,
+    salvarLesao,
+    removerLesao,
+    fazerDescansoCurto,
+    fazerDescansoLongo,
     importarTexto,
     exportarJson,
     backupJson,

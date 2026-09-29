@@ -7,8 +7,10 @@ import {
   detalhePericia,
   bonusDeEscolhas,
   bonusNaoAtribuido,
+  alteradoPorCondicao,
 } from '../../regras/calculos'
 import { tetoPericiaNormal } from '../../regras/pericias'
+import { efeitoCondicoesPericia } from '../../regras/condicoes'
 import { ATRIBUTO, ICONE, ORDEM_ATRIBUTOS, ROTULO } from '../../variaveis'
 import PopoverDetalhe from '../PopoverDetalhe'
 
@@ -44,6 +46,8 @@ export default function Pericias({ ficha, escolhasTalento }: Props) {
             <ul className="lista-pericias">
               {doGrupo.map((p) => {
                 const total = totalPericia(p, ficha, escolhasTalento)
+                // Condição mexeu no número → vinho com *, igual ao movimento no cabeçalho
+                const alterado = alteradoPorCondicao(p, ficha)
                 // Graduação de talento é ISENTA do teto (regras/pericias.ts) —
                 // por isso vem como bolinha própria, depois das do teto.
                 const bonus = bonusDeEscolhas(p.id, escolhasTalento)
@@ -82,12 +86,24 @@ export default function Pericias({ ficha, escolhasTalento }: Props) {
                       ))}
                     </span>
 
-                    <span className="pericia-nome">{p.nome}</span>
+                    <span className="pericia-nome">
+                      {p.nome}
+                      {/* Condição ativa: vantagem/desvantagem não mexem no número, mas mudam a rolagem */}
+                      {(() => {
+                        const { vantagem, desvantagem } = efeitoCondicoesPericia(p, ficha)
+                        return (
+                          <>
+                            {vantagem.length > 0 && <small className="pericia-vant" title={vantagem.join(', ')}> vantagem</small>}
+                            {desvantagem.length > 0 && <small className="pericia-desv" title={desvantagem.join(', ')}> desvantagem</small>}
+                          </>
+                        )
+                      })()}
+                    </span>
 
                     <button
-                      className="numero-detalhavel pericia-total"
+                      className={`numero-detalhavel pericia-total${alterado ? ' numero-alterado' : ''}`}
                       onClick={() => setDetalheAberto(p)}
-                      aria-label={`${p.nome}, total ${total}. Ver de onde vem`}
+                      aria-label={`${p.nome}, total ${total}${alterado ? ', alterado por condição' : ''}. Ver de onde vem`}
                     >
                       {total >= 0 ? '+' : ''}
                       {total}

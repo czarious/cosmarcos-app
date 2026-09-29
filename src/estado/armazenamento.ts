@@ -22,6 +22,7 @@
 
 import type { Personagem, Fabrial } from '../tipos/personagem'
 import { FABRIAIS_PADRAO, efeitoPorNome } from '../regras/fabriais'
+import { CONDICOES } from '../regras/condicoes'
 import type { EscolhaVaga } from '../regras/talentos'
 
 /**
@@ -30,7 +31,7 @@ import type { EscolhaVaga } from '../regras/talentos'
  * `lerFicha`). Subiu este número? Escreva a entrada em MIGRACOES — o teste
  * `armazenamento.test.ts` reprova se faltar.
  */
-export const VERSAO_ESQUEMA = 3
+export const VERSAO_ESQUEMA = 4
 
 /**
  * Migrações: save de versão antiga que ainda dá pra aproveitar. Cada entrada
@@ -63,6 +64,24 @@ export const MIGRACOES: Record<number, (ficha: Personagem) => void> = {
         notas: v2.efeitos,
       }
     })
+  },
+  // v3 → v4: condição era { nome, duracao } em texto livre; virou id do livro +
+  // parâmetro (regras/condicoes.ts). Lesão era { tipo, descricao }; ganhou
+  // gravidade e efeito d8. Nome fora das 14 não tem como ser adivinhado — mas
+  // no v3 não havia tela pra marcar condição, então só chega o que veio do Shards.
+  3: (ficha) => {
+    const porNome = new Map(CONDICOES.map((c) => [c.nome.toLowerCase(), c.id]))
+    ficha.condicoes = (ficha.condicoes as unknown as { nome?: string }[]).flatMap((antiga) => {
+      const id = porNome.get(antiga.nome?.toLowerCase() ?? '')
+      return id ? [{ uid: crypto.randomUUID(), id }] : []
+    })
+    ficha.lesoes = (ficha.lesoes as unknown as { tipo: string; descricao: string; diasRestantes?: number }[]).map((l) => ({
+      uid: crypto.randomUUID(),
+      gravidade: l.tipo === 'permanente' ? 'permanente' : 'leve',
+      efeito: 'outro',
+      descricao: l.descricao || undefined,
+      diasRestantes: l.diasRestantes,
+    }))
   },
 }
 

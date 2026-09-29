@@ -10,7 +10,7 @@
  * mudar uma chave.
  */
 
-import type { NomeAtributo, TipoEspecializacao, QualidadeFabrial } from '../tipos/personagem'
+import type { NomeAtributo, TipoEspecializacao, QualidadeFabrial, IdCondicao } from '../tipos/personagem'
 
 export const ATRIBUTO: Record<string, NomeAtributo> = {
   strength: 'forca',
@@ -406,4 +406,26 @@ export const ESPECIALIDADE_CULTURAL: Record<string, string> = {
   Unkalaki: 'Unkalakiana',
   Veden: 'Vedena',
   Wayfarer: 'Viajante',
+}
+
+/**
+ * Condições — nome do Shards (data/rules-index.json, conferido 29/Set/2026) → id
+ * em regras/condicoes.ts. Os 14 batem com o dicionário. Atenção ao par que
+ * confunde: Enhanced = Aprimorado (atributo); Empowered = Potencializado (Ideal).
+ */
+export const CONDICAO_ID: Record<string, IdCondicao> = {
+  Afflicted: 'afligido',
+  Enhanced: 'aprimorado',
+  Stunned: 'atordoado',
+  Disoriented: 'desorientado',
+  Determined: 'determinado',
+  Exhausted: 'exausto',
+  Focused: 'focado',
+  Immobilized: 'imobilizado',
+  Unconscious: 'inconsciente',
+  Slowed: 'lento',
+  Empowered: 'potencializado',
+  Prone: 'prostrado',
+  Restrained: 'restringido',
+  Surprised: 'surpreendido',
 }

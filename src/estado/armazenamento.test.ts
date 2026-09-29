@@ -35,6 +35,18 @@ describe('migração de esquema', () => {
   })
 })
 
+describe('migração v3 → v4 (condição e lesão ganharam id do livro)', () => {
+  it('condição por nome vira id; lesão ganha gravidade e efeito "outro"', () => {
+    const f = ficha() as unknown as Record<string, unknown>
+    f.condicoes = [{ nome: 'Lento' }, { nome: 'Algo que não existe' }]
+    f.lesoes = [{ tipo: 'permanente', descricao: 'perna' }]
+    localStorage.setItem('cosmarcos:ficha:eccho', JSON.stringify({ versaoEsquema: 3, salvoEm: '', ficha: f, escolhasTalento: {} }))
+    const lida = lerFicha('eccho').salva!.ficha
+    expect(lida.condicoes.map((c) => c.id)).toEqual(['lento'])
+    expect(lida.lesoes[0]).toMatchObject({ gravidade: 'permanente', efeito: 'outro', descricao: 'perna' })
+  })
+})
+
 describe('save que não abre', () => {
   it('corrompido: avisa e guarda o texto cru antes de qualquer gravação por cima', () => {
     localStorage.setItem('cosmarcos:ficha:eccho', '{isso não é json')

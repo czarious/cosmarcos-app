@@ -4,6 +4,8 @@ import type { Personagem, NomeAtributo } from '../tipos/personagem'
 import type { NomeRecurso } from '../estado/usePersonagem'
 import ControleRecurso from './ControleRecurso'
 import { ATRIBUTO, RECURSO, GRUPOS_FICHA } from '../variaveis'
+import { condicoesEfetivas, movimentoComCondicoes } from '../regras/condicoes'
+import { rotuloCondicao, formatarMetros } from './secoes/Condicoes'
 
 // O cabeçalho fixo TOTAL: identidade reduzida + os 3 grupos da ficha oficial
 // lado a lado. Cada grupo: [atributo] [DEFESA no meio] [atributo] + recurso.
@@ -15,12 +17,16 @@ import { ATRIBUTO, RECURSO, GRUPOS_FICHA } from '../variaveis'
 type Props = {
   ficha: Personagem
   alterarRecurso: (qual: NomeRecurso, delta: number) => void
+  /** Toque na faixa de condições → vai pra aba Condições. */
+  aoVerCondicoes: () => void
 }
 
-export default function CabecalhoFixo({ ficha, alterarRecurso }: Props) {
+export default function CabecalhoFixo({ ficha, alterarRecurso, aoVerCondicoes }: Props) {
   const { meta, atributos, atributosMod, defesas, recursos, deflect, derivados } = ficha
   const efetivo = (a: NomeAtributo) => atributos[a] + atributosMod[a]
   const [aberto, setAberto] = useState<NomeRecurso | null>(null)
+  const efetivas = condicoesEfetivas(ficha)
+  const mov = movimentoComCondicoes(ficha)
 
   return (
     <header className="cabecalho-fixo">
@@ -81,10 +87,24 @@ export default function CabecalhoFixo({ ficha, alterarRecurso }: Props) {
       </div>
 
       <div className="cf-derivados">
-        <span><i>Movimento</i> <b>{derivados.movimento}</b></span>
+        {/* Movimento já com as condições (Lento, Imobilizado…): é o número que se usa AGORA */}
+        <span className={mov.motivo ? 'cf-alterado' : undefined} title={mov.motivo}>
+          <i>Movimento</i> <b>{mov.motivo ? `${formatarMetros(mov.metros)}*` : derivados.movimento}</b>
+        </span>
         <span><i>Recuperação</i> <b>{derivados.dadoRecuperacao}</b></span>
         <span><i>Sentidos</i> <b>{derivados.alcanceSentidos}</b></span>
       </div>
+
+      {/* Condição ativa aparece em QUALQUER aba — muda a jogada no meio do combate */}
+      {efetivas.length > 0 && (
+        <button className="cf-condicoes" onClick={aoVerCondicoes} aria-label="Ver condições ativas">
+          {efetivas.map((c) => (
+            <span key={c.uid} className="cf-condicao">
+              {rotuloCondicao(c)}
+            </span>
+          ))}
+        </button>
+      )}
 
       {aberto && (
         <ControleRecurso

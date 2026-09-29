@@ -9,6 +9,7 @@
 import { CATALOGO_TALENTOS, type EscolhaVaga } from './talentos'
 import type { Personagem, Pericia } from '../tipos/personagem'
 import { ATRIBUTO, ROTULO } from '../variaveis'
+import { efeitoCondicoesPericia, type UsoPericia } from './condicoes'
 
 // ⚠️ Ressalva conhecida: `regras/` não deveria conhecer a tela, e aqui ele
 // importa um RÓTULO (o nome do atributo) pra montar o detalhamento da perícia.
@@ -98,15 +99,16 @@ export function totalPericia(
   pericia: Pericia,
   ficha: Personagem,
   escolhas: Record<string, EscolhaVaga>,
+  uso: UsoPericia = 'teste',
 ): number {
-  const atributoEfetivo = ficha.atributos[pericia.atributo] + ficha.atributosMod[pericia.atributo]
-  return (
-    atributoEfetivo +
-    pericia.graduacao +
-    bonusDeEscolhas(pericia.id, escolhas) +
-    bonusNaoAtribuido(pericia, escolhas) +
-    pericia.misc
-  )
+  // Uma conta só: o total É a soma do detalhamento. Antes eram duas cópias da
+  // mesma fórmula — o tipo de coisa que diverge sem ninguém ver.
+  return detalhePericia(pericia, ficha, escolhas, uso).total
+}
+
+/** Algo ativo (condição) mudou este número? A tela marca — o jogador não pode achar que é o normal. */
+export function alteradoPorCondicao(pericia: Pericia, ficha: Personagem, uso: UsoPericia = 'teste'): boolean {
+  return efeitoCondicoesPericia(pericia, ficha, uso).linhas.length > 0
 }
 
 /** Acha a perícia da ficha pelo NOME (é como uma Arma referencia sua perícia). */
@@ -125,6 +127,7 @@ export function detalhePericia(
   pericia: Pericia,
   ficha: Personagem,
   escolhas: Record<string, EscolhaVaga>,
+  uso: UsoPericia = 'teste',
 ): DetalhePericia {
   const atributoEfetivo = ficha.atributos[pericia.atributo] + ficha.atributosMod[pericia.atributo]
   const linhas: ParcelaBonus[] = [
@@ -136,6 +139,9 @@ export function detalhePericia(
   const naoAtribuido = bonusNaoAtribuido(pericia, escolhas)
   if (naoAtribuido > 0) linhas.push({ origem: ROTULO.bonusSemOrigem, valor: naoAtribuido })
   if (pericia.misc !== 0) linhas.push({ origem: 'Outros (misc)', valor: pericia.misc })
+  // Condição ativa (Aprimorado, Exausto) entra como parcela nomeada — o jogador
+  // vê que o número caiu E por quê (regras/condicoes.ts).
+  linhas.push(...efeitoCondicoesPericia(pericia, ficha, uso).linhas)
   return {
     titulo: pericia.nome,
     linhas,

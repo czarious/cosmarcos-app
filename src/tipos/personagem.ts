@@ -159,17 +159,32 @@ export type Radiante = {
   fluxos: Fluxo[]
 }
 
-/** Condição ativa — estado vivo. */
+/** As 14 condições do livro — o que cada uma faz mora em regras/condicoes.ts. */
+export type IdCondicao =
+  | 'afligido' | 'aprimorado' | 'atordoado' | 'desorientado' | 'determinado' | 'exausto' | 'focado'
+  | 'imobilizado' | 'inconsciente' | 'lento' | 'potencializado' | 'prostrado' | 'restringido' | 'surpreendido'
+
+/** Condição aplicada à mão — estado vivo. Só a que tem colchetes usa o parâmetro. */
 export type Condicao = {
-  nome: string
-  duracao?: string // texto livre por ora; vira regra quando o livro chegar lá
+  uid: string
+  id: IdCondicao
+  valor?: number            // Aprimorado [+N] · Exausto [−N] (guardado positivo)
+  atributo?: NomeAtributo   // Aprimorado
+  dano?: string             // Afligido — "1d4 vital"
+  nota?: string             // o que causou / até quando
 }
+
+export type GravidadeLesao = 'superficial' | 'leve' | 'grave' | 'permanente'
+/** Linha da tabela d8 de efeitos (regras/condicoes.ts → EFEITOS_LESAO). */
+export type EfeitoLesao = 'exausto-1' | 'exausto-2' | 'lento' | 'desorientado' | 'surpreendido' | 'uma-mao' | 'outro'
 
 /** Lesão — temporária conta dias; permanente só sai por meio sobrenatural. */
 export type Lesao = {
-  tipo: 'temporaria' | 'permanente'
-  descricao: string
-  diasRestantes?: number // só faz sentido na temporária
+  uid: string
+  gravidade: GravidadeLesao
+  efeito: EfeitoLesao
+  descricao?: string
+  diasRestantes?: number // leve e grave; superficial cura no descanso longo
 }
 
 /** Anotação livre do jogador — não vem do Shards, nasce vazia (aba Anotações). */

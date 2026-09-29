@@ -25,6 +25,7 @@ import type {
   Radiante,
   Especializacao,
   Anotacao,
+  Condicao,
 } from '../tipos/personagem'
 import {
   ATRIBUTO,
@@ -51,6 +52,7 @@ import {
   REVES_ID,
   QUALIDADE_FABRIAL,
   ESPECIALIDADE_CULTURAL,
+  CONDICAO_ID,
 } from './deparaShards'
 import { efeitoPorNome, ID_PROPRIO, CARACTERISTICAS_AVANCADAS } from '../regras/fabriais'
 
@@ -430,6 +432,26 @@ export const TITULO_NOTAS_SHARDS = 'Notas (do Shards)'
  * (estado/exportarShards.ts), e aqui o caminho inverso. Texto antes do
  * primeiro "### " é o bloco "Notas (do Shards)".
  */
+/**
+ * Condição do Shards → a nossa. Aceita string ou objeto com `name`, e o valor
+ * entre colchetes no próprio nome ("Exhausted [-2]"). Nome fora dos 14 GRITA:
+ * a lista do Shards é fechada, então nome novo = formato mudou.
+ */
+function traduzCondicao(x: unknown, i: number): Condicao {
+  const bruto = typeof x === 'string' ? x : ehObjeto(x) ? texto(x.name) : ''
+  const m = bruto.match(/^\s*([A-Za-z]+)\s*(?:\[(.*)\])?/)
+  const id = m ? CONDICAO_ID[m[1]] : undefined
+  if (!id) throw new ErroImportacao(`conditions[${i}]: condição desconhecida "${bruto}"`)
+  const colchete = m?.[2]?.trim()
+  const numero = colchete ? parseInt(colchete.replace(/[^0-9-]/g, ''), 10) : NaN
+  return {
+    uid: crypto.randomUUID(),
+    id,
+    valor: Number.isNaN(numero) ? undefined : Math.abs(numero),
+    dano: id === 'afligido' ? colchete : undefined,
+  }
+}
+
 function anotacoesDoShards(c: Obj): Anotacao[] {
   const partes = texto(c.notes).split(/^### /m)
   const blocos: Anotacao[] = []
@@ -529,14 +551,13 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
     objetivos: traduzObjetivos(c.goals),
     radiante: traduzRadiante(c.radiant),
     // estado vivo: começa do que o Shards mandou (pode ser sobrescrito ao reimportar — pergunta 7)
-    condicoes: lista(c.conditions).map((x) => {
-      const o = ehObjeto(x) ? x : {}
-      return { nome: texto(o.name), duracao: texto(o.duration) || undefined }
-    }),
+    condicoes: lista(c.conditions).map(traduzCondicao),
+    // O Shards não diz gravidade nem efeito d8 da lesão: entra como "outro",
+    // com o texto dele, e o jogador ajusta na aba Condições.
     lesoes: lista(c.injuries).map((x) => {
       const o = ehObjeto(x) ? x : {}
-      const tipo = texto(o.type).toLowerCase().startsWith('perman') ? 'permanente' : 'temporaria'
-      return { tipo, descricao: texto(o.description) }
+      const permanente = texto(o.type).toLowerCase().startsWith('perman')
+      return { uid: crypto.randomUUID(), gravidade: permanente ? 'permanente' : 'leve', efeito: 'outro', descricao: texto(o.description ?? o.name) || undefined }
     }),
     anotacoes: anotacoesDoShards(c),
   }

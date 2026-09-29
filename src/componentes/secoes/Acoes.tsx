@@ -11,7 +11,8 @@ import {
   compararAtivacao,
   type EntradaAcao,
 } from '../../regras/acoes'
-import { totalPericia, periciaPorNome, detalhePericia } from '../../regras/calculos'
+import { totalPericia, periciaPorNome, detalhePericia, alteradoPorCondicao } from '../../regras/calculos'
+import type { UsoPericia } from '../../regras/condicoes'
 import PopoverDetalhe from '../PopoverDetalhe'
 import { fabrialDaArma, usosDoFabrial } from '../../regras/fabriais'
 import { CARGAS } from '../../variaveis'
@@ -48,7 +49,8 @@ function LinhaAcaoPadrao({ acao }: { acao: EntradaAcao }) {
 
 export default function Acoes({ ficha, escolhasTalento, alterarCargas }: Props) {
   const armasEquipadas = ficha.armas.filter((a) => a.equipada)
-  const [detalheAberto, setDetalheAberto] = useState<Pericia | null>(null)
+  // Acerto é TESTE (Exausto conta); dano não é (regras/condicoes.ts → UsoPericia).
+  const [detalheAberto, setDetalheAberto] = useState<{ pericia: Pericia; uso: UsoPericia } | null>(null)
 
   const acoesConcedidas = ficha.talentos
     .filter((t) => CATALOGO_TALENTOS[t.id] && ACOES_CONCEDIDAS[t.id])
@@ -85,7 +87,9 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas }: Props) 
                   </p>
                 )
               }
-              const total = totalPericia(pericia, ficha, escolhasTalento)
+              const acerto = totalPericia(pericia, ficha, escolhasTalento, 'teste')
+              const dano = totalPericia(pericia, ficha, escolhasTalento, 'dano')
+              const marca = (uso: UsoPericia) => (alteradoPorCondicao(pericia, ficha, uso) ? ' numero-alterado' : '')
               const categoria = a.alcance.startsWith('Corpo a corpo') ? 'Arma corpo a corpo' : 'Arma à distância'
               return (
                 <div className="linha-ataque" key={a.nome}>
@@ -97,16 +101,16 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas }: Props) 
                     <span className="dado-futuro">{a.alcance}</span>
                     <span className="numero-linha">
                       <span className="dado-futuro">d20</span>
-                      <button className="numero-detalhavel" onClick={() => setDetalheAberto(pericia)}>
-                        {total >= 0 ? '+' : ''}
-                        {total}
+                      <button className={`numero-detalhavel${marca('teste')}`} onClick={() => setDetalheAberto({ pericia, uso: 'teste' })}>
+                        {acerto >= 0 ? '+' : ''}
+                        {acerto}
                       </button>
                     </span>
                     <span className="numero-linha">
                       <span className="dado-futuro">{a.dano}</span>
-                      <button className="numero-detalhavel" onClick={() => setDetalheAberto(pericia)}>
-                        {total >= 0 ? '+' : ''}
-                        {total}
+                      <button className={`numero-detalhavel${marca('dano')}`} onClick={() => setDetalheAberto({ pericia, uso: 'dano' })}>
+                        {dano >= 0 ? '+' : ''}
+                        {dano}
                       </button>
                       <span className="tipo-dano">{a.tipoDano}</span>
                     </span>
@@ -201,7 +205,7 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas }: Props) 
 
       {detalheAberto && (
         <PopoverDetalhe
-          detalhe={detalhePericia(detalheAberto, ficha, escolhasTalento)}
+          detalhe={detalhePericia(detalheAberto.pericia, ficha, escolhasTalento, detalheAberto.uso)}
           aoFechar={() => setDetalheAberto(null)}
         />
       )}

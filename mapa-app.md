@@ -45,6 +45,7 @@
 | `src/componentes/secoes/Pericias.tsx` | Aba Perícias — as 18 agrupadas por atributo, bolinha de graduação (◎ = de talento, isenta do teto) e o total calculado, grande. Toque no total abre o `PopoverDetalhe` |
 | `src/componentes/secoes/Talentos.tsx` | Aba Talentos — cruza talento (dado) × `regras/talentos.ts` (regra) × escolha do jogador (vivo). Talento com `vagas` ganha dropdown editável; sem vagas, fallback só-leitura |
 | `src/componentes/secoes/Acoes.tsx` | Aba Ações — ataques das armas equipadas (acerto/dano via `regras/calculos.ts`; arma que é fabrial gasta carga), ações concedidas por talento, e as 17 ações padrão de combate como referência |
+| `src/componentes/secoes/Condicoes.tsx` | Aba Condições — "Agora" (ações/reação/movimento/lembretes), as 14 com checkbox e valor entre colchetes, lesões (rolagem guiada, dias, curar) e descanso curto/longo. Exporta `rotuloCondicao` pro cabeçalho |
 | `src/componentes/secoes/Fabriais.tsx` | Aba Fabriais — cartão por fabrial: cargas (±), usos que gastam carga, recarga com Investidura e grantormenta, efeito/aprimoramentos/revezes e avisos da regra |
 | `src/componentes/secoes/Inventario.tsx` | Aba Inventário — peso carregado/máximo, marcos editável, armas (equipar), itens por categoria, "Gerenciar Inventário" (add/remover) |
 | `src/componentes/secoes/Anotacoes.tsx` | Aba Anotações — blocos livres título+conteúdo, 100% do app (Shards não tem isso). Cabeçalho recolhe/expande o corpo |
@@ -55,6 +56,9 @@
 | `src/regras/especialidadesUtilidadePerito.ts` | Rótulo das 5 categorias de especialidade + exemplos do livro (Cap. 3) pra Utilidade/Perito — o livro não fecha essas duas, por isso o dropdown tem "Outra" |
 | `src/regras/pericias.ts` | Teto de graduação por patamar (2/3/4/5/5) + a exceção da Erudição. Consumido pela aba Perícias |
 | `src/regras/calculos.ts` | `totalPericia`/`detalhePericia` + `bonusNaoAtribuido` (o bônus que o Shards mandou e ninguém atribuiu) + `pesoCarregado`/`pesoEmKg` + `periciaPorNome` |
+| `src/regras/condicoes.ts` | **Condições e lesões** (Cap. 9): as 14 condições, efeitos d8 de lesão, gravidade, rolagem de lesão — e o que muda na ficha (perícia, movimento, ações no turno, lembretes). Lesão com efeito vira condição por `condicoesEfetivas`, sem gravar duas vezes |
+| `src/regras/condicoes.test.ts` | Testes de condição/lesão/descanso com os exemplos e faixas exatas do livro |
+| `src/regras/descanso.ts` | **Descanso** curto (soma o dado de recuperação distribuído) e longo (Vida/Foco cheios, Exausto −1, superficial cura) |
 | `src/regras/fabriais.ts` | **Regras de fabrial** (Cap. 7): 13 padrão, 15 efeitos únicos, aprimoramentos/revezes gerais com requisito, características avançadas, qualidade, patamar, recarga — e as contas (cargas pela regra, avisos, fabrial de uma arma) |
 | `src/regras/acoes.ts` | 17 ações padrão (Cap. 10) + ações de talento (Cap. 5, ex. Inspirar Luz) + Habilidades de Espreno (Cap. 5, condicional em `ficha.radiante`) |
 | `src/estado/importarShards.ts` | **O TRADUTOR** — JSON do Shards → schema. **Grita** no que não reconhecer. Unidades pelos números do livro, inclusive com o Shards em métrico |
@@ -109,6 +113,7 @@ tipos/personagem.ts  ← a raiz de tudo
 | `regras/especialidades.ts` | `usePersonagem.ts` · `secoes/Talentos.tsx` | Um bloco por personagem, chaveado por `meta.nome`. Personagem sem entrada **funciona** — o total cai no `bonusNaoAtribuido` |
 | `regras/pericias.ts` | `secoes/Pericias.tsx` | Teto por patamar — as bolinhas ○ são as vagas até ele |
 | `regras/calculos.ts` | `secoes/Talentos.tsx` · `Acoes.tsx` · `secoes/Pericias.tsx` | O total da perícia sai daqui — é o número que vai pra mesa |
+| `regras/condicoes.ts` | `regras/calculos.ts` (total da perícia) · `CabecalhoFixo.tsx` · `secoes/Condicoes.tsx` · `secoes/Pericias.tsx` · `estado/armazenamento.ts` (migração v3→v4) | Mudou uma condição → o total de TODA perícia pode mudar. Ids são o que a ficha salva: renomear quebra o save. Regra: `transcricao/09-aventurando-se/06-condicoes.md` |
 | `regras/acoes.ts` | `secoes/Acoes.tsx` | Ações padrão + concedidas por talento |
 | `regras/fabriais.ts` | `secoes/Fabriais.tsx` · `FormularioFabrial.tsx` · `secoes/Acoes.tsx` · `estado/importarShards.ts` · `estado/armazenamento.ts` | Ids de efeito/aprimoramento são o que a ficha salva — **renomear um id quebra o save**. Regra do livro: conferir contra `transcricao/07-itens/09-manufaturando.md` |
 | `regras/dados.ts` (Fase 4) | rolador · [`escopo/interface.md`](escopo/interface.md) → "Tela de dados" | Regra provisória ([premissas](escopo/premissas.md) → "O Dado de Trama e a vantagem seguem o livro") |

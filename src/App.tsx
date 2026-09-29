@@ -10,6 +10,7 @@ import Acoes from './componentes/secoes/Acoes'
 import Inventario from './componentes/secoes/Inventario'
 import Anotacoes from './componentes/secoes/Anotacoes'
 import Fabriais from './componentes/secoes/Fabriais'
+import Condicoes from './componentes/secoes/Condicoes'
 import { ROTULO } from './variaveis'
 
 // Compõe a ficha: cabeçalho fixo (recursos MUTÁVEIS — item 1.2/1.3) + abas + conteúdo.
@@ -34,6 +35,12 @@ export default function App() {
     recarregarComInvestidura,
     salvarFabrial,
     removerFabrial,
+    adicionarCondicao,
+    removerCondicao,
+    salvarLesao,
+    removerLesao,
+    fazerDescansoCurto,
+    fazerDescansoLongo,
     importarTexto,
     exportarJson,
     backupJson,
@@ -100,7 +107,7 @@ export default function App() {
   return (
     <div className="ficha">
       <div className="topo-fixo">
-        <CabecalhoFixo ficha={ficha} alterarRecurso={alterarRecurso} />
+        <CabecalhoFixo ficha={ficha} alterarRecurso={alterarRecurso} aoVerCondicoes={() => setSecao('Condições')} />
         <SeletorSecao ativa={secao} aoTrocar={setSecao} />
       </div>
       <main className="conteudo">
@@ -136,6 +143,16 @@ export default function App() {
             recarregarComInvestidura={recarregarComInvestidura}
             salvarFabrial={salvarFabrial}
             removerFabrial={removerFabrial}
+          />
+        ) : secao === 'Condições' ? (
+          <Condicoes
+            ficha={ficha}
+            adicionarCondicao={adicionarCondicao}
+            removerCondicao={removerCondicao}
+            salvarLesao={salvarLesao}
+            removerLesao={removerLesao}
+            fazerDescansoCurto={fazerDescansoCurto}
+            fazerDescansoLongo={fazerDescansoLongo}
           />
         ) : secao === 'Inventário' ? (
           <Inventario
