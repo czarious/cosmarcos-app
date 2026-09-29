@@ -41,3 +41,12 @@ escopo/jogadores.md
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# APK (Bubblewrap/TWA) — só a receita é versionada; o projeto Android se
+# regenera dela. Chave de assinatura NUNCA sobe (mora em ~/.cosmarcos-apk).
+apk/*
+!apk/twa-manifest.json
+*.keystore
+*.jks
+*.apk
+*.aab

@@ -57,7 +57,9 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | `.claude/mapa-projeto.md` | **Onde.** Este arquivo: mapa de arquivos + dependências |
 | [`.claude/mapa-shards.md`](mapa-shards.md) | **Onde, no site do Shards:** telas, catálogos, banco do navegador, defeitos conhecidos e como exportar |
 | `.claude/gerar-icones.mjs` | Gera os PNG do PWA a partir de `public/icone.svg`. Usa `sharp`, instalado na hora (`--no-save`) — não é dependência do projeto |
-| `.github/workflows/deploy.yml` | Push em main → build → GitHub Pages (Fase 2.4). Exige Settings → Pages → Source = "GitHub Actions" |
+| `.github/workflows/deploy.yml` | Push em main → testes → build → GitHub Pages (Fase 2.4) |
+| `apk/twa-manifest.json` | Receita do APK (TWA/Bubblewrap). O resto de `apk/` é gerado e fica fora do Git |
+| [`.claude/apk.md`](apk.md) | Como gerar o APK, onde mora a chave de assinatura (fora do repo), conferência de segurança |
 | `.claude/verificar.mjs` | A revisão de organização executável: `node .claude/verificar.mjs`. Links, mapas × disco, versão copiada |
 | [`.claude/organizacao.md`](organizacao.md) | **Como a estrutura se mantém.** A regra do CLAUDE.md, pastas por papel, gatilhos de refatoração. A organização é responsabilidade do Claude |
 | `.claude/settings.local.json` | Configuração local do Claude Code. Não é do app |

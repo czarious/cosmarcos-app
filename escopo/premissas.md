@@ -34,6 +34,7 @@ Um código roda em Android e iPhone, instala por "Adicionar à tela inicial". O 
 
 - ⚠️ **A mesa é toda Android, e isso é sorte, não projeto.** O Safari do iOS **apaga armazenamento de site depois de ~7 dias sem uso** e as sessões são **quinzenais** — num iPhone a ficha podia sumir entre uma sessão e a outra, e o bug só apareceria na mesa, dois meses depois. **Se um iPhone entrar na mesa, reabrir esta premissa.**
 - ⚠️ Instalar não é óbvio pra leigo — tem que ensinar o "Adicionar à tela inicial".
+- **Também existe um APK** (29/Set/2026), pra quem prefere instalar arquivo: é uma **TWA** — casca que abre o app publicado dentro do Chrome. Continua sendo o PWA: atualiza sozinho a cada push, a ficha é a mesma do Chrome, zero código a mais. Custa: depende do Chrome no celular (a mesa toda tem). Como gerar: [.claude/apk.md](../.claude/apk.md).
 
 ### GitHub Pages, repositório público
 Pages em repo privado exige plano pago. O repo é público **por causa do custo zero**, não por preferência.
@@ -169,6 +170,7 @@ Símbolos, ícones e rótulos que a tela mostra moram num arquivo só. É o irm�
 | Ideia | Por que não |
 |---|---|
 | **React Native · Flutter** | Precisa de build e de Mac pro iOS. Overkill — o PWA resolve |
+| **Capacitor** (APK com o app dentro) | Cada versão exigiria reinstalar o APK; ficha separada da do Chrome; o WebView não baixa arquivo — quebraria backup e exportar. A TWA faz o mesmo sem nada disso |
 | **App em loja** (Play · App Store) | US$ 25 + US$ 99/ano. Fura o custo zero |
 | **HTML/CSS/JS puro** | Perdia a tipagem do schema, que é a espinha de um app orientado a dados. O motivo original ("toolchain que não agrega") não estava errado, estava **incompleto** |
 | **Live Server** | Consequência do Vite: quem serve é o `npm run dev` |
