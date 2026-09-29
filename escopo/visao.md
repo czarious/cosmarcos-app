@@ -11,7 +11,7 @@ O recorte é o **modo JOGO**: o que muda a toda hora na mesa. Se um campo só mu
 
 O teste de uma funcionalidade é sempre o mesmo:
 
-> **"Eu usaria isso com o celular na mão, no meio de um combate, com o Marcos esperando?"**
+> **"Eu usaria isso com o celular na mão, no meio de um combate, com o Mestre esperando?"**
 
 Se a resposta for não, vai pro backlog ou pras decisões rejeitadas.
 
@@ -30,7 +30,7 @@ Confirmado pelo César em 16/Jul/2026 — **as duas coisas, sem conflito**:
 
 > *"Jogar RPG é rolar dados na mão e fazer acontecer ali."* — César
 
-O app **não substitui o dado físico**. Ele mostra o `+7` da perícia pra você somar ao d20 que rolou na mesa. O rolador existe no roadmap, mas como **incremento (Fase 4)** — não como MVP. Ver [decisão 0011](decisoes/0011-dado-rolado-na-mao.md).
+O app **não substitui o dado físico**. Ele mostra o `+7` da perícia pra você somar ao d20 que rolou na mesa. O rolador existe no roadmap, mas como **incremento (Fase 4)** — não como MVP. Ver [premissas](premissas.md) → "O dado é rolado na mão".
 
 **Consequência de desenho:** todo número que se soma a um dado precisa ser **legível de relance**, com o celular na mão e o dado na outra. Legibilidade > interatividade.
 
@@ -40,12 +40,12 @@ Limites explícitos. Cada item é uma decisão, não um "ainda não":
 
 | Não é | Porque |
 |---|---|
-| **Construtor de personagem** | Subir nível, escolher talentos e atributos é o **Shards**. Duplicar isso = duas fichas divergindo. Ver [decisão 0005](decisoes/0005-shards-fonte-de-verdade.md) |
+| **Construtor de personagem** | Subir nível e escolher talentos continua no **Shards**, que exporta a semente. O app não duplica isso — mas, depois de importar, a ficha é dele. Ver [premissas](premissas.md) → "O Shards é SEMENTE; o app é dono da ficha" |
 | **Compêndio de regras** | O texto é da Brotherwise Games. O app guarda **os dados do César**, não redistribui o livro |
-| **App de loja (Play/App Store)** | PWA instala pelo navegador. Ver [decisão 0001](decisoes/0001-plataforma-pwa.md) |
-| **Serviço com login/conta** | Sem servidor, sem banco, sem senha. Ver [decisão 0003](decisoes/0003-estado-localstorage.md) |
+| **App de loja (Play/App Store)** | PWA instala pelo navegador. Ver [premissas](premissas.md) → "PWA, sem loja de apps" |
+| **Serviço com login/conta** | Sem servidor, sem banco, sem senha. Ver [premissas](premissas.md) → "localStorage, sem servidor" |
 | **Rolador compartilhado / VTT** | O app rola **pro César ver**. Quem narra pra mesa é o César |
-| **Ficha de mestre** | É ficha de **PC**. O Marcos tem as ferramentas dele |
+| **Ficha de mestre** | É ficha de **PC**. O Mestre tem as ferramentas dele |
 
 > ⚠️ **Os três últimos estão contestados** pela **Fase 5** ([roadmap.md](roadmap.md)), que pede a mesa inteira + painel do mestre. **Nada foi decidido** — até decidir, o que vale é esta tabela.
 
@@ -56,5 +56,5 @@ Limites explícitos. Cada item é uma decisão, não um "ainda não":
 3. **Offline primeiro** — a sessão pode rolar sem Wi-Fi. Nada essencial depende de rede.
 4. **Celular primeiro** — desenhado pro polegar, na vertical, com uma mão só. Desktop é consequência, não alvo.
 5. **Regra separada da tela** — `regras/` não conhece a UI, `componentes/` não faz conta. Dá pra testar o Dado de Trama sem abrir o navegador.
-6. **Tema Shards** — claro, pergaminho, serifas: a ficha do app e a do builder parecem o mesmo produto. *(Era "tema escuro"; mudado em 17/Jul/2026 — ver [decisão 0013](decisoes/0013-tema-shards-claro.md). Se a tela clara incomodar na mesa à noite, a saída é um alternador como incremento, não reabrir o tema.)*
-7. **Provisório aparece como provisório** — o app nunca mostra número inventado com cara de número certo. Ver [decisão 0009](decisoes/0009-ler-primeiro-calcular-depois.md).
+6. **Tema Shards** — claro, pergaminho, serifas: a ficha do app e a do builder parecem o mesmo produto. *(Era "tema escuro"; mudado em 17/Jul/2026 — ver [premissas](premissas.md) → "Tema Shards fiel". Se a tela clara incomodar na mesa à noite, a saída é um alternador como incremento, não reabrir o tema.)*
+7. **Provisório aparece como provisório** — o app nunca mostra número inventado com cara de número certo. Ver [premissas](premissas.md) → "Ler primeiro, calcular depois".

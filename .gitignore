@@ -4,9 +4,10 @@ dist/
 .vite/
 
 # ─────────────────────────────────────────────────────────────
-# Conteúdo do livro e tudo que deriva dele — NUNCA sobe.
+# A FONTE nunca sobe: PDF, transcrição, notas tiradas dela.
+# O APP sobe: regras e conteúdo em palavras próprias, feitos a partir da fonte.
 # Texto com direitos da Brotherwise Games / Tria-Jambô.
-# Ver escopo/decisoes/0004-hospedagem-github-pages.md e 0016.
+# Ver escopo/premissas.md → "GitHub Pages, repositório público".
 # ─────────────────────────────────────────────────────────────
 
 # PDF do Guia de Regras, prints do D&D Beyond, PDFs do Shards
@@ -18,9 +19,8 @@ escopo/notas-do-livro.md
 escopo/conferencia-formulas.md
 escopo/interface.md
 
-# Decisões que citam trecho literal (livro oficial ou review de terceiro), entre aspas
-escopo/decisoes/0010-regra-provisoria-do-dado-de-trama.md
-escopo/decisoes/0015-regra-do-dado-confirmada-no-livro.md
+# Nome dos jogadores da mesa — pessoa real, não vai pro repo público
+escopo/jogadores.md
 
 # Rede de segurança — vale mesmo se algo for movido de lugar
 **/transcricao/

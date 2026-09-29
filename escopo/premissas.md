@@ -1,0 +1,191 @@
+<!-- DESTINO: escopo/premissas.md -->
+# Premissas do app
+
+← [Sumário](README.md)
+
+> **Página única e VIGENTE.** Aqui mora **o que vale hoje** e **por quê**.
+> Mudou de ideia? **Sobrescreve a linha.** Não anota outra, não marca a antiga como superada, não abre arquivo novo. Não existe histórico nesta página — de propósito (12/Set/2026).
+>
+> O **o quê** em tabela resumida está no [CLAUDE.md](../CLAUDE.md). Aqui está o **porquê** e, principalmente, **o que cada escolha custa**. Premissa sem custo escrito é propaganda, não registro.
+
+## Plataforma e infraestrutura
+
+### Custo zero — a regra que manda em todas as outras
+**Tudo com recurso gratuito. Nenhuma escolha pode introduzir custo recorrente.** Quase toda premissa desta seção é consequência dela — inclusive as que doem.
+
+| Item | Ferramenta | Custo |
+|---|---|---|
+| Framework / linguagem | React · TypeScript · Vite | Grátis (open source) |
+| Build / runtime | Node.js · npm | Grátis |
+| PWA | `vite-plugin-pwa` | Grátis |
+| Código e versionamento | GitHub | Grátis |
+| Build automático | GitHub Actions | Grátis (ilimitado em repo público) |
+| Hospedagem | GitHub Pages | Grátis (repo público) |
+| Instalar no celular | PWA → "Adicionar à tela inicial" | Grátis — **sem loja de apps** |
+| Banco de dados | localStorage (no próprio celular) | Grátis — sem servidor |
+| Login / conta | Não tem | — |
+
+**O que está sendo evitado de propósito:** Google Play US$ 25 (uma vez) e Apple Developer US$ 99/ano → evitados pelo PWA · servidor e banco → evitados pelo localStorage · GitHub Pages em repo privado (exige plano pago) → por isso o repo é público.
+
+- ⚠️ **Dependência nova passa por aqui antes de entrar.** Gratuita hoje e paga amanhã não serve: o critério é *ausência de dependência*, não *plano grátis de alguém*.
+
+### PWA, sem loja de apps
+Um código roda em Android e iPhone, instala por "Adicionar à tela inicial". O César desenvolve no Windows: compilar pro iPhone exigiria um **Mac só pra compilar**.
+
+- ⚠️ **A mesa é toda Android, e isso é sorte, não projeto.** O Safari do iOS **apaga armazenamento de site depois de ~7 dias sem uso** e as sessões são **quinzenais** — num iPhone a ficha podia sumir entre uma sessão e a outra, e o bug só apareceria na mesa, dois meses depois. **Se um iPhone entrar na mesa, reabrir esta premissa.**
+- ⚠️ Instalar não é óbvio pra leigo — tem que ensinar o "Adicionar à tela inicial".
+
+### GitHub Pages, repositório público
+Pages em repo privado exige plano pago. O repo é público **por causa do custo zero**, não por preferência.
+
+**O que sobe e o que não sobe** (César, 29/Set/2026): **a fonte nunca sobe** — PDF, transcrição, notas tiradas dela. **O app sobe** — regras e conteúdo feitos a partir da transcrição, em palavras próprias (nome e número exatos; frase copiada, não). **Nome de jogador também não sobe** — só o de personagem ([personagens.md](personagens.md)).
+
+- ⛔ **Limite duro:** se um dia o app embutir o compêndio com texto do livro, o repo **tem** que virar privado — e aí o Pages deixa de servir. A saída é **Cloudflare Pages** ou **Netlify** (aceitam repo privado no plano grátis). Decidir **antes** de trazer o texto, nunca depois.
+
+### React + TypeScript + Vite
+O app é **orientado a dados**: lê um JSON de terceiro e desenha o que vier. O Shards está na **0.1.0** e **vai** mudar de formato. Em JS puro, campo renomeado não dá erro — a tela só zera. Com TS, o compilador acusa.
+
+- ⚠️ Toolchain que os outros projetos do César não têm. E **não dá pra abrir o arquivo no Live Server**: quem serve é o `npm run dev`.
+
+### localStorage, sem servidor
+O estado mora no próprio celular. Funciona offline, custo zero de verdade — ausência de dependência, não "grátis enquanto uma empresa quiser".
+
+- ⚠️ **Limpar o navegador apaga a ficha.** Backup manual segue no backlog.
+- ⚠️ **Preso a um aparelho**, e **ninguém mais enxerga** — o Mestre não vê a Vida do César.
+- 🔥 **Em disputa:** a [Fase 5](roadmap.md) (mesa inteira, painel do mestre, tempo real) precisa de servidor. Ao reabrir, atenção: o motivo do enterro do servidor foi *"localStorage resolve — é ficha de uma pessoa"*, e **essa frase deixou de ser verdade** quando a mesa entrou no escopo. Candidato na mesa: **Google Drive API + OAuth** (o César já integrou no `ficha-imovel`) — resolve 4 dos 5 itens, **não resolve tempo real**.
+
+### Código e documentação na mesma pasta, fora do Drive
+Tudo em `C:\dev\GitHub\cosmarcos-app`; o backup é o **GitHub**. O Google Drive **corrompe repositório Git** e trava com `node_modules` (milhares de arquivinhos = milhares de eventos de sync; junction no G: é impossível, o sistema de arquivos não aceita reparse points). Projeto em dois lugares já custou um `ONDE-ESTA-O-APP.md`, dez links absolutos e duas cópias do `eccho.json` divergindo.
+
+- ⚠️ **`referencia/` (145 MB) só existe no disco local** — não sobe pro GitHub por decisão e não está mais no Drive. O PDF do livro é re-baixável; **as 135 transcrições não são.** Vale backup manual à parte.
+- ⚠️ `.gitignore` errado num `git add -A` publica material protegido de uma vez. Conferir `git status` antes de commit.
+
+## Dados e regras
+
+### O Shards é SEMENTE; o app é dono da ficha
+Importa o JSON do Shards **uma vez** e a partir daí **o app manda**: o César ajusta o que quiser, define a ficha no padrão dele, e o JSON é abandonado. Quem decide no boot é o **localStorage**; o JSON só é lido quando não há nada salvo.
+
+- **Importar é um botão só** — o mesmo pro primeiro JSON e pra cada atualização: escolhe o arquivo exportado pelo Shards.
+- **Exportar devolve pro Shards** (27/Set/2026): o app guarda o JSON cru da importação e exporta ele com as mudanças do app aplicadas por cima; o Shards substitui a ficha de mesmo id. Campo que o app não edita volta idêntico — é o que deixa construir no Shards (nível, talento) e jogar no app sem perder nenhum dos dois. A mesma regra vale na volta: **importar no Shards sobrescreve lá**.
+- ⚠️ **Importar sobrescreve tudo. Não existe fusão** da ficha do app com o JSON novo, e não vai existir: a ficha não tem como adivinhar qual lado está certo. **Trazer um JSON desatualizado é perda de dado, e a responsabilidade é de quem importa.**
+- ⚠️ Por isso se salva a **ficha inteira**, não só vida/foco: se salvasse só o estado vivo, todo ajuste de ficha morreria no próximo F5.
+- 📌 **O que mudou aqui:** a versão anterior desta premissa dizia *"o app nunca edita a ficha-base — toda ideia que pedir isso está pedindo pra virar Shards, recusar"*. **Não vale mais.** O app edita. O Shards continua útil pra **construir** (subir nível, escolher talento) e gerar a semente — por conveniência, não por proibição.
+
+### O app serve qualquer personagem da mesa — nenhum fica escrito no código
+Ele lê um JSON e desenha o que vier. Quando a informação **não existe no export** (ex.: qual talento concedeu qual graduação de perícia — o Shards manda o `rankBonus` mas não a origem), a saída **nunca** é embutir um personagem no cálculo.
+
+**A regra de três degraus, em ordem:**
+
+1. **O que o jogador atribuiu no app manda** — sobrevive a redistribuição (a Erudição muda de perícia depois do descanso longo).
+2. **Faltando atribuição, vale o número cru do Shards** — mas **marcado como origem não identificada**, nunca disfarçado de certo.
+3. **Vínculo conhecido é dado, não código** — mora chaveado por `meta.nome` (`regras/especialidades.ts`), e quem não tem entrada funciona igual, só sem a origem nomeada.
+
+- ⚠️ **O degrau 2 é o que impede o erro mais caro:** sem ele, um PC novo apareceria com a perícia **1 abaixo** da ficha dele no Shards, em silêncio. Número errado com cara de certo é o que este projeto mais persegue.
+- 📌 Conferido com o código rodando nos 4 cenários (com vínculo · sem vínculo · redistribuído · atribuído à mão): o Eccho não muda, e o personagem sem vínculo bate com o Shards.
+
+### Schema próprio em português + tradutor na entrada
+O tipo `Personagem` é nosso, desenhado pra tela; o `estado/importarShards.ts` converte o JSON na importação. O export real é em inglês e tem esquisitices (`culture1`/`culture2` em vez de array, `idealsText` e `ideals` paralelos, `healthCur` plano) — o tradutor conserta num lugar só.
+
+- ⛔ **O risco de verdade: o tradutor falha calado.** Quando o Shards mudar, não dá erro — o campo chega vazio e a tela zera, na mesa, no meio do combate. **Mitigação obrigatória: validar e GRITAR** no que não reconhecer. Nunca falhar em silêncio.
+
+### Ler primeiro, calcular depois
+O Shards **já fez a conta** — defesas, vida máxima, dado de recuperação e movimento vêm calculados no export. Então cada campo é classificado:
+
+| | Significado |
+|---|---|
+| ✅ **FIXO** | O Shards manda pronto. O app lê e mostra |
+| ⚠️ **PROVISÓRIO** | Falta regra ou o dado não vem. O app mostra **marcado como provisório** |
+
+**Regra de ouro:** provisório **aparece na tela como provisório**. O app nunca mostra número inventado com cara de número certo — é a versão em pixels do "não inventar regra do sistema" do [CLAUDE.md](../CLAUDE.md). Classificação campo a campo em [dados.md](dados.md).
+
+- ⚠️ **Dependência dobrada do Shards:** se ele calcular errado, o app não tem como conferir enquanto não tiver as regras.
+
+### A ficha inteligente é o objetivo; ler o JSON é o andaime
+Palavras do César: *"minha primeira intenção aqui é a ficha inteligente — isso é o motivo de eu estar criando o app"*. Protótipo = leitor. Destino = o app conhece as regras e as aplica. **PROVISÓRIO não é estado permanente aceitável — é dívida.**
+
+A fronteira que evita confusão:
+
+| ✅ Inteligência de **JOGO** — é o objetivo | ⛔ Inteligência de **CONSTRUÇÃO** — fica no Shards |
+|---|---|
+| *Enhance* gasta 1 Investidura e aplica FOR+1/VEL+1 até o fim do próximo turno | Alocar talento |
+| Ação do Mancha desconta 1 Foco | Escolher atributo ao subir de nível |
+| *Regenerate* recupera 1d6 + patamar de Vida | Definir graduação de perícia |
+| Condição ativa → o que ela muda na ficha | Escolher Trilha, Ordem, cultura |
+
+- ⚠️ **A transcrição do livro é caminho crítico**, não "seria bom": cada página transcrita é uma regra que o app passa a saber.
+- 🔥 **A decidir — jurar um Ideal.** O gatilho é jogo (jura-se na cena), a consequência é construção (libera Investidura *e talentos a alocar*). Por ora o app pode reconhecer o Ideal jurado, mas **alocar talento continua no Shards** até alguém decidir o contrário de propósito.
+
+### O Dado de Trama e a vantagem seguem o livro
+A regra está **confirmada no Guia de Regras PT-BR** (pág. 8–10 e 58) e resumida em `escopo/notas-do-livro.md` — que fica **fora do repositório**, junto com o resto do material derivado do livro. A regra anterior, baseada em fonte online e na memória do César, estava **errada em 2 de 3 pontos** e foi derrubada pelo livro.
+
+- 📌 **Pendência:** a seção "Tela de dados" do `interface.md` foi escrita na regra velha (contadores acumuláveis, "fica com o segundo") e **precisa ser refeita**. Não é urgente — o rolador é Fase 4.
+
+## Interface
+
+### Os vitais grudam no topo
+Vida, Foco e Investidura ficam visíveis em qualquer seção **e em qualquer rolagem**. O D&D Beyond **não** faz isso — os vitais dele somem ao rolar. Divergimos de propósito: no D&D, AC e HP mudam pouco durante o turno; **no Cosmere esses três números mudam o tempo todo**, que é o motivo do app existir.
+
+- ⚠️ O cabeçalho come altura de tela permanentemente, no aparelho onde a tela é o recurso escasso.
+- 📌 **Se apertar, a saída é encolher** — faixa fina com os três números — **nunca sumir**.
+
+### O dado é rolado na mão
+*"Jogar RPG é rolar dados na mão e fazer acontecer ali."* O rolador desceu pra Fase 4; o MVP é a **ficha viva**. Isso **não** muda a tese do app — ele continua sendo ficha viva na mesa **e** ficha correta antes da sessão. O que mudou é só quem rola o dado.
+
+- ⚠️ **O total da perícia fica MAIS importante, não menos:** rolando na mão, o jogador precisa **ler** o `+7` na tela pra somar ao d20.
+
+### Tema Shards fiel — claro, pergaminho
+Fundo pergaminho, texto marrom-escuro, painéis creme com borda dupla, títulos serifados em versalete, destaque vinho. Fonte **serifada do sistema (Georgia)** — webfont quebraria o offline-primeiro e adicionaria dependência. Escolhido pelo César com as paletas lado a lado, contra um híbrido escuro que o Claude recomendava.
+
+- ⚠️ **Na mesa à noite, tela clara ofusca.** Se incomodar na prática, a saída registrada é um **alternador claro/escuro** como incremento — **não** trocar o tema inteiro de novo.
+
+## Código
+
+### O que vira variável — `src/variaveis.ts`
+Símbolos, ícones e rótulos que a tela mostra moram num arquivo só. É o irmão do `estilos/base.css`: lá a **cor e a forma**, aqui o **glifo e a palavra**.
+
+**O critério de entrada, medido — não pelo gosto:**
+
+> Entra o que **aparece em mais de um arquivo**, ou o que o César muda com frequência.
+
+| ✅ Entra | ⛔ Não entra |
+|---|---|
+| Símbolo e nome dos **recursos** (♥ ◆ ✦ · Vida/Foco/Investidura) — estavam escritos 2× | **Conteúdo do sistema**: nome de talento, cultura, especialidade, perícia, traço de arma, tipo de dano |
+| Nome e abreviação dos **6 atributos** — estavam em 2 arquivos e em 2 formatos | Nomes das **abas** — já centralizados em `SECOES` |
+| Os **3 grupos** (Física · Cognitiva · Espiritual) e a ordem derivada deles | **Cores** — já são tokens do CSS |
+| **Ícones** de interação (o ✕ aparecia em 4 telas) e as bolinhas de graduação | Texto de **uma aparição só**: "carregando a ficha…", placeholders, a maioria dos `aria-label` |
+| **Rótulos de chrome**: botão de importar, aviso de save | |
+
+**Por que o conteúdo do sistema fica fora:** é **regra do Cosmere**, não cara do app — tem dono em `regras/*.ts` e no tradutor. Misturar as duas coisas num arquivo só apagaria a fronteira que o projeto mantém de propósito.
+
+**Por que o critério é escrito:** o arquivo se chama `variaveis.ts`, e nome genérico convida a virar depósito. Em seis meses tem número mágico e caminho de arquivo lá dentro se ninguém segurar a porta. **Cada variável leva uma nota** dizendo o que é e onde aparece — quando a nota fica difícil de escrever, é sinal de que aquilo não pertence ali.
+
+**Uma dívida conhecida:** o `regras/calculos.ts` importa o rótulo do atributo pra montar o detalhamento da perícia — regra puxando tela, arranhando o "`regras/` não conhece a tela". Já era assim antes (o nome vivia dentro do `calculos.ts`); a mudança só tirou a duplicação. O conserto de verdade é o `detalhePericia` devolver a **chave** e o componente resolver o nome.
+
+## Descartado — não repropor
+
+*Motivo em uma linha. Se a ideia voltar, é porque o mundo mudou — e aí a linha se reescreve, não se apaga.*
+
+| Ideia | Por que não |
+|---|---|
+| **React Native · Flutter** | Precisa de build e de Mac pro iOS. Overkill — o PWA resolve |
+| **App em loja** (Play · App Store) | US$ 25 + US$ 99/ano. Fura o custo zero |
+| **HTML/CSS/JS puro** | Perdia a tipagem do schema, que é a espinha de um app orientado a dados. O motivo original ("toolchain que não agrega") não estava errado, estava **incompleto** |
+| **Live Server** | Consequência do Vite: quem serve é o `npm run dev` |
+| **Servidor + banco de dados** | Custo recorrente ⚠️ *o motivo original caducou — ver localStorage acima* |
+| **Login / contas** | Sem servidor não há o que autenticar ⚠️ *contestado pela Fase 5* |
+| **Espelhar o formato do Shards, em inglês** | Importar viraria `JSON.parse`, mas violava "código em português" e trazia as esquisitices do Shards pra dentro da tela |
+| **Cabeçalho que rola pra fora** (como o DDB) | No Cosmere os vitais mudam o tempo todo |
+| **Barra de navegação inferior** (como o DDB) | É a casca de um app com vários personagens e compêndio. Somos **uma ficha** — seria espaço morto |
+| **Tema escuro** · **híbrido Shards-escuro** | Continuidade visual com o builder venceu. Rejeitado pelo dono, com as opções na mão |
+| **Tudo no Google Drive** | Sync corrompe Git e trava com `node_modules` — provado na prática |
+| **Migrar o código de volta pro Drive** | Criaria duas cópias divergindo. O GitHub é backup melhor em tudo |
+
+## Tensões abertas
+
+Nenhuma é bug; todas são coisa que o projeto sabe que ainda vai doer.
+
+| Tensão | Onde dói |
+|---|---|
+| **Quando o app souber regras, ele pode discordar do Shards** | Quem é a verdade? Decidir de propósito, não por omissão |
+| **`public/personagens/eccho.json` × o export em `referencia/shards/`** | Seguem divergentes (md5 diferentes). Definir qual é a fonte |
+| **`mapa-app.md` × `.claude/mapa-projeto.md`** | Continuam dois. Foram separados quando o projeto vivia em dois lugares — vale reavaliar |

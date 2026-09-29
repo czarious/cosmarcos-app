@@ -11,7 +11,7 @@
 
 > A versão anterior deste doc foi levantada do **PDF da ficha**, não do export — e **quase nenhum campo batia**. O PDF diz o que a ficha *tem*; o export diz o que o sistema *entrega*. Não é a mesma coisa.
 
-Decisões que mandam aqui: [0007 — formato próprio + tradutor](decisoes/0007-formato-proprio-mais-tradutor.md) · [0009 — ler primeiro, calcular depois](decisoes/0009-ler-primeiro-calcular-depois.md).
+Decisões que mandam aqui: [premissas](premissas.md) → "Schema próprio em português + tradutor na entrada" · [premissas](premissas.md) → "Ler primeiro, calcular depois".
 
 ## O tipo Personagem
 
@@ -43,7 +43,7 @@ type Personagem = {
   derivados: {
     dadoRecuperacao;             // "d8"
     movimento;                   // 30
-    alcanceSentidos;             // "20 ft"
+    alcanceSentidos;             // "6 m"
     capacidadeCarga;             // ← carryingCapacity  ⚠️ são DOIS campos no Shards
     capacidadeLevantamento;      // ← liftingCapacity
   };
@@ -55,7 +55,7 @@ type Personagem = {
     total;                       // ⚠️ DIGITADO pelo César — o Shards não manda. Ver "O que o Shards NÃO dá"
   }>;
 
-  especializacoes: Array<{ tipo: 'cultural' | 'especialista'; nome }>;
+  especializacoes: Array<{ tipo: 'arma' | 'armadura' | 'cultural' | 'utilidade' | 'perito'; nome }>; // as 5 do livro
 
   talentos: Array<{
     id; nome; origem: 'heroica' | 'radiante' | 'ancestral';
@@ -65,7 +65,8 @@ type Personagem = {
 
   armas: Array<{ ... }>;         // ⚠️ derivado: inventory.items com type: "weapon"
   itens: Array<{ nome; tipo; qtd; peso; equipado; tracos: string[] }>;
-  fabriais: Array<{ nome; cargas: { atual; max }; padrao: boolean; efeitos? }>;
+  fabriais: Array<{ id; nome; tipo: 'padrao' | 'unico'; modelo?; cargas: { atual; max };
+                   qualidade?; aprimoramentos: id[]; revezes: id[]; gema?; material?; notas? }>; // ids: regras/fabriais.ts
   marcos: number;                                                 // moeda
 
   proposito; obstaculo; personalidade; aparencia; conexoes;
@@ -104,29 +105,31 @@ O tradutor tem que saber destas — todas verificadas no export real:
 | **Ideais em dois objetos** | `idealsText.{i1..i5}` (texto) e `ideals.{i1..i5}` (jurado, booleano). O tradutor **funde** nos nossos `ideais[]` |
 | **Talentos em três lugares** | `heroic.talents[]` · `radiant.talents[]` · `ancestryTalents[]`. Viram um array só, com `origem` |
 | **Armas não existem** | São `inventory.items[]` com `type: "weapon"` |
-| **Fabriais fora do inventário** | `fabrials.standard[]` (Clock 3/3) e `fabrials.custom[]` (Diapasão 0/5) — **dois formatos diferentes** |
-| **Envelope multi-personagem** | Raiz = `{ exportedAt, version: 1, characters: [...] }`. **Já é array** — o item 4.4 sai quase de graça |
-| **Unidades imperiais** | O Shards manda ft e lb; **o tradutor converte na entrada** (ft→m ×0,3 · lb→kg ×0,5 — convenção das mesas BR, contas redondas: 30ft→9m, 100lb→50kg). Nenhuma tela converte. ⚠️ Se o Guia PT-BR imprimir outros números, o livro desempata |
+| **Fabriais fora do inventário** | `fabrials.standard[]` (Clock 3/3) e `fabrials.custom[]` (Diapasão 0/5) — **dois formatos diferentes**. O custom **não diz qual efeito do livro usa**: o tradutor casa pelo nome ("PROJÉTIL" → Projétil), e upgrade fora da lista geral num efeito conhecido vira o aprimoramento próprio dele |
+| **Envelope multi-personagem** | Raiz = `{ format: "cosmere-v3", version: 1, characters: [...] }` (antes da 3.x: `exportedAt` no lugar de `format`). **Já é array** — o item 4.4 sai quase de graça |
+| **Mistborn no mesmo site** | Desde a 3.x o Shards faz ficha de Mistborn também (`system.type`). O tradutor **recusa** com aviso — outro sistema |
+| **Tudo em inglês** | Nomes de ancestralidade, cultura, trilha, ordem, espreno, fluxo, item, fabrial, traço e dano chegam em inglês. O tradutor tem um de-para por categoria, conferido contra o livro — fonte: `referencia/livro/dicionario-en-ptbr.md`. Termo fora do mapa passa cru (item customizado, por exemplo) |
+| **Unidades** | O livro PT-BR usa **5 ft = 1,5 m** e **2 lb = 1 kg** (Maça 3 lb = 1,5 kg) — o tradutor converte na entrada, nenhuma tela converte. ⚠️ **O modo métrico do Shards é inconsistente:** converte só o inventário, com fator exato (Maça 1,4 kg), e deixa movimento, sentidos, carga e alcance do espreno em pés/libras com o rótulo trocado ("20 m" = 20 ft). O tradutor detecta o modo pelo `weightRaw` e sempre parte do número imperial. Detalhe no topo de `importarShards.ts` |
 
 ## FIXO — o Shards manda pronto
 
-> 💡 **A descoberta que muda o projeto: o Shards já fez a conta.** Defesas, vida máxima, dado de recuperação e movimento **vêm calculados**. O `regras/calculos.ts` **não precisa existir pra desenhar a ficha** — o app precisa de um *leitor*, não de um motor de regras. Ver [decisão 0009](decisoes/0009-ler-primeiro-calcular-depois.md).
+> 💡 **A descoberta que muda o projeto: o Shards já fez a conta.** Defesas, vida máxima, dado de recuperação e movimento **vêm calculados**. O `regras/calculos.ts` **não precisa existir pra desenhar a ficha** — o app precisa de um *leitor*, não de um motor de regras. Ver [premissas](premissas.md) → "Ler primeiro, calcular depois".
 
-*Verificado no export do Eccho:*
+*Verificado no export do Eccho (27/Set/2026):*
 
 | Campo | O que o Shards manda |
 |---|---|
 | `meta` | "Eccho" · Cesar · nível 3 · Human · Thaylen + Kharbranthian · kit Academic |
-| **Atributos** | FOR 1 · VEL 3 · INT 3 · VON 3 · CON 3 · PRE 0 — **já são os modificadores** |
-| **Defesas** | Física **14** · Cognitiva **17** · Espiritual **13** — ✅ **já calculadas** |
-| **Recursos** | Vida 21/21 · Foco 4/5 · Investidura **0/0** ⛔ *(a ficha PT-BR do César diz **0/5** — o export está desatualizado. Ver pergunta 12)* |
-| Deflect · Marcos | 0 · 65 |
-| **Derivados** | Dado de Recuperação **d8** · Movimento **30** · Sentidos **20 ft** · carga 100/200 lb |
+| **Atributos** | FOR 1 · VEL 3 · INT 4 · VON 2 · CON 3 · PRE 0 — **já são os modificadores** |
+| **Defesas** | Física **14** · Cognitiva **16** · Espiritual **13** — ✅ **já calculadas** |
+| **Recursos** | Vida 21/21 · Foco 4/4 · Investidura 5/5 |
+| Deflect · Marcos | 0 · 109 |
+| **Derivados** | Dado de Recuperação **d6** · Movimento **30** (ft) · Sentidos **20** (ft) · carga 100/200 (lb) |
 | **Graduação da perícia** | `rank` 0/1/2 — ✅ a bolinha de 3 estados funciona hoje |
 | Especializações | 4 (Manufatura de Fabriais · Navegação · Mineralogia/Gemas) |
 | Objetivos | 6, todos `achieved: false` |
 | Armas e itens | Maça (1d6 impacto, Momentum) · Óleo · Livro |
-| **Fabriais** | Clock **3/3** · Diapasão **0/5** — ✅ o item 3.2 tem dado |
+| **Fabriais** | Relógio 3/3 · Telepena 3/3 · Diapasão 0/5 · PROJÉTIL 5/5 (Quality, Amplified + Double Attack, Inefficient) |
 | Ideais | 5 textos + jurado (todos `false`) |
 | Talentos (nome) | Erudition (chave) · Efficient Engineer · Prized Acquisition · Fine Handiwork |
 | Fluxos | Transformation (Vontade, `action2x`) · Transportation (Intelecto, `action`) — ✅ **com ativação** |
@@ -156,10 +159,10 @@ O tradutor tem que saber destas — todas verificadas no export real:
 
 | Tipo | Exemplo | Shards manda? | Quem é dono na prática |
 |---|---|---|---|
-| **Ficha** | atributos, perícias, talentos, fabriais | ✅ sim | **Shards** — o app só lê |
+| **Ficha** | atributos, perícias, talentos, fabriais | ✅ sim | **O app**, depois de importar — o Shards só semeia |
 | **Estado vivo** | vida atual, foco atual, condições, lesões | ✅ **sim, também** | **O app**, durante a sessão |
 | **Vantagens acumuladas** | ver [interface.md](interface.md) → "Vantagem e desvantagem" | ❌ não | Só o app |
 
-**Consequência:** a divisão "Shards = construção, app = jogo" ([decisão 0005](decisoes/0005-shards-fonte-de-verdade.md)) é **menos limpa do que está escrita lá**. O Shards não é só construção — ele tem vida atual, foco atual, condições, lesões e até `rollLog`. Os dois lados rastreiam a mesma coisa, que é justamente o cenário de "duas fichas divergindo" que a decisão queria evitar.
+**Consequência:** o Shards **não é só construção** — ele tem vida atual, foco atual, condições, lesões e até `rollLog`. Como ele também rastreia estado vivo, um import traz junto o `healthCur` que estava lá.
 
-**Isso torna a pergunta 7 urgente, não acadêmica:** reimportar depois de subir de nível pode **sobrescrever o combate em andamento** com o `healthCur` que estava no Shards.
+**E é assim de propósito:** importar **sobrescreve a ficha inteira, sem fusão** — o app é dono da ficha, o JSON é semente, e trazer um export desatualizado é perda de dado assumida por quem importa. Ver [premissas](premissas.md) → "O Shards é SEMENTE; o app é dono da ficha".
