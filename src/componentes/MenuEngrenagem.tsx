@@ -80,6 +80,8 @@ export default function MenuEngrenagem({ aoImportar, aoExportar, aoBaixarBackup,
                 </button>
               ))}
             </div>
+
+            <p className="menu-versao">{t(tx.menu.versao, { v: __VERSAO__ })}</p>
           </div>
         </div>
       )}

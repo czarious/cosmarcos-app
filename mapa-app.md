@@ -31,6 +31,7 @@
 | `index.html` | Casca do Vite (não é a ficha). `<div id="raiz">` · theme-color · apple-touch-icon |
 | `public/icone.svg` | Fonte do ícone do PWA (✦ creme sobre vinho) |
 | `public/icones/*.png` | Ícones 192, 512, maskable 512 e apple-touch 180 — gerados de `icone.svg` por `.claude/gerar-icones.mjs` |
+| `src/vite-env.d.ts` | Declara `__VERSAO__` (a do package.json, posta pelo vite.config) |
 | `src/main.tsx` | Ponto de entrada — monta o React no `#raiz`, dentro do `ProvedorIdioma` |
 | `src/App.tsx` | Compõe a ficha: cabeçalho fixo (com a engrenagem) + painel de turno + abas + conteúdo + rodapé (estado do save). Liga o `useTurno` ao `usePersonagem` |
 | `src/estado/usePersonagem.ts` | **Estado VIVO** — recursos, escolhas de vaga, `alternarEquipada`, `definirMarcos`, `adicionarItem`/`removerItem`, fabriais, `importarTexto`/`exportarJson`. Carrega do save; o JSON é semente e base da exportação |

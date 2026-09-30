@@ -137,6 +137,7 @@ export const PT = {
     confirmaImportar: 'Isso apaga tudo que você mudou no app. Não tem desfazer.',
     esteAparelho: 'Este aparelho',
     idioma: 'Idioma',
+    versao: 'cosmarcos v{v}',
   },
 
   // ── ControleMarcos — objetivos e Ideais ─────────────────────────

@@ -125,6 +125,7 @@ export const EN: Dicionario = {
     confirmaImportar: 'This erases everything you changed in the app. There is no undo.',
     esteAparelho: 'This device',
     idioma: 'Language',
+    versao: 'cosmarcos v{v}',
   },
 
   // ── ControleMarcos — objetivos e Ideais ─────────────────────────

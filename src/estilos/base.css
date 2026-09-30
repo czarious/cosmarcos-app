@@ -2308,3 +2308,10 @@ label.linha-item input[type='checkbox'] {
   font-size: 0.8rem;
   color: var(--cor-titulo);
 }
+
+.menu-versao {
+  margin-top: 0.4rem;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--cor-texto-suave);
+}

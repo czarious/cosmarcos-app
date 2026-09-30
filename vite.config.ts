@@ -3,6 +3,10 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import type { Plugin } from 'vite'
+import pacote from './package.json'
+
+/** A versão do package.json, fonte única — aparece na ⚙ pra saber qual versão o celular está rodando. */
+const VERSAO = pacote.version
 
 /**
  * Política de segurança da página publicada: só roda o que vem do próprio
@@ -40,6 +44,7 @@ function segurancaNoBuild(): Plugin {
 
 // base './' = caminhos relativos — funciona no dev e no GitHub Pages (subpasta /cosmarcos-app/)
 export default defineConfig({
+  define: { __VERSAO__: JSON.stringify(VERSAO) },
   plugins: [
     react(),
     segurancaNoBuild(),
