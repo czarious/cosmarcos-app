@@ -1,0 +1,58 @@
+# arquivo: iphone.yml
+# O app publicado num iPhone — roda num Mac do GitHub (grátis em repo público),
+# porque no Windows do César o WebKit é barrado pelo Controle Inteligente de
+# Aplicativos. Só roda quando alguém manda (Actions → iPhone → Run workflow,
+# ou `gh workflow run iphone.yml`). Não mexe no app nem no site.
+#
+# Duas provas: (1) roteiro com o motor do Safari em tela de iPhone
+# (.github/iphone/teste-iphone.mjs); (2) foto do Safari DE VERDADE no
+# simulador oficial da Apple. As fotos e o relatório saem como artefato.
+name: iPhone
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Endereço do app
+        default: https://czarious.github.io/cosmarcos-app/
+
+permissions:
+  contents: read
+
+jobs:
+  iphone:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    env:
+      URL_APP: ${{ inputs.url || 'https://czarious.github.io/cosmarcos-app/' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Roteiro no motor do Safari (Playwright WebKit, iPhone 15)
+        working-directory: .github/iphone
+        run: |
+          npm init -y > /dev/null
+          npm install playwright@latest
+          npx playwright install webkit
+          node teste-iphone.mjs "$URL_APP" saida
+
+      - name: Safari de verdade no simulador da Apple
+        run: |
+          set -e
+          mkdir -p .github/iphone/saida
+          ID=$(xcrun simctl list devices available -j | node -e "const d=JSON.parse(require('fs').readFileSync(0)).devices; const c=Object.entries(d).filter(([k])=>k.includes('iOS')).flatMap(([,v])=>v).filter(x=>/^iPhone/.test(x.name)); console.log(c.at(-1).udid)")
+          xcrun simctl list devices available | grep "$ID"
+          xcrun simctl boot "$ID"
+          xcrun simctl bootstatus "$ID" -b
+          xcrun simctl openurl "$ID" "$URL_APP"
+          sleep 40
+          xcrun simctl io "$ID" screenshot .github/iphone/saida/safari-real.png
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: iphone
+          path: .github/iphone/saida

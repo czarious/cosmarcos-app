@@ -1,6 +1,7 @@
 # Dependências e build
 node_modules/
 dist/
+.github/iphone/saida/
 .vite/
 
 # ─────────────────────────────────────────────────────────────
