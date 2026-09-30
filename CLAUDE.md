@@ -100,10 +100,10 @@ Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não 
 
 ## Estado atual — 30/Set/2026
 
-Publicado (v0.8.2): **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
+Publicado (v0.8.3): **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
 
 **Onde paramos (30/Set/2026):**
-1. **Em teste no celular dele:** reinstalou pra sair da v0.8.0 (a última que não sabe avisar). Quando confirmar "cosmarcos v0.8.2" na ⚙ → publicar uma **v0.8.3 só de teste** e ele deve ver a faixa "Versão nova — Atualizar" só saindo e voltando pro app. Se não aparecer, o conserto da 0.8.1 falhou no aparelho real.
+1. ✅ **Atualização conferida no celular dele** (30/Set/2026): 0.8.2 → 0.8.3 pela faixa "Atualizar", sem reinstalar.
 2. **Depois, na ordem que ele pediu:** compatibilidade do JSON — **armadura não é lida** (o Shards grava como item `armor` com `deflect`, e item vestido pode ter `modifiers` somando em atributo/perícia/defesa/recurso: `js/rules/itemRules.js → collectItemEffects` do Shards) → mapeamento do Shards mais fundo → funcionalidades da checklist → 2ª etapa do idioma (descrições de regra).
 3. Save antigo guarda nomes em inglês ("Human · Scholar") e tipos velhos: reimportar resolve — lembrar a mesa de importar uma vez após atualizar.
 
