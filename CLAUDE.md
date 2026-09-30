@@ -104,7 +104,8 @@ Publicado (v0.8.3): **rastreador de turno** na aba Ações · guia dos fluxos ·
 
 **Onde paramos (30/Set/2026):**
 1. ✅ **Atualização conferida no celular dele** (30/Set/2026): 0.8.2 → 0.8.3 pela faixa "Atualizar", sem reinstalar.
-2. **Depois, na ordem que ele pediu:** compatibilidade do JSON — **armadura não é lida** (o Shards grava como item `armor` com `deflect`, e item vestido pode ter `modifiers` somando em atributo/perícia/defesa/recurso: `js/rules/itemRules.js → collectItemEffects` do Shards) → mapeamento do Shards mais fundo → funcionalidades da checklist → 2ª etapa do idioma (descrições de regra).
-3. Save antigo guarda nomes em inglês ("Human · Scholar") e tipos velhos: reimportar resolve — lembrar a mesa de importar uma vez após atualizar.
+2. **Teste de iPhone (`gh workflow run iphone.yml`, Mac do GitHub):** 1ª rodada — Safari tem tudo que o app usa (SW, storage.persist, PluralRules, :has, dvh), abre e desenha certo, aba Perícias ok. **Consertar o roteiro** (`.github/iphone/teste-iphone.mjs`): `.ss-item` com `hasText` pega mais de um item ("Ações") e o menu fica aberto travando o resto — casar o nome exato; e o passo do **simulador da Apple falhou** (ver log do run 36746128698). As recusas de CSP no log são da foto do Playwright, não do app.
+3. **Depois, na ordem que ele pediu:** compatibilidade do JSON — **armadura não é lida** (o Shards grava como item `armor` com `deflect`, e item vestido pode ter `modifiers` somando em atributo/perícia/defesa/recurso: `js/rules/itemRules.js → collectItemEffects` do Shards) → mapeamento do Shards mais fundo → funcionalidades da checklist → 2ª etapa do idioma (descrições de regra).
+4. Save antigo guarda nomes em inglês ("Human · Scholar") e tipos velhos: reimportar resolve — lembrar a mesa de importar uma vez após atualizar.
 
 Detalhe e critério de pronto: [roadmap.md](escopo/roadmap.md).
