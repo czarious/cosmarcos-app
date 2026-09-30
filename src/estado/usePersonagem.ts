@@ -1,6 +1,6 @@
 /* arquivo: usePersonagem.ts */
 import { useEffect, useState, useCallback, useRef } from 'react'
-import type { Personagem, Item, Anotacao, Fabrial, Condicao, Lesao } from '../tipos/personagem'
+import type { Personagem, Item, Anotacao, Fabrial, Condicao, Lesao, Objetivo, Ideal } from '../tipos/personagem'
 import { descansoCurto, descansoLongo } from '../regras/descanso'
 import { importarShards, ErroImportacao } from './importarShards'
 import { exportarShards } from './exportarShards'
@@ -40,6 +40,10 @@ type Retorno = {
   editarAnotacao: (id: string, titulo: string, conteudo: string) => void
   /** Remove uma anotação pelo id. */
   removerAnotacao: (id: string) => void
+  alterarObjetivo: (indice: number, muda: Partial<Objetivo>) => void
+  adicionarObjetivo: (nome: string) => void
+  removerObjetivo: (indice: number) => void
+  alterarIdeal: (n: Ideal['n'], muda: Partial<Ideal>) => void
   /** Soma `delta` às cargas de um fabrial, travando entre 0 e o máximo. */
   alterarCargas: (idFabrial: string, delta: number) => void
   /** Grantormenta: todo fabrial volta ao máximo (01-usando-itens.md → "Recarregando Itens"). */
@@ -318,6 +322,36 @@ export function usePersonagem(caminhoJson: string): Retorno {
     )
   }, [])
 
+  // Objetivos (livro, cap. 8 "Objetivos"): 3 marcos de história, depois concluir.
+  // Pelo ÍNDICE — o Shards não dá id, e a ordem dele é a que volta na exportação.
+  const alterarObjetivo = useCallback((indice: number, muda: Partial<Objetivo>) => {
+    setFicha((atual) =>
+      atual ? { ...atual, objetivos: atual.objetivos.map((o, i) => (i === indice ? { ...o, ...muda } : o)) } : atual,
+    )
+  }, [])
+
+  const adicionarObjetivo = useCallback((nome: string) => {
+    setFicha((atual) =>
+      atual ? { ...atual, objetivos: [...atual.objetivos, { nome, concluido: false, grau: 0 }] } : atual,
+    )
+  }, [])
+
+  const removerObjetivo = useCallback((indice: number) => {
+    setFicha((atual) => (atual ? { ...atual, objetivos: atual.objetivos.filter((_, i) => i !== indice) } : atual))
+  }, [])
+
+  // Ideal = objetivo especial (livro, "Jurando Ideais"): 3 marcos → dizer as
+  // Palavras. Jurou? Abre o próximo Ideal, até o 5º.
+  const alterarIdeal = useCallback((n: Ideal['n'], muda: Partial<Ideal>) => {
+    setFicha((atual) => {
+      if (!atual?.radiante) return atual
+      let ideais = atual.radiante.ideais.map((i) => (i.n === n ? { ...i, ...muda } : i))
+      const jurou = muda.jurado === true && n < 5 && !ideais.some((i) => i.n === n + 1)
+      if (jurou) ideais = [...ideais, { n: (n + 1) as Ideal['n'], jurado: false, texto: '', marcos: 0 }]
+      return { ...atual, radiante: { ...atual.radiante, ideais } }
+    })
+  }, [])
+
   const mudaFabrial = useCallback((idFabrial: string, muda: (f: Fabrial) => Fabrial) => {
     setFicha((atual) =>
       atual ? { ...atual, fabriais: atual.fabriais.map((f) => (f.id === idFabrial ? muda(f) : f)) } : atual,
@@ -422,6 +456,10 @@ export function usePersonagem(caminhoJson: string): Retorno {
     adicionarAnotacao,
     editarAnotacao,
     removerAnotacao,
+    alterarObjetivo,
+    adicionarObjetivo,
+    removerObjetivo,
+    alterarIdeal,
     alterarCargas,
     recarregarTodos,
     recarregarComInvestidura,

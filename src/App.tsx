@@ -11,7 +11,10 @@ import Inventario from './componentes/secoes/Inventario'
 import Anotacoes from './componentes/secoes/Anotacoes'
 import Fabriais from './componentes/secoes/Fabriais'
 import Condicoes from './componentes/secoes/Condicoes'
+import Personagem from './componentes/secoes/Personagem'
+import Radiante from './componentes/secoes/Radiante'
 import { ROTULO } from './variaveis'
+import { fundoDaAba } from './fundos'
 
 // Compõe a ficha: cabeçalho fixo (recursos MUTÁVEIS — item 1.2/1.3) + abas + conteúdo.
 // O estado vivo mora no hook usePersonagem; o cabeçalho recebe o alterarRecurso.
@@ -30,6 +33,10 @@ export default function App() {
     adicionarAnotacao,
     editarAnotacao,
     removerAnotacao,
+    alterarObjetivo,
+    adicionarObjetivo,
+    removerObjetivo,
+    alterarIdeal,
     alterarCargas,
     recarregarTodos,
     recarregarComInvestidura,
@@ -104,8 +111,12 @@ export default function App() {
     )
   }
 
+  const fundo = fundoDaAba(secao, ficha)
+
   return (
     <div className="ficha">
+      {/* arte do personagem atrás do conteúdo — decoração, nunca informação */}
+      {fundo && <div className="fundo-aba" style={{ backgroundImage: `url(${fundo})` }} aria-hidden />}
       <div className="topo-fixo">
         <CabecalhoFixo ficha={ficha} alterarRecurso={alterarRecurso} aoVerCondicoes={() => setSecao('Condições')} />
         <SeletorSecao ativa={secao} aoTrocar={setSecao} />
@@ -162,6 +173,15 @@ export default function App() {
             adicionarItem={adicionarItem}
             removerItem={removerItem}
           />
+        ) : secao === 'Personagem' ? (
+          <Personagem
+            ficha={ficha}
+            alterarObjetivo={alterarObjetivo}
+            adicionarObjetivo={adicionarObjetivo}
+            removerObjetivo={removerObjetivo}
+          />
+        ) : secao === 'Radiante' ? (
+          <Radiante ficha={ficha} escolhasTalento={escolhasTalento} alterarIdeal={alterarIdeal} />
         ) : secao === 'Anotações' ? (
           <Anotacoes
             ficha={ficha}

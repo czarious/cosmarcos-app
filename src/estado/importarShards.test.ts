@@ -43,7 +43,32 @@ describe('total de perícia', () => {
   })
 })
 
+describe('ideais (livro, "Jurando Ideais")', () => {
+  it('jurado vem com 3 marcos; o próximo a jurar entra com os marcos do vínculo', () => {
+    const ideais = ficha().radiante!.ideais
+    expect(ideais.map((i) => [i.n, i.jurado, i.marcos])).toEqual([
+      [1, true, 3],
+      [2, false, 0],
+    ])
+    expect(ideais[1].texto).toBe('') // o texto-modelo em inglês do Shards não é do jogador
+  })
+})
+
 describe('exportar pro Shards', () => {
+  it('objetivo e ideal mudados no app voltam pro Shards', () => {
+    const f = ficha()
+    f.objetivos[1] = { ...f.objetivos[1], grau: 2 }
+    f.objetivos.push({ nome: 'Novo objetivo', concluido: false, grau: 0 })
+    f.radiante!.ideais[1] = { ...f.radiante!.ideais[1], marcos: 3, jurado: true, texto: 'Minhas palavras' }
+    const volta = JSON.parse(exportarShards(f, structuredClone(cru) as Record<string, unknown>)).characters[0]
+    expect(volta.goals[1]).toMatchObject({ name: 'Achar Assassino de Kavel', rank: 2, achieved: false })
+    expect(volta.goals.some((g: { name: string }) => g.name === 'Novo objetivo')).toBe(true)
+    expect(volta.radiant.ideals.i2).toBe(true)
+    expect(volta.radiant.idealsText.i2).toBe('Minhas palavras')
+    expect(volta.radiant.sprenBonds[0].idealMilestones.i2).toBe(3)
+    expect(volta.radiant.sprenBonds[0].ideals.i2).toBe(true)
+  })
+
   it('sem mudança no app, a volta é idêntica à ida (fora a data)', () => {
     const volta = JSON.parse(exportarShards(ficha(), structuredClone(cru) as Record<string, unknown>)).characters[0]
     const { updatedAt: _a, ...resto } = volta

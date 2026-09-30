@@ -56,7 +56,7 @@ export const SIMBOLO_ATIVACAO: Record<Ativacao, string> = {
 
 /**
  * Os 6 atributos em texto. Duas formas porque a tela precisa das duas:
- * `abrev` no cabeçalho fixo (onde não cabe mais que 3 letras) e `nome` nos
+ * `abrev` onde não cabe mais que 3 letras (rótulo do Aprimorado [+1 FOR]) e `nome` nos
  * títulos da aba Perícias e no detalhamento de um total.
  *
  * ⚠️ O **valor** do atributo não mora aqui — vem da ficha. Aqui é só o rótulo.
@@ -102,8 +102,8 @@ export const CARGAS = { nome: 'Cargas', abrev: 'CARGAS', simbolo: '⚡', diminui
 
 /**
  * Os 3 grupos da ficha oficial — cada um junta uma defesa, dois atributos e
- * um recurso. É a estrutura que o cabeçalho fixo desenha lado a lado e a
- * ordem em que a aba Perícias agrupa as 18.
+ * um recurso. É a estrutura dos cartões da aba Principal, a ordem dos
+ * recursos no cabeçalho fixo e a ordem em que a aba Perícias agrupa as 18.
  *
  * ⚠️ Isto é **estrutura do sistema**, não gosto: quem decide que Física reúne
  * Força e Velocidade é o livro. Está aqui porque é como a tela organiza — se
@@ -123,7 +123,7 @@ export const GRUPOS_FICHA = [
 /**
  * A ordem dos 6 atributos na tela — **derivada** dos grupos acima, nunca
  * escrita à mão. Antes disso existir, a ordem estava copiada no `Pericias.tsx`
- * e podia divergir do cabeçalho sem ninguém notar.
+ * e podia divergir da ficha oficial sem ninguém notar.
  */
 export const ORDEM_ATRIBUTOS: readonly NomeAtributo[] = GRUPOS_FICHA.flatMap((g) => [...g.atribs])
 

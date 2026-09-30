@@ -20,7 +20,7 @@
  * Console o César não vê.
  */
 
-import type { Personagem, Fabrial } from '../tipos/personagem'
+import type { Personagem, Fabrial, Ideal } from '../tipos/personagem'
 import { FABRIAIS_PADRAO, efeitoPorNome } from '../regras/fabriais'
 import { CONDICOES } from '../regras/condicoes'
 import type { EscolhaVaga } from '../regras/talentos'
@@ -31,7 +31,7 @@ import type { EscolhaVaga } from '../regras/talentos'
  * `lerFicha`). Subiu este número? Escreva a entrada em MIGRACOES — o teste
  * `armazenamento.test.ts` reprova se faltar.
  */
-export const VERSAO_ESQUEMA = 4
+export const VERSAO_ESQUEMA = 5
 
 /**
  * Migrações: save de versão antiga que ainda dá pra aproveitar. Cada entrada
@@ -82,6 +82,19 @@ export const MIGRACOES: Record<number, (ficha: Personagem) => void> = {
       descricao: l.descricao || undefined,
       diasRestantes: l.diasRestantes,
     }))
+  },
+  // v4 → v5: Ideal ganhou `marcos` (0–3) e a lista passou a trazer o PRÓXIMO
+  // Ideal a jurar. Jurado = 3 marcos (é o que o Shards grava); os marcos do
+  // próximo não existiam no v4 — começa em 0, reimportar traz o do Shards.
+  4: (ficha) => {
+    if (!ficha.radiante) return
+    const ideais = ficha.radiante.ideais as (Omit<Ideal, 'marcos'> & { marcos?: number })[]
+    for (const i of ideais) i.marcos = i.jurado ? 3 : 0
+    const ultimo = Math.max(0, ...ideais.filter((i) => i.jurado).map((i) => i.n))
+    if (ultimo < 5 && !ideais.some((i) => i.n === ultimo + 1)) {
+      ideais.push({ n: (ultimo + 1) as Ideal['n'], jurado: false, texto: '', marcos: 0 })
+      ideais.sort((x, y) => x.n - y.n)
+    }
   },
 }
 

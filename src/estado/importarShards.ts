@@ -352,17 +352,27 @@ function traduzObjetivos(bruto: unknown): Objetivo[] {
     .filter((g) => g.nome !== '') // o Shards deixa linhas em branco no fim
 }
 
-/** Ideais: o Shards guarda em DOIS objetos paralelos (idealsText + ideals). Fundimos. */
-function traduzIdeais(radiant: Obj): Ideal[] {
+/**
+ * Ideais: o Shards guarda em objetos paralelos (idealsText + ideals no topo,
+ * idealMilestones só no vínculo). Fundimos. Entram os jurados, os que têm
+ * texto do jogador e o PRÓXIMO a jurar — é nele que se marcam os marcos.
+ */
+function traduzIdeais(radiant: Obj, vinculo: Obj): Ideal[] {
   const textos = ehObjeto(radiant.idealsText) ? radiant.idealsText : {}
   const jurados = ehObjeto(radiant.ideals) ? radiant.ideals : {}
+  const marcos = ehObjeto(vinculo.idealMilestones) ? vinculo.idealMilestones : {}
   const ideais: Ideal[] = []
+  let proximoIncluido = false
   for (let n = 1 as 1 | 2 | 3 | 4 | 5; n <= 5; n = (n + 1) as 1 | 2 | 3 | 4 | 5) {
     const chave = `i${n}`
     const jurado = jurados[chave] === true
     // Ideal não jurado vem com o texto-modelo do Shards, em inglês ("Declare to your…") — não é do jogador.
     const texto_ = jurado || !texto(textos[chave]).startsWith('Declare to your') ? texto(textos[chave]) : ''
-    if (texto_ !== '' || jurado) ideais.push({ n, jurado, texto: texto_ })
+    const ehProximo = !jurado && !proximoIncluido
+    if (ehProximo) proximoIncluido = true
+    if (texto_ !== '' || jurado || ehProximo) {
+      ideais.push({ n, jurado, texto: texto_, marcos: jurado ? 3 : Math.min(3, num(marcos[chave] ?? 0, `idealMilestones.${chave}`)) })
+    }
   }
   return ideais
 }
@@ -414,7 +424,7 @@ function traduzRadiante(bruto: unknown): Radiante | undefined {
       iluminado: vinculo.enlightened === true,
     },
     alcanceSpren: ftParaM(num(bruto.sprenBondRange ?? 0, 'radiant.sprenBondRange')), // em metros
-    ideais: traduzIdeais(bruto),
+    ideais: traduzIdeais(bruto, vinculo),
     fluxos: traduzFluxos(bruto.surgeSkills),
   }
 }

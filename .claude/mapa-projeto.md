@@ -64,6 +64,9 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | [`.claude/organizacao.md`](organizacao.md) | **Como a estrutura se mantém.** A regra do CLAUDE.md, pastas por papel, gatilhos de refatoração. A organização é responsabilidade do Claude |
 | `.claude/settings.local.json` | Configuração local do Claude Code. Não é do app |
 | `.claude/agents/transcritor-livro.md` | Agente que transcreve UM capítulo do Guia de Regras. **Não versionado** — cita o livro |
+| `.claude/agents/arte.md` | Agente de arte (Opus): cria os fundos das abas no estilo do livro, sem copiar ilustração, e confere contraste e tela. **Não versionado** (a pasta `agents/` inteira fica fora) |
+| `.claude/arte/*.py` | Os scripts que desenham cada fundo (SVG → PNG → webp): `python .claude/arte/erudito.py src/assets/fundos/trilha-erudito.webp`. `ferramentas.py` rasteriza e comprime |
+| `.claude/tela.mjs` | Captura o app em tamanho de celular pelo Chrome oculto, sem extensão: `node .claude/tela.mjs <prefixo> '<passos>'`. Precisa do `npm run dev` |
 | `src/` · `public/` · `package.json` · `vite.config.ts` · `index.html` | **TODO O CÓDIGO DO APP**, na mesma pasta que a documentação ([premissas](../escopo/premissas.md) → "Código e documentação na mesma pasta, fora do Drive"). Mapa próprio: [`mapa-app.md`](../mapa-app.md). **Mudança no código atualiza o mapa-app, não este** |
 
 ## Arquivos planejados na raiz

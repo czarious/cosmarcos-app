@@ -47,6 +47,19 @@ describe('migração v3 → v4 (condição e lesão ganharam id do livro)', () =
   })
 })
 
+describe('migração v4 → v5 (Ideal ganhou marcos)', () => {
+  it('jurado vira 3 marcos e o próximo Ideal aparece com 0', () => {
+    const f = ficha()
+    f.radiante!.ideais = [{ n: 1, jurado: true, texto: 'Vida antes da morte.' }] as never
+    localStorage.setItem('cosmarcos:ficha:eccho', JSON.stringify({ versaoEsquema: 4, salvoEm: '', ficha: f, escolhasTalento: {} }))
+    const lida = lerFicha('eccho').salva!.ficha
+    expect(lida.radiante!.ideais.map((i) => [i.n, i.jurado, i.marcos])).toEqual([
+      [1, true, 3],
+      [2, false, 0],
+    ])
+  })
+})
+
 describe('save que não abre', () => {
   it('corrompido: avisa e guarda o texto cru antes de qualquer gravação por cima', () => {
     localStorage.setItem('cosmarcos:ficha:eccho', '{isso não é json')

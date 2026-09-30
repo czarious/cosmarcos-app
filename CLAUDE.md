@@ -98,8 +98,8 @@ Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não 
 
 > Não existe Live Server aqui: quem serve o projeto é o Vite.
 
-## Estado atual — 28/Set/2026
+## Estado atual — 30/Set/2026
 
-Fase 1 com **1.0 a 1.4 prontos** (falta **1.5 Condições**). Entregues fora de ordem: **2.3 Persistência**, **3.1 Importar** e **3.2 Fabriais**. O **exportar pro Shards** ainda espera a conferência do download na tela. Abas já de pé além do roadmap: Perícias, Talentos, Ações, Fabriais, Inventário, Anotações. Nada disso foi commitado ainda.
+Publicado: topo enxuto + menu de abas (9 quadradinhos) + aba Principal no molde do DDB · abas **Personagem** (Objetivos) e **Radiante** (Ideais, fluxos) · Condições, lesões e descanso · arte de fundo do Eccho (Erudito, Alternauta). **Arte PAUSADA** a pedido do César: ficou legal mas precisa melhorar — ele retoma com calma; não gerar arte nova sem ele pedir. **Próximo (proposto, aguardando o sim):** usar a ação e já pagar o custo (Foco/Investidura) → equipamento em texto livre do Shards no Inventário → guia de uso dos fluxos (CD e custo). Tudo 🔶 espera a conferência dele na tela e no celular.
 
 Detalhe e critério de pronto: [roadmap.md](escopo/roadmap.md).

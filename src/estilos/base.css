@@ -29,6 +29,11 @@
   /* Serifada do sistema: sem webfont — offline primeiro (princípio 3) */
   --fonte: Georgia, 'Times New Roman', serif;
 
+  /* ── arte de fundo das abas (src/fundos.ts) ────── */
+  /* A imagem é graça a mais: fica apagada atrás do conteúdo e NUNCA disputa
+     com o texto. Quem ajusta é o agente de arte, medindo o contraste. */
+  --fundo-opacidade: 0.3;
+
   /* ── toque ─────────────────────────────────────── */
   --alvo-toque: 44px; /* mínimo pra dedo, celular primeiro */
 }
@@ -129,198 +134,75 @@ body {
   line-height: 1.2;
 }
 
-/* os 3 grupos lado a lado — Física · Cognitiva · Espiritual (como no PDF) */
-.cf-grupos {
+/* os 3 recursos lado a lado — Vida · Foco · Investidura, cada um um botão */
+.cf-recursos {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.4rem;
 }
 
-.cf-grupo {
+.cf-recurso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-height: var(--alvo-toque);
+  font-family: var(--fonte);
   background: var(--cor-campo);
   border: 1px solid var(--cor-borda);
   border-radius: 6px;
-  padding: 0.3rem 0.25rem 0.35rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.cfg-titulo {
-  color: var(--cor-titulo);
-  font-variant: small-caps;
-  font-weight: bold;
-  font-size: 0.68rem;
-  letter-spacing: 0.06em;
-}
-
-/* [atributo] [defesa no meio] [atributo] */
-.cfg-linha-atrib {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  width: 100%;
-}
-
-.cfg-atrib {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.05;
-  flex: 1;
-}
-
-.cfg-atrib i {
-  font-style: normal;
-  color: var(--cor-texto-suave);
-  font-size: 0.58rem;
-  letter-spacing: 0.05em;
-}
-
-.cfg-atrib b {
-  color: var(--cor-texto);
-  font-size: 1.15rem;
-}
-
-/* a defesa no meio — o "escudo" da ficha oficial — rótulo em cima, valor embaixo */
-.cfg-defesa {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: var(--cor-titulo);
-  background: var(--cor-painel);
-  border: 2px solid var(--cor-borda-forte);
-  border-radius: 4px 4px 9px 9px;
-  padding: 0.1rem 0.35rem 0.15rem;
-  line-height: 1.1;
-}
-
-.cfg-defesa i {
-  font-style: normal;
-  color: var(--cor-texto-suave);
-  font-size: 0.5rem;
-  letter-spacing: 0.05em;
-}
-
-.cfg-defesa b {
-  font-weight: bold;
-  font-size: 1.05rem;
-}
-
-/* o recurso do grupo: Vida (+Deflect) · Foco · Investidura — agora é BOTÃO */
-.cfg-recurso {
-  display: flex;
-  align-items: baseline;
-  gap: 0.25rem;
-  /* reset de button */
-  font-family: var(--fonte);
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  padding: 0.15rem 0.4rem;
+  padding: 0.25rem 0.3rem 0.35rem;
   cursor: pointer;
-  transition: background 0.12s, border-color 0.12s;
+  transition: background 0.12s;
 }
 
-.cfg-recurso:hover {
-  background: var(--cor-painel);
-  border-color: var(--cor-borda);
-}
-
-.cfg-recurso:active {
+.cf-recurso:active {
   background: var(--cor-fundo-pagina);
 }
 
-.cfg-recurso.cf-vazio {
+.cf-recurso.cf-vazio {
   opacity: 0.5; /* Investidura 0/0 — recurso que o personagem ainda não destravou */
+}
+
+.cf-recurso-rotulo {
+  color: var(--cor-texto-suave);
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
 }
 
 .cf-simbolo {
   color: var(--cor-destaque);
-  font-size: 0.85rem;
-  line-height: 1;
-}
-
-/* rótulo (VIDA/FOCO/INVEST) em cima, valor embaixo — mesmo padrão da .cfg-deflect */
-.cfg-recurso-corpo {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  line-height: 1.05;
-}
-
-.cfg-recurso-corpo i {
-  font-style: normal;
-  color: var(--cor-texto-suave);
-  font-size: 0.52rem;
-  letter-spacing: 0.05em;
 }
 
 .cf-valor {
   color: var(--cor-texto);
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.25rem;
   line-height: 1.1;
 }
 
 .cf-max {
   color: var(--cor-texto-suave);
   font-weight: normal;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
 }
 
-.cfg-deflect {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.05;
-  margin-left: 0.2rem;
+/* barrinha de atual/máx embaixo do número (a do "Hit Points" do DDB) */
+.cf-barra {
+  display: block;
+  width: 100%;
+  height: 4px;
+  background: var(--cor-painel);
+  border-radius: 2px;
+  overflow: hidden;
 }
 
-.cfg-deflect i {
-  font-style: normal;
-  color: var(--cor-texto-suave);
-  font-size: 0.52rem;
-  letter-spacing: 0.05em;
-}
-
-.cfg-deflect b {
-  color: var(--cor-texto);
-  font-size: 0.85rem;
-}
-
-/* faixa fina de derivados, abaixo dos 3 grupos */
-.cf-derivados {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.4rem;
-  margin-top: 0.35rem;
-  padding: 0 0.1rem;
-}
-
-.cf-derivados span {
-  display: flex;
-  align-items: baseline;
-  gap: 0.25rem;
-}
-
-.cf-derivados i {
-  font-style: normal;
-  color: var(--cor-texto-suave);
-  font-size: 0.58rem;
-  letter-spacing: 0.03em;
-}
-
-.cf-derivados b {
-  color: var(--cor-texto);
-  font-size: 0.74rem;
-}
-
-/* Número que a condição mudou (movimento com Lento…) — vinho + asterisco */
-.cf-derivados .cf-alterado b {
-  color: var(--cor-destaque);
+.cf-barra span {
+  display: block;
+  height: 100%;
+  background: var(--cor-destaque);
+  transition: width 0.2s;
 }
 
 /* Faixa de condições ativas — só aparece se houver; toque leva pra aba */
@@ -346,39 +228,131 @@ body {
   border-radius: 4px;
 }
 
-/* ── barra de abas (rolável na horizontal) ── */
+/* ── barra de abas: UMA linha — ícone + nome da aba aberta + os 9 quadradinhos (menu) ── */
 .seletor-secao {
-  display: flex;
-  gap: 0.25rem;
-  overflow-x: auto;
-  padding: 0.4rem 0.5rem;
+  padding: 0.35rem 0.5rem;
   background: var(--cor-fundo-pagina);
   border-bottom: 1px solid var(--cor-borda);
-  scrollbar-width: none; /* Firefox */
 }
-.seletor-secao::-webkit-scrollbar { display: none; } /* Chrome */
 
-.aba {
-  flex: 0 0 auto;
-  font-family: var(--fonte);
-  font-size: 0.85rem;
-  color: var(--cor-texto-suave);
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 5px 5px 0 0;
-  padding: 0.4rem 0.7rem;
+.ss-barra {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
   min-height: var(--alvo-toque);
+  padding: 0 0 0 0.75rem;
+  font-family: var(--fonte);
+  color: var(--cor-titulo);
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
   cursor: pointer;
+  text-align: left;
 }
 
-.aba-ativa {
-  color: #fff;
-  background: var(--cor-destaque);
+.ss-icone {
+  width: 1.4rem;
+  flex-shrink: 0;
+  text-align: center;
+  color: var(--cor-destaque);
+  font-size: 1.1rem;
+}
+
+.ss-nome {
+  flex: 1;
   font-weight: bold;
+  font-size: 1rem;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+}
+
+/* os 9 quadradinhos vermelhos — o botão do menu, com área de toque inteira à direita */
+.ss-grade {
+  display: grid;
+  grid-template-columns: repeat(3, 6px);
+  gap: 3px;
+  place-content: center;
+  align-self: stretch;
+  width: 3.2rem;
+  border-left: 1px solid var(--cor-borda);
+}
+
+.ss-grade i {
+  width: 6px;
+  height: 6px;
+  background: var(--cor-destaque);
+  border-radius: 1px;
+}
+
+/* o menu aberto: lista de todas as abas, a atual destacada */
+.ss-overlay {
+  align-items: flex-start;
+  padding-top: 3rem;
+}
+
+.ss-menu {
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100dvh - 4rem);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: var(--cor-painel);
+  border: 2px solid var(--cor-borda-forte);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem 0.9rem;
+  box-shadow: 0 8px 24px rgba(43, 38, 32, 0.35);
+}
+
+.ss-fechar {
+  align-self: flex-start;
+  font-size: 1.4rem;
+}
+
+.ss-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0 0.9rem;
+  font-family: var(--fonte);
+  font-size: 1.05rem;
+  color: var(--cor-texto);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.ss-item-ativo {
+  font-weight: bold;
+  border: 2px solid var(--cor-destaque);
+  background: var(--cor-painel);
+}
+
+/* ── arte de fundo: presa à tela, atrás de tudo, na largura da ficha ── */
+.fundo-aba {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  z-index: 0;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center;
+  opacity: var(--fundo-opacidade);
 }
 
 /* ── área de conteúdo (rola; o cabeçalho não) ── */
 .conteudo {
+  position: relative; /* acima da .fundo-aba */
+  z-index: 1;
   flex: 1;
   padding: 1rem 0.9rem 2rem;
 }
@@ -1088,6 +1062,278 @@ label.linha-item input[type='checkbox'] {
   margin-top: 0.2rem;
 }
 
+/* ════════ ABA PRINCIPAL — atributos, defesas e derivados (o "Abilities, Saves, Senses" do DDB) ════════ */
+
+.principal .titulo-secao:not(:first-child) {
+  margin-top: 1.4rem;
+}
+
+/* um grupo da ficha oficial por cartão: [atributo] [DEFESA] [atributo] */
+.pr-grupo {
+  background: var(--cor-painel);
+  border: 3px double var(--cor-borda-forte);
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.pr-grupo-nome {
+  color: var(--cor-titulo);
+  font-variant: small-caps;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  margin-bottom: 0.3rem;
+}
+
+.pr-grupo-linha {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pr-atrib,
+.pr-defesa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.pr-rotulo {
+  color: var(--cor-texto-suave);
+  font-size: 0.7rem;
+  font-variant: small-caps;
+  letter-spacing: 0.05em;
+}
+
+.pr-atrib b {
+  font-size: 2rem;
+  color: var(--cor-texto);
+}
+
+/* a defesa no meio — o "escudo" da ficha oficial */
+.pr-defesa {
+  min-width: 4.6rem;
+  padding: 0.2rem 0.6rem 0.35rem;
+  color: var(--cor-titulo);
+  background: var(--cor-campo);
+  border: 2px solid var(--cor-borda-forte);
+  border-radius: 6px 6px 18px 18px;
+}
+
+.pr-defesa b {
+  font-size: 2rem;
+}
+
+/* linhas de número + rótulo (os "Senses" do DDB) */
+.pr-derivados {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pr-derivados li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem 0.3rem 0.3rem;
+}
+
+.pr-derivados b {
+  min-width: 4.4rem;
+  text-align: center;
+  font-size: 1.15rem;
+  color: var(--cor-texto);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 5px;
+  padding: 0.2rem 0.4rem;
+}
+
+.pr-derivados span {
+  display: flex;
+  flex-direction: column;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  color: var(--cor-texto);
+}
+
+.pr-motivo {
+  font-variant: normal;
+  font-size: 0.75rem;
+  color: var(--cor-destaque);
+}
+
+/* ════════ OBJETIVOS e IDEAIS — 3 marcos de história (ControleMarcos) ════════ */
+
+.lista-objetivos {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.objetivo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  padding: 0.45rem 0.4rem 0.55rem 0.75rem;
+}
+
+.objetivo-cabeca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.objetivo-nome {
+  font-weight: bold;
+  color: var(--cor-texto);
+}
+
+.objetivo-concluido .objetivo-nome {
+  color: var(--cor-texto-suave);
+  text-decoration: line-through;
+}
+
+.objetivo-novo {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.objetivo-novo .cr-input {
+  flex: 1;
+  margin: 0;
+}
+
+.marcos {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.marcos-caixas {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* a caixinha de marco da ficha oficial — grande o bastante pro dedo */
+.marco {
+  width: var(--alvo-toque);
+  height: var(--alvo-toque);
+  background: var(--cor-campo);
+  border: 2px solid var(--cor-borda-forte);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.marco-cheio {
+  background: var(--cor-destaque);
+  border-color: var(--cor-destaque);
+  box-shadow: inset 0 0 0 3px var(--cor-painel);
+}
+
+.marcos-concluido {
+  color: var(--cor-ok);
+  font-weight: bold;
+}
+
+/* Ideal jurado: as Palavras em destaque, como citação */
+.ideal-palavras {
+  font-style: italic;
+  color: var(--cor-titulo);
+  border-left: 3px solid var(--cor-destaque);
+  padding: 0.1rem 0 0.1rem 0.6rem;
+}
+
+.ideal-texto {
+  width: 100%;
+  resize: vertical;
+  margin: 0;
+}
+
+.fluxo-meta {
+  color: var(--cor-texto-suave);
+}
+
+.fluxo-talentos {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--cor-texto-suave);
+}
+
+/* ════════ ABA PERSONAGEM — identidade e interpretação ════════ */
+
+.personagem .titulo-secao:not(:first-child),
+.radiante .titulo-secao:not(:first-child) {
+  margin-top: 1.4rem;
+}
+
+.pg-dados {
+  display: flex;
+  flex-direction: column;
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+}
+
+.pg-dados div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid var(--cor-campo);
+}
+
+.pg-dados div:last-child {
+  border-bottom: none;
+}
+
+.pg-dados dt {
+  color: var(--cor-texto-suave);
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+}
+
+.pg-dados dd {
+  text-align: right;
+}
+
+.pg-texto p {
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+}
+
+.pg-conexoes {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.pg-conexoes li {
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.92rem;
+}
+
 /* ════════ CONTROLE DE RECURSO — popover de dano/cura (item 1.2/1.3) ════════ */
 
 .cr-overlay {
@@ -1230,6 +1476,8 @@ label.linha-item input[type='checkbox'] {
 /* ════════ RODAPÉ — estado do save + volta pra semente (item 2.3) ════════ */
 
 .rodape {
+  position: relative; /* acima da .fundo-aba */
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1422,7 +1670,7 @@ label.linha-item input[type='checkbox'] {
 }
 
 /* Número que uma condição alterou (perícia, acerto, dano) — o jogador não pode
-   ler "+5" achando que é o normal. Mesmo código do movimento no cabeçalho. */
+   ler "+5" achando que é o normal. Mesmo código do movimento e do atributo Aprimorado na aba Principal. */
 .numero-alterado {
   color: var(--cor-destaque) !important;
 }

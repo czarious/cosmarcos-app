@@ -76,7 +76,7 @@ type Personagem = {
     ordem;                                       // "Elsecaller"
     spren: { nome; tipo; iluminado: boolean };   // ← sprenBonds[]
     alcanceSpren: number;                        // 30
-    ideais: Array<{ n; jurado: boolean; texto }>;  // ← tradutor funde idealsText + ideals
+    ideais: Array<{ n; jurado: boolean; texto; marcos }>;  // ← funde idealsText + ideals + idealMilestones (do vínculo); traz o próximo a jurar
     fluxos: Array<{
       id; nome; atributo; graduacao;
       ativacao: Ativacao;        // ✅ surgeSkills TEM activation ("action", "action2x")

@@ -13,7 +13,7 @@
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { join, dirname, normalize, basename, relative } from 'node:path'
+import { join, dirname, normalize, basename, relative, sep } from 'node:path'
 import { spawnSync } from 'node:child_process'
 
 const RAIZ = process.cwd()
@@ -58,11 +58,14 @@ for (const doc of docs) {
   }
 }
 
-// 2. Todo arquivo de src/ está no mapa-app.md?
+// 2. Todo arquivo de src/ está no mapa-app.md? Pelo nome — ou pela PASTA citada
+//    no mapa, pra pasta de dados que cresce um arquivo por personagem (as
+//    imagens de src/assets/fundos/): uma linha por imagem seria ruído.
 const mapaApp = readFileSync(join(RAIZ, 'mapa-app.md'), 'utf8')
 const codigo = existsSync(join(RAIZ, 'src')) ? varrerTudo(join(RAIZ, 'src')) : []
 for (const arq of codigo) {
-  if (!mapaApp.includes(basename(arq))) {
+  const pasta = relative(RAIZ, dirname(arq)).split(sep).join('/') + '/'
+  if (!mapaApp.includes(basename(arq)) && !mapaApp.includes(`\`${pasta}\``)) {
     problemas.push(`fora do mapa-app.md · ${relative(RAIZ, arq)}`)
   }
 }

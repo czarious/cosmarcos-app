@@ -14,7 +14,7 @@
 | # | Funcionalidade | O que faz | Critério de pronto |
 |---|---|---|---|
 | **1.0** | ✅ **Ler a ficha do JSON** | Carrega `public/personagens/*.json` via tradutor ([premissas](premissas.md) → "Schema próprio em português + tradutor na entrada") + validação | ✅ O Eccho aparece: nome, nível, atributos, defesas 14/17/13, Vida 21/21 |
-| 1.1 | ✅ **Cabeçalho fixo** | A ficha oficial em miniatura: identidade + 3 grupos (atributos·defesa·recurso) + derivados em métrico ([premissas](premissas.md) → "Os vitais grudam no topo") | ✅ Troco de seção e rolo até o fim: tudo grudado no topo |
+| 1.1 | 🔶 **Cabeçalho fixo + aba Principal** | Topo enxuto: identidade + os 3 recursos + condições ([premissas](premissas.md) → "Os vitais grudam no topo"). Atributos, defesas e derivados em métrico descem pra aba Principal. Abas num menu (os 9 quadradinhos) | Troco de aba pelo menu e rolo até o fim: os 3 recursos grudados no topo; a Principal mostra os 6 atributos e as 3 defesas |
 | 1.2 | ✅ **Dano e cura** | ▲/▼ na Vida + toque no número pra entrada numérica. Spec: [interface.md](interface.md) → "Recursos" | ✅ Toco na Vida, abre o controle, digito 7 e "− Dano", Vida cai de 21 → 14. Trava em 0 e no máx |
 | 1.3 | ✅ **Foco e Investidura** | **O mesmo componente da 1.2** (`ControleRecurso`), usado nos 3 recursos | ✅ Toco no Foco, ▼: 4 → 3. Labels viram "Gastar/Recuperar" |
 | **1.4** | ✅ **Lista de Perícias** | 18 perícias agrupadas por atributo, com a bolinha de graduação e o total **CALCULADO** (`regras/calculos.ts`) | ✅ Dedução com ◎ e **+7 calculado**, batendo com o Shards; as 18 conferidas contra a fórmula |
@@ -26,7 +26,7 @@
 
 > ⚠️ **Dois itens saíram da Fase 1 em 16/Jul/2026:**
 > - **Rolador com Dado de Trama** → Fase 4. **O dado é rolado na mão.** Ver [premissas](premissas.md) → "O dado é rolado na mão"
-> - **Ações do Mancha** → backlog. Sem fonte de dados. Ver pergunta 9
+> - **Ações do Mancha** → backlog. Na época sem fonte de dados — depois resolvida, ver pergunta 9
 
 ## Fase 2 — PWA
 
@@ -49,6 +49,7 @@
 | 3.1 | ✅ **UI de importar** · 🔶 **exportar pro Shards** — o JSON sai certo (ida e volta idêntica), mas o **download pelo botão não foi confirmado na tela** (27/Set/2026) | Baixo o export no celular, toco em "Importar", escolho o arquivo, a ficha atualiza. "Exportar pro Shards" baixa o JSON que o Shards importa, com o que mudei no app |
 | 3.2 | ✅ **Fabriais com cargas** | Aba Fabriais: gasto e recupero carga (± , Investidura, grantormenta); monto fabrial único com as opções do livro; o PROJÉTIL gasta carga em Ações |
 | 3.3 | 🔶 **Lesões com contagem de dias** | Temporária conta dias; permanente não some sozinha. Rolagem guiada (d20 + deflexão − 5 por lesão → gravidade), efeito d8 vira condição. Junto: **descanso** curto e longo |
+| 3.4 | 🔶 **Personagem e Radiante** | Aba Personagem: objetivos com 3 marcos + concluir/adicionar/apagar, identidade, propósito, obstáculo, personalidade, conexões. Aba Radiante: vínculo, Ideais com marcos e "Dizer as Palavras", fluxos com total. Os dois voltam no "Exportar pro Shards" | Marco um marco em "Achar Assassino de Kavel", fecho e reabro: continua marcado. No 2º Ideal, marco os 3 e aparece "Dizer as Palavras" |
 
 > ✅ **Respondido (12/Set/2026): ZERA.** Importar sobrescreve a ficha inteira, sem fusão — o app é dono da ficha depois da importação, e trazer um JSON desatualizado é perda de dado assumida por quem importa. O 3.1 é só a interface de escolher o arquivo; a semântica já está no item 2.3. Ver [premissas](premissas.md) → "O Shards é SEMENTE; o app é dono da ficha".
 
@@ -167,15 +168,12 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 
 | Ideia | Nota |
 |---|---|
-| **Ações do Mancha com custo de Foco** | ⬅️ **Veio da Fase 1** (era o item 1.6) — sem fonte de dados. O texto existe em `radiante-alternauta-03.md`, só não vem do Shards. Volta quando a pergunta 9 for decidida |
+| **Usar a ação e já pagar o custo** | O texto das ações (Mancha, Luz, reações de 1 foco) já está na aba Ações — pergunta 9. Falta o toque que desconta o Foco/Investidura na hora, sem ir no topo |
 | **Base de regras Cosmere própria** | Evolução natural da [premissas](premissas.md) → "Ler primeiro, calcular depois": conforme o livro for transcrito, PROVISÓRIO vira FIXO calculado. **Não é pré-requisito de nada** — o Shards já entrega as contas prontas |
 | Descanso e dado de recuperação | 🔶 Entrou junto com o 3.3 (aba Condições). Pelo livro o descanso recupera **Vida e Foco**, não Investidura — Investidura volta por Inspirar Luz das Tempestades |
-| Objetivos — marcar como concluído | ✅ `achieved: boolean` + `rank`. ⚠️ **Não é barra de progresso** — a ideia antiga vinha do schema errado |
-| Ideais radiantes — marcar como jurado | ✅ `radiant.ideals.{i1..i5}`. O Eccho tem os 5 como `false` |
 | Exportar estado / backup manual | Contra perder tudo se limpar o navegador. Cresce de importância se a Fase 5 não sair |
 | Marcos (moeda) — gastar/ganhar | ✅ `resources.marks` = 65. Baixa prioridade na mesa |
 | Iniciativa | Confirmar se o Cosmere usa e como |
-| Propósito / Obstáculo / Personalidade na tela | ✅ Existem e estão preenchidos. São de interpretação, não de mesa |
 | Especializações na tela | ✅ `expertises[]` — o Eccho tem 4 |
 
 ---
@@ -197,8 +195,8 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 | 5 | **Fórmula do total da perícia** | ✅ **RESOLVIDA — confirmada no LIVRO** (p.56, 18/Jul/2026): modificador = **atributo efetivo + graduações**. Já batia 18/18 no PDF do Shards. Transcrição: `03-estatisticas/03-pericias-e-graduacoes.md` | Livro ✓ |
 | 6 | **`attributeMods` somam no base?** | ✅ **RESOLVIDA** em 17/Jul/2026 — **sim.** O PDF exibe o Intelecto já como **4** (base 3 + mod 1). ⚠️ **Consequência de UI: o app mostra o valor EFETIVO, não o base.** A nota do PDF confirma: *"User Modifications: +1 Attribute Intellect"* | PDF do Shards |
 | 7 | ~~Reimportar **preserva ou zera** o estado vivo?~~ | ✅ **RESPONDIDA (12/Set/2026): zera.** Importar sobrescreve a ficha inteira, sem fusão — o app é dono da ficha e o JSON é semente | César |
-| 8 | **Ativação dos talentos — de onde vem?** | ✅ **FONTE ACHADA** em 17/Jul/2026 — **o PDF traz** (o JSON não): *"Special Activation", "Always Active", "Reaction"*. É **regra do talento**, não dado do personagem. Como puxar pro app ainda é decisão (o JSON de import não tem; ou digita, ou o app aprende a regra) | PDF · [premissas](premissas.md) → "A ficha inteligente é o objetivo" |
-| 9 | **Ações do Mancha e de Luz — de onde vêm?** | ✅ **FONTE ACHADA** em 17/Jul/2026 — **o PDF traz as duas listas completas** (Enhance, Regenerate, Test Assistance…), com custo e texto. **São regra do Elsecaller/inkspren, não do personagem** — todo Alternauta tem. É a "base de regras" da [premissas](premissas.md) → "A ficha inteligente é o objetivo". Falta decidir *como* entra (JSON de regras próprio × digitar) | PDF · transcrições · [premissas](premissas.md) → "A ficha inteligente é o objetivo" |
+| ~~8~~ | ~~Ativação dos talentos — de onde vem?~~ | ✅ **RESOLVIDA — o app aprendeu a regra:** a ativação de cada talento é digitada do livro em `regras/talentos.ts` (o JSON do Shards não traz) | Livro ✓ |
+| ~~9~~ | ~~Ações do Mancha e de Luz — de onde vêm?~~ | ✅ **RESOLVIDA — digitadas do livro** em `regras/acoes.ts`: Inspirar Luz/Aprimorar/Restaurar (concedidas pelo talento) e as Habilidades de Espreno (todo Radiante vinculado). Aparecem na aba Ações | Livro ✓ |
 | 10 | O Shards tem **"Roll Log"** e rastreia estado vivo — ele já faz o que a gente quer? | 🔶 **Em parte (varredura 27/Set/2026, Shards 3.5.0):** ganhou a tela **Play** (recursos ±, condições, lesões, testes rápidos, ataques, fluxos) e um **DM Roster**. Continua site em inglês, sem PWA e sem cálculo em PT-BR — não muda o MVP. Vale olhar a Play antes de desenhar as Fases 4 e 5 | Usar o Shards |
 | 11 | Quais ideias suas ainda não estão escritas? | ❓ | **César** |
 | ~~12~~ | ~~O export do Shards está desatualizado — o 1º Ideal não está marcado lá~~ | ✅ **RESOLVIDA 27/Set/2026:** o export novo traz `ideals.i1: true` e Investidura **5/5** (2 + Consciência 3, como o livro manda) | Shards reexportado |

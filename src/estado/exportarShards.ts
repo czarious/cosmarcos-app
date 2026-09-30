@@ -12,10 +12,11 @@
  *
  * O que o app edita e volta: Vida/Foco/Investidura atuais · marcos · armas
  * equipadas · itens (adicionados/removidos) · fabriais (cargas, qualidade,
- * aprimoramentos, revezes, novos/removidos) · anotações (→ campo NOTES).
+ * aprimoramentos, revezes, novos/removidos) · anotações (→ campo NOTES) ·
+ * objetivos (marcos, concluído, novos/removidos) · ideais (marcos, jurado, texto).
  */
 
-import type { Personagem, Fabrial } from '../tipos/personagem'
+import type { Personagem, Fabrial, Ideal } from '../tipos/personagem'
 import { APRIMORAMENTO_ID, REVES_ID, QUALIDADE_FABRIAL, FABRIAL_PADRAO_ID } from './deparaShards'
 import { ID_NOTAS_SHARDS } from './importarShards'
 import { ID_PROPRIO, CARACTERISTICAS_AVANCADAS, efeitoUnico, APRIMORAMENTOS_GERAIS, REVEZES_GERAIS } from '../regras/fabriais'
@@ -110,6 +111,33 @@ function notasShards(ficha: Personagem): string {
 }
 
 /**
+ * Ideais → o Shards guarda jurado e texto no topo do `radiant` E no vínculo
+ * (onde moram também os marcos). O tradutor lê o 1º vínculo; a volta escreve
+ * nos dois. Ideal que o app não lista (os futuros) volta intocado.
+ */
+function radianteShards(ideais: Ideal[], cru: Obj): Obj {
+  const jurados: Obj = {}
+  const textos: Obj = {}
+  const marcos: Obj = {}
+  for (const i of ideais) {
+    jurados[`i${i.n}`] = i.jurado
+    marcos[`i${i.n}`] = i.marcos
+    if (i.texto) textos[`i${i.n}`] = i.texto
+  }
+  const funde = (o: unknown, novo: Obj) => ({ ...(o as Obj), ...novo })
+  return {
+    ...cru,
+    ideals: funde(cru.ideals, jurados),
+    idealsText: funde(cru.idealsText, textos),
+    sprenBonds: lista(cru.sprenBonds).map((v, k) =>
+      k === 0
+        ? { ...v, ideals: funde(v.ideals, jurados), idealsText: funde(v.idealsText, textos), idealMilestones: funde(v.idealMilestones, marcos) }
+        : v,
+    ),
+  }
+}
+
+/**
  * Devolve o JSON pronto pro Shards importar. `semente` é o personagem cru que
  * veio do Shards na última importação.
  */
@@ -168,6 +196,20 @@ export function exportarShards(ficha: Personagem, semente: Obj): string {
     standard: ficha.fabriais.filter((f) => f.tipo === 'padrao').map((f) => fabrialShards(f, crus.get(f.id))),
     custom: ficha.fabriais.filter((f) => f.tipo === 'unico').map((f) => fabrialShards(f, crus.get(f.id))),
   }
+
+  // objetivos: o objeto cru pelo nome (guarda o `type`), na ordem do app; as
+  // linhas em branco que o Shards deixa no fim voltam como estavam
+  const goalsCrus = lista(c.goals)
+  c.goals = [
+    ...ficha.objetivos.map((o) => ({
+      ...(goalsCrus.find((g) => g.name === o.nome) ?? { name: o.nome, type: '' }),
+      achieved: o.concluido,
+      rank: o.grau,
+    })),
+    ...goalsCrus.filter((g) => String(g.name ?? '') === ''),
+  ]
+
+  if (ficha.radiante) c.radiant = radianteShards(ficha.radiante.ideais, c.radiant as Obj)
 
   c.notes = notasShards(ficha)
   c.updatedAt = new Date().toISOString()

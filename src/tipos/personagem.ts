@@ -135,6 +135,8 @@ export type Ideal = {
   n: 1 | 2 | 3 | 4 | 5
   jurado: boolean
   texto: string
+  /** Marcos de história rumo a jurar (0–3) — `idealMilestones` do vínculo. Jurado = 3. */
+  marcos: number
 }
 
 /** Fluxo (Surge) — único lugar onde o Shards manda ativação pronta. */

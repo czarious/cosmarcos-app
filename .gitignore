@@ -50,3 +50,9 @@ apk/*
 *.jks
 *.apk
 *.aab
+
+# Arte: os scripts (.claude/arte/*.py) sobem; o que eles geram ao lado, não —
+# a imagem final que o app usa mora em src/assets/fundos/
+.claude/arte/*.png
+.claude/arte/*.svg
+__pycache__/

@@ -67,7 +67,7 @@ export default defineConfig({
       workbox: {
         // O padrão só pré-cacheia js/css/html/ico/png/svg. Sem o json, a ficha semente
         // (personagens/*.json) não estaria no cache e o app não abriria offline no 1º uso
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,json}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,webmanifest,json}'], // webp = arte de fundo das abas
       },
     }),
   ],
