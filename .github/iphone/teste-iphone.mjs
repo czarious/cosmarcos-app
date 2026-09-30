@@ -31,9 +31,11 @@ p.on('console', (m) => m.type() === 'error' && rel.erros.push(`console: ${m.text
 const foto = (nome) => p.screenshot({ path: join(SAIDA, `${nome}.png`), fullPage: false })
 const espera = (ms) => p.waitForTimeout(ms)
 
+/** Troca de aba pelo nome EXATO ("Ações" não pode casar com "Anotações"). Menu que ficou aberto é fechado antes. */
 async function abrirAba(nome) {
+  if (await p.locator('.ss-menu').isVisible()) await p.locator('.ss-fechar').click()
   await p.locator('.ss-barra').click()
-  await p.locator('.ss-item', { hasText: nome }).click()
+  await p.locator('.ss-item').filter({ hasText: new RegExp(`(^|\\s)${nome}$`) }).click()
   await espera(400)
 }
 

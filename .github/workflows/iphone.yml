@@ -47,7 +47,10 @@ jobs:
           xcrun simctl list devices available | grep "$ID"
           xcrun simctl boot "$ID"
           xcrun simctl bootstatus "$ID" -b
-          xcrun simctl openurl "$ID" "$URL_APP"
+          # Safari recém-ligado demora na 1ª abertura: abre ele antes e tenta o endereço até 3 vezes
+          xcrun simctl launch "$ID" com.apple.mobilesafari || true
+          sleep 30
+          for i in 1 2 3; do xcrun simctl openurl "$ID" "$URL_APP" && break; sleep 20; done
           sleep 40
           xcrun simctl io "$ID" screenshot .github/iphone/saida/safari-real.png
 
