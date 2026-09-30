@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { Personagem as Ficha, Objetivo } from '../../tipos/personagem'
 import ControleMarcos from '../ControleMarcos'
 import { ICONE } from '../../variaveis'
+import { useIdioma } from '../../idioma/IdiomaContexto'
 
 // Aba Personagem — quem ele é: identidade, OBJETIVOS (os únicos que mudam na
 // mesa) e o texto de interpretação que vem do Shards (propósito, obstáculo,
@@ -17,6 +18,7 @@ type Props = {
 }
 
 export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, removerObjetivo }: Props) {
+  const { t, tx, nome } = useIdioma()
   const { meta } = ficha
   const [novo, setNovo] = useState('')
   const [apagando, setApagando] = useState<number | null>(null)
@@ -25,19 +27,19 @@ export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, 
   const objetivos = ficha.objetivos.map((o, i) => ({ o, i })).sort((a, b) => Number(a.o.concluido) - Number(b.o.concluido))
 
   const identidade: [string, string][] = [
-    ['Jogador', meta.jogador],
-    ['Nível', String(meta.nivel)],
-    ['Ancestralidade', meta.ancestralidade],
-    ['Culturas', meta.culturas.join(' · ')],
-    ['Trilha heroica', meta.trilhaHeroica],
-    ['Ordem radiante', meta.trilhaRadiante ?? ''],
-    ['Kit inicial', meta.kitInicial],
+    [tx.personagem.jogador, meta.jogador],
+    [tx.personagem.nivel, String(meta.nivel)],
+    [tx.personagem.ancestralidade, nome(meta.ancestralidade)],
+    [tx.personagem.culturas, meta.culturas.map((c) => nome(c)).join(' · ')],
+    [tx.personagem.trilhaHeroica, nome(meta.trilhaHeroica)],
+    [tx.personagem.ordemRadiante, meta.trilhaRadiante ? nome(meta.trilhaRadiante) : ''],
+    [tx.personagem.kitInicial, nome(meta.kitInicial)],
   ]
   const textos: [string, string][] = [
-    ['Propósito', ficha.proposito],
-    ['Obstáculo', ficha.obstaculo],
-    ['Personalidade', ficha.personalidade],
-    ['Aparência', ficha.aparencia],
+    [tx.personagem.proposito, ficha.proposito],
+    [tx.personagem.obstaculo, ficha.obstaculo],
+    [tx.personagem.personalidade, ficha.personalidade],
+    [tx.personagem.aparencia, ficha.aparencia],
   ]
   const conexoes = ficha.conexoes.split('\n').map((l) => l.trim()).filter(Boolean)
 
@@ -50,7 +52,7 @@ export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, 
 
   return (
     <div className="secao personagem">
-      <h2 className="titulo-secao">Objetivos</h2>
+      <h2 className="titulo-secao">{t(tx.personagem.objetivos)}</h2>
       <ul className="lista-objetivos">
         {objetivos.map(({ o, i }) => (
           <li key={`${i}-${o.nome}`} className={`objetivo${o.concluido ? ' objetivo-concluido' : ''}`}>
@@ -59,14 +61,14 @@ export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, 
               {apagando === i ? (
                 <span className="rodape-botoes">
                   <button type="button" className="rodape-botao rodape-perigo" onClick={() => { removerObjetivo(i); setApagando(null) }}>
-                    Apagar
+                    {t(tx.personagem.apagar)}
                   </button>
                   <button type="button" className="rodape-botao" onClick={() => setApagando(null)}>
-                    Manter
+                    {t(tx.personagem.manter)}
                   </button>
                 </span>
               ) : (
-                <button type="button" className="cr-fechar" aria-label={`Apagar o objetivo ${o.nome}`} onClick={() => setApagando(i)}>
+                <button type="button" className="cr-fechar" aria-label={t(tx.personagem.apagarObjetivoNome, { nome: o.nome })} onClick={() => setApagando(i)}>
                   {ICONE.fechar}
                 </button>
               )}
@@ -74,8 +76,8 @@ export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, 
             <ControleMarcos
               marcos={o.grau}
               concluido={o.concluido}
-              rotuloConcluir="Concluir"
-              rotuloConcluido="Concluído"
+              rotuloConcluir={tx.marcos.concluir}
+              rotuloConcluido={tx.marcos.concluido}
               aoMarcar={(grau) => alterarObjetivo(i, { grau })}
               aoConcluir={(concluido) => alterarObjetivo(i, { concluido })}
             />
@@ -88,19 +90,18 @@ export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, 
           value={novo}
           onChange={(e) => setNovo(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && adicionar()}
-          placeholder="Objetivo novo (o Mestre deu, ou você escolheu)"
-          aria-label="Nome do objetivo novo"
+          placeholder={t(tx.personagem.objetivoNovoMestreDeu)}
+          aria-label={t(tx.personagem.nomeObjetivoNovo)}
         />
         <button type="button" className="rodape-botao" onClick={adicionar} disabled={!novo.trim()}>
-          + Adicionar
+          {tx.geral.adicionar}
         </button>
       </div>
       <p className="proximo">
-        Cada objetivo avança cerca de um marco por sessão, quando o Mestre disser. Com os 3, conclua quando a cena
-        pedir — não precisa ser na hora. Vale anotar em Anotações o que aconteceu em cada marco.
+        {t(tx.personagem.cadaObjetivoAvancaCerca)}
       </p>
 
-      <h2 className="titulo-secao">Identidade</h2>
+      <h2 className="titulo-secao">{t(tx.personagem.identidade)}</h2>
       <dl className="pg-dados">
         {identidade
           .filter(([, v]) => v)
@@ -123,7 +124,7 @@ export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, 
 
       {conexoes.length > 0 && (
         <>
-          <h2 className="titulo-secao">Conexões</h2>
+          <h2 className="titulo-secao">{t(tx.personagem.conexoes)}</h2>
           <ul className="pg-conexoes">
             {conexoes.map((c) => {
               // "Nome — descrição": o nome em destaque

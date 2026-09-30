@@ -1,6 +1,9 @@
 /* arquivo: App.tsx */
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { usePersonagem } from './estado/usePersonagem'
+import { useTurno } from './estado/useTurno'
+import PainelTurno from './componentes/PainelTurno'
+import MenuEngrenagem from './componentes/MenuEngrenagem'
 import CabecalhoFixo from './componentes/CabecalhoFixo'
 import SeletorSecao, { type Secao } from './componentes/SeletorSecao'
 import Principal from './componentes/secoes/Principal'
@@ -13,21 +16,25 @@ import Fabriais from './componentes/secoes/Fabriais'
 import Condicoes from './componentes/secoes/Condicoes'
 import Personagem from './componentes/secoes/Personagem'
 import Radiante from './componentes/secoes/Radiante'
-import { ROTULO } from './variaveis'
 import { fundoDaAba } from './fundos'
+import { useIdioma } from './idioma/IdiomaContexto'
+import type { Rotulo } from './idioma/pt'
 
 // Compõe a ficha: cabeçalho fixo (recursos MUTÁVEIS — item 1.2/1.3) + abas + conteúdo.
 // O estado vivo mora no hook usePersonagem; o cabeçalho recebe o alterarRecurso.
 
 export default function App() {
+  const { t, tx, rot } = useIdioma()
   const {
     ficha,
     erro,
     alterarRecurso,
+    definirRecurso,
     escolhasTalento,
     definirEscolhaVaga,
     alternarEquipada,
     definirMarcos,
+    definirEquipamentoTexto,
     adicionarItem,
     removerItem,
     adicionarAnotacao,
@@ -56,11 +63,18 @@ export default function App() {
     dispensarAlertaSave,
     saveDescartado,
   } = usePersonagem('./personagens/eccho.json')
+  // O turno mexe na ficha pelas mesmas portas da tela (recurso, condição, carga, descanso).
+  const apiTurno = useMemo(
+    () => ({ alterarRecurso, definirRecurso, adicionarCondicao, removerCondicao, alterarCargas, fazerDescansoCurto }),
+    [alterarRecurso, definirRecurso, adicionarCondicao, removerCondicao, alterarCargas, fazerDescansoCurto],
+  )
+  const turno = useTurno(ficha, apiTurno)
   const [secao, setSecao] = useState<Secao>('Principal')
-  /** Importar apaga dado — pede confirmação no próprio rodapé, sem `confirm()`. */
-  const [confirmandoImportar, setConfirmandoImportar] = useState(false)
-  /** Resultado da última importação/exportação, mostrado no rodapé. */
-  const [avisoRodape, setAvisoRodape] = useState<string | null>(null)
+  /**
+   * Resultado da última importação/exportação, mostrado no rodapé. Mensagem
+   * (escrita no idioma da hora) ou o erro do tradutor, que vem só em português.
+   */
+  const [avisoRodape, setAvisoRodape] = useState<Rotulo | null>(null)
   const seletorArquivo = useRef<HTMLInputElement>(null)
 
   async function aoEscolherArquivo(e: React.ChangeEvent<HTMLInputElement>) {
@@ -68,17 +82,17 @@ export default function App() {
     e.target.value = '' // deixa escolher o mesmo arquivo de novo
     if (!arquivo) return
     const falha = importarTexto(await arquivo.text())
-    setAvisoRodape(falha ?? `Importado: ${arquivo.name}`)
+    setAvisoRodape(falha ?? { texto: (d) => d.geral.importado, vars: { arquivo: arquivo.name } })
   }
 
   function exportar() {
     const texto = exportarJson()
     if (!texto || !ficha) {
-      setAvisoRodape(ROTULO.exportarSemSemente)
+      setAvisoRodape({ texto: (d) => d.geral.exportarSemSemente })
       return
     }
     baixarArquivo(`${ficha.meta.nome.toLowerCase()}.json`, texto)
-    setAvisoRodape(ROTULO.exportado)
+    setAvisoRodape({ texto: (d) => d.geral.exportado })
   }
 
   function baixarBackup() {
@@ -86,7 +100,7 @@ export default function App() {
     if (!texto || !ficha) return
     const hoje = new Date().toISOString().slice(0, 10)
     baixarArquivo(`cosmarcos-backup-${ficha.meta.nome.toLowerCase()}-${hoje}.json`, texto)
-    setAvisoRodape(ROTULO.backupBaixado)
+    setAvisoRodape({ texto: (d) => d.geral.backupBaixado })
   }
 
   function baixarDescartado() {
@@ -97,7 +111,7 @@ export default function App() {
   if (erro) {
     return (
       <main className="casca">
-        <h1>algo quebrou</h1>
+        <h1>{t(tx.app.algoQuebrou)}</h1>
         <p className="erro">{erro}</p>
       </main>
     )
@@ -106,7 +120,7 @@ export default function App() {
   if (!ficha) {
     return (
       <main className="casca">
-        <p className="proximo">carregando a ficha…</p>
+        <p className="proximo">{t(tx.app.carregandoFicha)}</p>
       </main>
     )
   }
@@ -118,22 +132,28 @@ export default function App() {
       {/* arte do personagem atrás do conteúdo — decoração, nunca informação */}
       {fundo && <div className="fundo-aba" style={{ backgroundImage: `url(${fundo})` }} aria-hidden />}
       <div className="topo-fixo">
-        <CabecalhoFixo ficha={ficha} alterarRecurso={alterarRecurso} aoVerCondicoes={() => setSecao('Condições')} />
+        <CabecalhoFixo
+          ficha={ficha}
+          alterarRecurso={alterarRecurso}
+          aoVerCondicoes={() => setSecao('Condições')}
+          menu={<MenuEngrenagem aoImportar={() => seletorArquivo.current?.click()} aoExportar={exportar} aoBaixarBackup={baixarBackup} salvou={salvou} />}
+        />
         <SeletorSecao ativa={secao} aoTrocar={setSecao} />
+        <PainelTurno ficha={ficha} turno={turno} naAbaAcoes={secao === 'Ações'} />
       </div>
       <main className="conteudo">
         {alertaSave && (
           <div className="alerta-save" role="alert">
             <p>
-              <strong>{ROTULO.saveNaoAbriu}:</strong> {alertaSave} Uma cópia ficou guardada no aparelho — baixe e
-              mande pro Claude recuperar. A ficha abaixo veio do JSON de semente.
+              <strong>{tx.geral.saveNaoAbriu}:</strong> {alertaSave}{' '}
+              {t(tx.app.umaCopiaFicouGuardada)}
             </p>
             <span className="rodape-botoes">
               <button className="rodape-botao rodape-perigo" onClick={baixarDescartado}>
-                {ROTULO.baixarDescartado}
+                {tx.geral.baixarDescartado}
               </button>
               <button className="rodape-botao" onClick={dispensarAlertaSave}>
-                {ROTULO.entendi}
+                {tx.geral.entendi}
               </button>
             </span>
           </div>
@@ -145,7 +165,7 @@ export default function App() {
         ) : secao === 'Talentos' ? (
           <Talentos ficha={ficha} escolhasTalento={escolhasTalento} definirEscolhaVaga={definirEscolhaVaga} />
         ) : secao === 'Ações' ? (
-          <Acoes ficha={ficha} escolhasTalento={escolhasTalento} alterarCargas={alterarCargas} />
+          <Acoes ficha={ficha} escolhasTalento={escolhasTalento} alterarCargas={alterarCargas} turno={turno} />
         ) : secao === 'Fabriais' ? (
           <Fabriais
             ficha={ficha}
@@ -170,6 +190,7 @@ export default function App() {
             ficha={ficha}
             alternarEquipada={alternarEquipada}
             definirMarcos={definirMarcos}
+            definirEquipamentoTexto={definirEquipamentoTexto}
             adicionarItem={adicionarItem}
             removerItem={removerItem}
           />
@@ -191,56 +212,20 @@ export default function App() {
           />
         ) : (
           <div className="em-breve">
-            <p>A aba <strong>{secao}</strong> vem a seguir.</p>
-            <p className="proximo">A estrutura já está de pé — construímos uma por vez.</p>
+            <p>{t(tx.app.aAbaSecaoVem, { secao: tx.nomesAbas[secao] })}</p>
+            <p className="proximo">{t(tx.app.aEstruturaJaEsta)}</p>
           </div>
         )}
       </main>
 
-      {/* Rodapé: estado do save + a ponte com o Shards nos dois sentidos —
-          importar (escolhe o arquivo exportado lá) e exportar (baixa o JSON
-          que o Shards importa). */}
+      {/* Rodapé: só o estado do save e o resultado da última importação/exportação.
+          Os botões moram na engrenagem do topo (MenuEngrenagem). */}
       <input ref={seletorArquivo} type="file" accept=".json,application/json" hidden onChange={aoEscolherArquivo} />
       <footer className="rodape">
-        {confirmandoImportar ? (
-          <>
-            <span className="rodape-aviso">
-              Isso <strong>{ROTULO.importarApaga}</strong> que você mudou no app. Não tem desfazer.
-            </span>
-            <span className="rodape-botoes">
-              <button
-                className="rodape-botao rodape-perigo"
-                onClick={() => {
-                  setConfirmandoImportar(false)
-                  seletorArquivo.current?.click()
-                }}
-              >
-                {ROTULO.importarJson}
-              </button>
-              <button className="rodape-botao" onClick={() => setConfirmandoImportar(false)}>
-                {ROTULO.cancelar}
-              </button>
-            </span>
-          </>
+        {salvou ? (
+          <span className="rodape-estado">{avisoRodape ? rot(avisoRodape) : tx.geral.fichaSalva}</span>
         ) : (
-          <>
-            {salvou ? (
-              <span className="rodape-estado">{avisoRodape ?? ROTULO.fichaSalva}</span>
-            ) : (
-              <span className="rodape-aviso">{ROTULO.naoSalvou}</span>
-            )}
-            <span className="rodape-botoes">
-              <button className="rodape-botao" onClick={() => setConfirmandoImportar(true)}>
-                {ROTULO.importarJson}
-              </button>
-              <button className="rodape-botao" onClick={exportar}>
-                {ROTULO.exportarJson}
-              </button>
-              <button className={salvou ? 'rodape-botao' : 'rodape-botao rodape-perigo'} onClick={baixarBackup}>
-                {ROTULO.baixarBackup}
-              </button>
-            </span>
-          </>
+          <span className="rodape-aviso">{tx.geral.naoSalvou}</span>
         )}
       </footer>
     </div>

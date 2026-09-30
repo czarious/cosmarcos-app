@@ -27,6 +27,7 @@ export type VagaTalento = {
   tipo: TipoVaga
   indice: number // 0, 1... quando o talento pede mais de uma vaga do mesmo tipo
   rotulo: string
+  rotuloEn: string
   /** Só pra vaga tipo 'pericia' — filtra as opções do dropdown pela regra do talento. */
   filtroPericia?: (p: Pericia) => boolean
 }
@@ -46,7 +47,9 @@ export function chaveVaga(talentoId: string, tipo: TipoVaga, indice: number): st
 
 export type EntradaTalento = {
   nome: string // canônico PT-BR do livro
+  nomeEn: string // como o Shards escreve (dicionário → "Trilhas Heroicas", "Ordens Radiantes")
   fonte: string // trilha/especialização, pra exibir
+  fonteEn: string
   preRequisitos: string
   ativacao: Ativacao
   descricao: string
@@ -61,30 +64,36 @@ export type EntradaTalento = {
 const TALENTOS_ERUDITO: Record<string, EntradaTalento> = {
   'scholar::key::erudition': {
     nome: 'Erudição',
+    nomeEn: 'Erudition',
     fonte: 'Talento-chave · Erudito',
+    fonteEn: 'Key talent · Scholar',
     preRequisitos: 'nenhum',
     ativacao: 'especial',
     descricao:
       'Ao adquirir, escolhe uma especialidade cultural ou de utilidade que ainda não tenha, e duas perícias cognitivas que não sejam de fluxo. Passa a contar como se tivesse a especialidade escolhida, e ganha +1 graduação em cada uma das duas perícias — mesmo acima do teto normal de graduação do patamar (é uma exceção explícita da regra de teto). Especialidade e graduações são temporárias: depois de um descanso longo com acesso a uma biblioteca, podem ser redistribuídas.',
     vagas: [
-      { tipo: 'especialidade', indice: 0, rotulo: 'Especialidade concedida (cultural ou utilidade)' },
+      { tipo: 'especialidade', indice: 0, rotulo: 'Especialidade concedida (cultural ou utilidade)', rotuloEn: 'Granted expertise (cultural or utility)' },
       {
         tipo: 'pericia',
         indice: 0,
         rotulo: 'Perícia bônus 1 (cognitiva)',
+        rotuloEn: 'Bonus skill 1 (cognitive)',
         filtroPericia: (p) => p.atributo === 'intelecto' || p.atributo === 'vontade',
       },
       {
         tipo: 'pericia',
         indice: 1,
         rotulo: 'Perícia bônus 2 (cognitiva)',
+        rotuloEn: 'Bonus skill 2 (cognitive)',
         filtroPericia: (p) => p.atributo === 'intelecto' || p.atributo === 'vontade',
       },
     ],
   },
   'scholar::artifabrian::efficient-engineer': {
     nome: 'Engenheiro Eficiente',
+    nomeEn: 'Efficient Engineer',
     fonte: 'Erudito · Artifabriano',
+    fonteEn: 'Scholar · Artifabrian',
     preRequisitos: 'Manufatura 1+; talento-chave Erudição',
     ativacao: 'sempre',
     descricao:
@@ -92,7 +101,9 @@ const TALENTOS_ERUDITO: Record<string, EntradaTalento> = {
   },
   'scholar::artifabrian::prized-acquisition': {
     nome: 'Aquisição Valiosa',
+    nomeEn: 'Prized Acquisition',
     fonte: 'Erudito · Artifabriano',
+    fonteEn: 'Scholar · Artifabrian',
     preRequisitos: 'talento-chave Erudição',
     ativacao: 'especial',
     descricao:
@@ -100,7 +111,9 @@ const TALENTOS_ERUDITO: Record<string, EntradaTalento> = {
   },
   'scholar::artifabrian::fine-handiwork': {
     nome: 'Trabalho Manual Refinado',
+    nomeEn: 'Fine Handiwork',
     fonte: 'Erudito · Artifabriano',
+    fonteEn: 'Scholar · Artifabrian',
     preRequisitos: 'talento Engenheiro Eficiente',
     ativacao: 'especial',
     descricao:
@@ -112,7 +125,9 @@ const TALENTOS_ERUDITO: Record<string, EntradaTalento> = {
 const TALENTOS_ALTERNAUTA: Record<string, EntradaTalento> = {
   'elsecaller::first-ideal-elsecaller-key': {
     nome: 'Primeiro Ideal',
+    nomeEn: 'First Ideal',
     fonte: 'Talento-chave · Alternauta',
+    fonteEn: 'Key talent · Elsecaller',
     preRequisitos: 'Nível 2+',
     ativacao: 'especial',
     descricao:

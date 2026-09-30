@@ -101,6 +101,17 @@ for (const doc of docs) {
   }
 }
 
+// 6. Título repetido no mesmo doc — sinal de bloco colado duas vezes. Já aconteceu
+// (30/Set/2026): um script procurou "## Código" e achou dentro de "### Código e
+// documentação…", e metade das premissas saiu em dobro sem nenhum aviso.
+for (const doc of docs) {
+  const vistos = new Set()
+  for (const m of semCodigo(readFileSync(doc, 'utf8')).matchAll(/^(#{1,6}\s+.+?)\s*$/gm)) {
+    if (vistos.has(m[1])) problemas.push(`título repetido · ${relative(RAIZ, doc)} → "${m[1]}"`)
+    vistos.add(m[1])
+  }
+}
+
 function ignoradoPeloGit(caminho) {
   return spawnSync('git', ['check-ignore', '-q', caminho], { cwd: RAIZ }).status === 0
 }

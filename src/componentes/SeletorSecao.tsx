@@ -1,6 +1,7 @@
 /* arquivo: SeletorSecao.tsx */
 import { useEffect, useState } from 'react'
-import { ICONE, ROTULO } from '../variaveis'
+import { ICONE } from '../variaveis'
+import { useIdioma } from '../idioma/IdiomaContexto'
 
 // As abas — padrão DDB (interface.md → "Uma seção por vez"): UMA linha com o
 // ícone e o nome da aba aberta + o botão dos 9 quadradinhos. Tocar abre o menu
@@ -31,6 +32,7 @@ type Props = {
 }
 
 export default function SeletorSecao({ ativa, aoTrocar }: Props) {
+  const { t, tx } = useIdioma()
   const [aberto, setAberto] = useState(false)
 
   // Esc fecha o menu (teclado do PC; no celular é o ✕ ou tocar fora)
@@ -42,18 +44,18 @@ export default function SeletorSecao({ ativa, aoTrocar }: Props) {
   }, [aberto])
 
   return (
-    <nav className="seletor-secao" aria-label="Seções da ficha">
+    <nav className="seletor-secao" aria-label={t(tx.abas.secoesFicha)}>
       <button
         className="ss-barra"
         onClick={() => setAberto(true)}
         aria-haspopup="dialog"
         aria-expanded={aberto}
-        aria-label={`Aba ${ativa}. Abrir menu de abas`}
+        aria-label={t(tx.abas.abaAbaAbrirMenu, { aba: tx.nomesAbas[ativa] })}
       >
         <span className="ss-icone" aria-hidden>
           {SECOES[ativa]}
         </span>
-        <span className="ss-nome">{ativa}</span>
+        <span className="ss-nome">{tx.nomesAbas[ativa]}</span>
         <span className="ss-grade" aria-hidden>
           {Array.from({ length: 9 }, (_, i) => (
             <i key={i} />
@@ -63,8 +65,8 @@ export default function SeletorSecao({ ativa, aoTrocar }: Props) {
 
       {aberto && (
         <div className="cr-overlay ss-overlay" onClick={() => setAberto(false)}>
-          <div className="ss-menu" role="dialog" aria-label="Abas da ficha" onClick={(e) => e.stopPropagation()}>
-            <button className="cr-fechar ss-fechar" onClick={() => setAberto(false)} aria-label={ROTULO.fechar}>
+          <div className="ss-menu" role="dialog" aria-label={t(tx.abas.abasFicha)} onClick={(e) => e.stopPropagation()}>
+            <button className="cr-fechar ss-fechar" onClick={() => setAberto(false)} aria-label={tx.geral.fechar}>
               {ICONE.fechar}
             </button>
             {LISTA.map((s) => (
@@ -80,7 +82,7 @@ export default function SeletorSecao({ ativa, aoTrocar }: Props) {
                 <span className="ss-icone" aria-hidden>
                   {SECOES[s]}
                 </span>
-                {s}
+                {tx.nomesAbas[s]}
               </button>
             ))}
           </div>

@@ -3,9 +3,9 @@
 
 > **Finalidade:** onde cada coisa mora **no site do Shards** — tela, catálogo, banco do navegador, export — e como mexer nele sem se queimar.
 > **Abrir quando:** antes de editar a ficha do Eccho pelo navegador, antes de mexer no tradutor (`src/estado/importarShards.ts` · `src/estado/deparaShards.ts`), ou quando o Shards atualizar.
-> **Não mora aqui:** o formato do JSON e as armadilhas dele → [dados.md](../escopo/dados.md) → "Armadilhas do JSON do Shards". Os termos EN → PT-BR → `referencia/livro/dicionario-en-ptbr.md` (não versionado).
+> **Não mora aqui:** o que o Shards faz e o app ainda não → [checklist-shards.md](../escopo/checklist-shards.md). O formato do JSON e as armadilhas dele → [dados.md](../escopo/dados.md) → "Armadilhas do JSON do Shards". Os termos EN → PT-BR → `referencia/livro/dicionario-en-ptbr.md` (não versionado).
 
-**Versão vista:** 3.5.0 (varredura de 27/Set/2026). Site em inglês/espanhol, sem português. Faz Stormlight **e** Mistborn.
+**Versão vista:** 3.5.0 (varreduras de 27/Set/2026 e 30/Set/2026). Site em inglês/espanhol, sem português. Faz Stormlight **e** Mistborn.
 
 ## Telas
 
@@ -14,8 +14,8 @@
 | **Sheet** (`#sheet`) | Ficha inteira editável: identidade, atributos, recursos, perícias, objetivos, especialidades, lesões, condições, trilhas heroica e radiante, fluxos, defesas, fabriais, equipamento, notas | É onde se edita a semente |
 | **Play** (`#play`) | Modo mesa: recursos ±, condições, lesões, testes rápidos, ataques, fluxos, talentos, rolagens recentes | Referência de UI — ver [roadmap](../escopo/roadmap.md) pergunta 10 |
 | **Paths** (`#paths`) | Árvores de talento; mostra saldo de pontos ("-1" = gastou um a mais) | O "-1" do Eccho é decisão do César — ver [personagens.md](../escopo/personagens.md) |
-| **Roll Log** · **DM Roster** · **Reference** | Histórico de rolagem · painel do mestre com vários personagens · lembretes | Não |
-| Barra de cima | **Characters** (trocar/criar) · **Files** (PDF, **Export current JSON**, Export all, Import) · Settings (idioma, **Units**, tema) | Export = a semente do app |
+| **Roll Log** (`#roll-log`) · **DM Roster** (`#dm`) · **Reference** (`#reference`) | Histórico de rolagem · painel do mestre com vários personagens · lembretes | Não |
+| Barra de cima | **Characters** (trocar, New character) · **Sheet** (Blank sheet, Duplicate, Delete) · **Files** (Standard PDF sheet, Print app sheet, **Export current JSON**, Export all JSON, Import JSON) · **Help** (Reference, Tutorial) · Report a bug · **Settings** ⚙ (idioma EN/ES, arrumar painéis, **Units**, 13+ temas) | Export = a semente do app. ⚠️ Não clicar em Delete nem Blank sheet |
 
 ## Listas suspensas (de onde vêm as opções)
 
@@ -45,7 +45,7 @@
 2. ⚠️ **Defeito do Shards 3.5.0:** mudar **quantidade** ou **equipar** um item dá `ReferenceError: updateEquippedGearSection is not defined` e **não salva** — a tela mostra o valor, mas o F5 perde. Contorno: gravar direto no IndexedDB (ler o registro, alterar, `put`) e **recarregar a página logo em seguida**, antes que a tela salve por cima.
 3. Conferir sempre relendo o IndexedDB depois do F5 — a tela mente enquanto não salva.
 4. Exportar: **Files → Export current JSON** → baixa `eccho.json` em `Downloads` → no app, **Importar JSON** (o mesmo botão aceita o backup do app; ou copiar pra `public/personagens/eccho.json`, a semente do primeiro carregamento).
-5. Voltar do app: **Exportar pro Shards** no rodapé do app → no Shards, **Files → Import JSON**. O Shards substitui a ficha de mesmo `id` (`bulkPut`, conferido no código dele).
+5. Voltar do app: **Exportar pro Shards** na engrenagem (⚙) do topo do app → no Shards, **Files → Import JSON**. O Shards substitui a ficha de mesmo `id` (`bulkPut`, conferido no código dele).
 
 ## O que o tradutor precisa saber (resumo — detalhe no código)
 

@@ -1,7 +1,8 @@
 /* arquivo: Anotacoes.tsx */
 import { useState } from 'react'
 import type { Personagem } from '../../tipos/personagem'
-import { ICONE, ROTULO } from '../../variaveis'
+import { ICONE } from '../../variaveis'
+import { useIdioma } from '../../idioma/IdiomaContexto'
 
 // Aba Anotações — blocos livres de título + conteúdo, 100% do app (o Shards
 // não tem esse conceito; nasce vazio na importação — tipos/personagem.ts).
@@ -25,6 +26,7 @@ function FormularioAnotacao({
   aoSalvar: (titulo: string, conteudo: string) => void
   aoFechar: () => void
 }) {
+  const { t, tx } = useIdioma()
   const [titulo, setTitulo] = useState(tituloInicial)
   const [conteudo, setConteudo] = useState(conteudoInicial)
 
@@ -38,8 +40,8 @@ function FormularioAnotacao({
     <div className="cr-overlay" onClick={aoFechar}>
       <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
-          <span className="cr-titulo">{tituloInicial ? 'Editar Anotação' : 'Nova Anotação'}</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label={ROTULO.fechar}>
+          <span className="cr-titulo">{tituloInicial ? tx.anotacoes.editarAnotacao : tx.anotacoes.novaAnotacaoTitulo}</span>
+          <button className="cr-fechar" onClick={aoFechar} aria-label={tx.geral.fechar}>
             {ICONE.fechar}
           </button>
         </div>
@@ -47,20 +49,20 @@ function FormularioAnotacao({
         <div className="gerenciar-form">
           <input
             className="cr-input"
-            placeholder="Título"
+            placeholder={t(tx.anotacoes.titulo)}
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
             autoFocus
           />
           <textarea
             className="cr-input anotacao-textarea"
-            placeholder="Conteúdo"
+            placeholder={t(tx.anotacoes.conteudo)}
             value={conteudo}
             onChange={(e) => setConteudo(e.target.value)}
             rows={6}
           />
           <button className="cr-btn cr-mais" onClick={salvar} disabled={!titulo.trim()}>
-            Salvar
+            {tx.geral.salvar}
           </button>
         </div>
       </div>
@@ -69,6 +71,7 @@ function FormularioAnotacao({
 }
 
 export default function Anotacoes({ ficha, adicionarAnotacao, editarAnotacao, removerAnotacao }: Props) {
+  const { t, tx } = useIdioma()
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [criando, setCriando] = useState(false)
   // ids recolhidos — por padrão toda anotação nasce expandida (não está aqui)
@@ -88,11 +91,11 @@ export default function Anotacoes({ ficha, adicionarAnotacao, editarAnotacao, re
   return (
     <div className="secao anotacoes">
       <button className="botao-gerenciar" onClick={() => setCriando(true)}>
-        + Nova Anotação
+        {t(tx.anotacoes.novaAnotacao)}
       </button>
 
       {ficha.anotacoes.length === 0 ? (
-        <p className="proximo">Nenhuma anotação ainda — toque em "+ Nova Anotação" pra criar uma.</p>
+        <p className="proximo">{t(tx.anotacoes.nenhumaAnotacaoAindaToque)}</p>
       ) : (
         <ul className="lista-anotacoes">
           {ficha.anotacoes.map((a) => {
@@ -110,14 +113,14 @@ export default function Anotacoes({ ficha, adicionarAnotacao, editarAnotacao, re
                     <button
                       className="anotacao-botao"
                       onClick={() => setEditandoId(a.id)}
-                      aria-label={`Editar ${a.titulo}`}
+                      aria-label={t(tx.geral.editarNome, { nome: a.titulo })}
                     >
                       ✏️
                     </button>
                     <button
                       className="anotacao-botao"
                       onClick={() => removerAnotacao(a.id)}
-                      aria-label={`Excluir ${a.titulo}`}
+                      aria-label={t(tx.geral.excluirNome, { nome: a.titulo })}
                     >
                       🗑
                     </button>

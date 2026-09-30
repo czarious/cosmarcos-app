@@ -12,17 +12,6 @@
  * destes exemplos — ver Talentos.tsx.
  */
 
-import type { TipoEspecializacao } from '../tipos/personagem'
-
-/** Rótulo de cada uma das 5 categorias (Cap. 3, "Categorias de especialidade"). */
-export const CATEGORIA_ESPECIALIDADE: Record<TipoEspecializacao, string> = {
-  arma: 'Arma',
-  armadura: 'Armadura',
-  cultural: 'Cultural',
-  utilidade: 'Utilidade',
-  perito: 'Perito',
-}
-
 export const ESPECIALIDADES_UTILIDADE_EXEMPLO: string[] = [
   'Andar a Cavalo',
   'Cuidado de Animais',
@@ -46,3 +35,28 @@ export const ESPECIALIDADES_PERITO_EXEMPLO: string[] = [
   'Martelos de Guerra',
   'Semifractais',
 ]
+
+/**
+ * Os mesmos exemplos em inglês (idioma/nomes.ts). Com nome de arma/item do
+ * dicionário quando existe (Grandbow, Half-Shard, Warhammer); o resto é 🤔 —
+ * o livro em inglês não está na mão, e a lista é aberta de qualquer jeito.
+ */
+export const ESPECIALIDADES_EN: Record<string, string> = {
+  'Andar a Cavalo': 'Riding',
+  'Cuidado de Animais': 'Animal Care',
+  Engenharia: 'Engineering',
+  'Estratégia Militar': 'Military Strategy',
+  História: 'History',
+  'Manufatura de Arma': 'Weapon Crafting',
+  'Manufatura de Armadura': 'Armor Crafting',
+  'Manufatura de Equipamento': 'Equipment Crafting',
+  Religião: 'Religion',
+  'Armaduras Fractais': 'Shardplate',
+  'Cavaleiros Radiantes': 'Knights Radiant',
+  'Espadas Fractais': 'Shardblades',
+  Hiperarcos: 'Grandbows',
+  'História dos Cantores': 'Singer History',
+  'Manufatura de Fabrial': 'Fabrial Crafting',
+  'Martelos de Guerra': 'Warhammers',
+  Semifractais: 'Half-Shards',
+}

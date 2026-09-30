@@ -90,7 +90,7 @@ Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não 
 - Código em **português** — tipos, funções, componentes
 - Componentes em `PascalCase.tsx` · lógica em `camelCase.ts`
 - **Uma versão só**, a do `package.json` — sobe **uma vez por push**, no commit que vai subir. Regra: [mapa-app.md](mapa-app.md) → "Versionamento"
-- Símbolo, ícone e rótulo de tela moram em `src/variaveis.ts`; cor e forma, em `src/estilos/base.css`
+- Palavra de tela mora em `src/idioma/pt.ts` e `en.ts` (as mesmas variáveis); símbolo e ícone, em `src/variaveis.ts`; cor e forma, em `src/estilos/base.css`
 
 ## Fluxo de Teste e Deploy
 
@@ -100,6 +100,6 @@ Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não 
 
 ## Estado atual — 30/Set/2026
 
-Publicado: topo enxuto + menu de abas (9 quadradinhos) + aba Principal no molde do DDB · abas **Personagem** (Objetivos) e **Radiante** (Ideais, fluxos) · Condições, lesões e descanso · arte de fundo do Eccho (Erudito, Alternauta). **Arte PAUSADA** a pedido do César: ficou legal mas precisa melhorar — ele retoma com calma; não gerar arte nova sem ele pedir. **Próximo (proposto, aguardando o sim):** usar a ação e já pagar o custo (Foco/Investidura) → equipamento em texto livre do Shards no Inventário → guia de uso dos fluxos (CD e custo). Tudo 🔶 espera a conferência dele na tela e no celular.
+Publicado (v0.8.0): **rastreador de turno** na aba Ações (▶/↻, "Usar" paga Foco/Investidura/carga e aplica o efeito) · guia dos fluxos · **engrenagem ⚙** no topo (importar, exportar, backup, idioma) · **idioma PT/EN** — 1ª etapa (botões, títulos, nomes do jogo; as descrições de regra seguem em português) · pertences em texto livre no Inventário · ajustes pro iPhone · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César: não gerar arte nova sem ele pedir. **Próximo, pedido por ele:** mapeamento do Shards mais fundo → compatibilidade do JSON (armadura não é lida) → funcionalidades que faltam; e a 2ª etapa do idioma. **Pergunta aberta:** a Vontade do Eccho está 2 no Shards e 3 no app. Tudo 🔶 espera a conferência dele na tela e no celular.
 
 Detalhe e critério de pronto: [roadmap.md](escopo/roadmap.md).

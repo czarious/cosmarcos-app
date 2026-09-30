@@ -30,6 +30,8 @@ type Retorno = {
   alternarEquipada: (nomeArma: string) => void
   /** Define os marcos (moeda) diretamente — toca no número pra editar. */
   definirMarcos: (valor: number) => void
+  /** O texto livre de pertences (o "Equipment" do Shards). */
+  definirEquipamentoTexto: (texto: string) => void
   /** Acrescenta um item ao inventário geral (aba Inventário → Gerenciar). */
   adicionarItem: (item: Item) => void
   /** Remove um item pelo índice na lista `ficha.itens`. */
@@ -290,6 +292,10 @@ export function usePersonagem(caminhoJson: string): Retorno {
     setFicha((atual) => (atual ? { ...atual, marcos: Math.max(0, valor) } : atual))
   }, [])
 
+  const definirEquipamentoTexto = useCallback((texto: string) => {
+    setFicha((atual) => (atual ? { ...atual, equipamentoTexto: texto } : atual))
+  }, [])
+
   const adicionarItem = useCallback((item: Item) => {
     setFicha((atual) => (atual ? { ...atual, itens: [...atual.itens, item] } : atual))
   }, [])
@@ -451,6 +457,7 @@ export function usePersonagem(caminhoJson: string): Retorno {
     definirEscolhaVaga,
     alternarEquipada,
     definirMarcos,
+    definirEquipamentoTexto,
     adicionarItem,
     removerItem,
     adicionarAnotacao,

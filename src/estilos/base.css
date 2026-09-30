@@ -128,6 +128,7 @@ body {
 }
 
 .cf-linha {
+  margin-left: auto; /* encosta na engrenagem */
   color: var(--cor-texto-suave);
   font-size: 0.7rem;
   text-align: right;
@@ -1985,4 +1986,312 @@ label.linha-item input[type='checkbox'] {
 
 .fab-livre .cr-btn {
   flex: 0 0 3rem;
+}
+
+/* ════════ RASTREADOR DE TURNO (PainelTurno + "Usar" na aba Ações) ════════ */
+
+.painel-turno {
+  background: var(--cor-painel);
+  border-bottom: 1px solid var(--cor-borda);
+  padding: 0.35rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+}
+
+/* fora de combate a faixa é uma linha só: texto + botão */
+.painel-turno:has(> .turno-info) {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.turno-info {
+  color: var(--cor-texto-suave);
+  font-size: 0.75rem;
+}
+
+.turno-linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.turno-rodada {
+  color: var(--cor-titulo);
+  font-weight: bold;
+}
+
+.turno-acoes {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+}
+
+.turno-acoes small {
+  color: var(--cor-texto-suave);
+  margin-left: 0.3rem;
+}
+
+.turno-pip,
+.turno-reacao {
+  font-style: normal;
+  font-size: 1.15rem;
+  color: var(--cor-destaque);
+  font-weight: bold;
+}
+
+.turno-pip-gasto {
+  opacity: 0.25;
+}
+
+.turno-preparada {
+  color: var(--cor-titulo);
+  font-size: 0.75rem;
+  border: 1px solid var(--cor-titulo);
+  border-radius: 6px;
+  padding: 0 0.35rem;
+}
+
+.turno-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.turno-botao {
+  font-family: var(--fonte);
+  font-size: 0.8rem;
+  min-height: 36px;
+  padding: 0.3rem 0.7rem;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  color: var(--cor-texto);
+  cursor: pointer;
+}
+
+.turno-primario {
+  border-color: var(--cor-destaque);
+  color: var(--cor-destaque);
+  font-weight: bold;
+}
+
+.turno-botao:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.turno-nota {
+  color: var(--cor-texto-suave);
+  font-size: 0.72rem;
+}
+
+/* botão "Usar" à direita de cada ação */
+.acao-corpo {
+  flex: 1;
+  min-width: 0;
+}
+
+.usar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  gap: 0.1rem;
+}
+
+.usar-botao {
+  font-family: var(--fonte);
+  font-size: 0.8rem;
+  font-weight: bold;
+  min-height: 36px;
+  padding: 0.25rem 0.6rem;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-destaque);
+  border-radius: 6px;
+  color: var(--cor-destaque);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.usar-botao small {
+  font-weight: normal;
+}
+
+.usar-botao:disabled {
+  opacity: 0.4;
+  border-color: var(--cor-borda);
+  color: var(--cor-texto-suave);
+  cursor: default;
+}
+
+.usar-motivo {
+  color: var(--cor-texto-suave);
+  font-size: 0.68rem;
+}
+
+/* não dá pra usar agora: continua legível, só recua */
+.acao-apagada .acao-padrao-nome,
+.acao-apagada .acao-padrao-resumo,
+.acao-apagada .acao-padrao-simbolo {
+  opacity: 0.55;
+}
+
+.acao-aviso {
+  color: var(--cor-destaque);
+}
+
+.ataque-usar {
+  justify-content: flex-start;
+}
+
+.ataque-usar .usar {
+  align-items: flex-start;
+}
+
+.fluxo-guia-botao {
+  font-family: var(--fonte);
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  background: none;
+  border: none;
+  color: var(--cor-titulo);
+  cursor: pointer;
+  padding: 0.2rem 0;
+}
+
+.fluxo-guia {
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+}
+
+.fluxo-guia ol {
+  padding-left: 1.2rem;
+}
+
+.fluxo-tabela {
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  width: 100%;
+}
+
+.fluxo-tabela caption {
+  text-align: left;
+  color: var(--cor-texto-suave);
+  padding-bottom: 0.2rem;
+}
+
+.fluxo-tabela th,
+.fluxo-tabela td {
+  border: 1px solid var(--cor-borda);
+  padding: 0.15rem 0.2rem;
+  text-align: center;
+}
+
+.fluxo-tabela tbody th {
+  text-align: left;
+  color: var(--cor-titulo);
+}
+
+/* DialogoUso — reaproveita .cr-overlay/.cr-painel */
+.dialogo-texto {
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+}
+
+.dialogo-dupla {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dialogo-dupla label {
+  flex: 1;
+  font-size: 0.85rem;
+}
+
+.dialogo-opcoes {
+  flex-wrap: wrap;
+}
+
+/* ════════ ENGRENAGEM DO TOPO (MenuEngrenagem) ════════ */
+
+.engrenagem {
+  margin-left: 0.2rem;
+  flex-shrink: 0;
+  min-width: 36px;
+  min-height: 36px;
+  font-size: 1.25rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: var(--cor-titulo);
+  cursor: pointer;
+  align-self: center;
+}
+
+/* save falhou: a engrenagem avisa, porque o backup mora nela */
+.engrenagem-alerta {
+  color: var(--cor-destaque);
+}
+
+.menu-engrenagem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.menu-grupo {
+  font-size: 0.75rem;
+  font-variant: small-caps;
+  color: var(--cor-texto-suave);
+  margin-top: 0.3rem;
+}
+
+.menu-item {
+  font-family: var(--fonte);
+  font-size: 0.95rem;
+  text-align: left;
+  min-height: var(--alvo-toque);
+  padding: 0.5rem 0.75rem;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  color: var(--cor-texto);
+  cursor: pointer;
+}
+
+.menu-perigo {
+  color: var(--cor-destaque);
+  border-color: var(--cor-destaque);
+}
+
+.menu-confirma {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.menu-idioma {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.menu-idioma .menu-item {
+  flex: 1;
+  text-align: center;
+}
+
+.menu-ativo {
+  border-color: var(--cor-destaque);
+  color: var(--cor-destaque);
+  font-weight: bold;
 }

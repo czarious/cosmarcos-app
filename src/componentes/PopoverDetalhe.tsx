@@ -1,6 +1,7 @@
 /* arquivo: PopoverDetalhe.tsx */
 import type { DetalhePericia } from '../regras/calculos'
-import { ICONE, ROTULO } from '../variaveis'
+import { ICONE } from '../variaveis'
+import { useIdioma } from '../idioma/IdiomaContexto'
 
 // Popover SÓ-LEITURA que abre ao tocar num número calculado (ex.: o +4 de
 // acerto de um ataque) e mostra de onde vem cada parcela — mesmo visual do
@@ -12,12 +13,13 @@ type Props = {
 }
 
 export default function PopoverDetalhe({ detalhe, aoFechar }: Props) {
+  const { tx, nome, rot } = useIdioma()
   return (
     <div className="cr-overlay" onClick={aoFechar}>
       <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
-          <span className="cr-titulo">{detalhe.titulo}</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label={ROTULO.fechar}>
+          <span className="cr-titulo">{nome(detalhe.titulo)}</span>
+          <button className="cr-fechar" onClick={aoFechar} aria-label={tx.geral.fechar}>
             {ICONE.fechar}
           </button>
         </div>
@@ -25,7 +27,7 @@ export default function PopoverDetalhe({ detalhe, aoFechar }: Props) {
         <ul className="detalhe-linhas">
           {detalhe.linhas.map((l, i) => (
             <li key={`${l.origem}-${i}`}>
-              <span>{l.origem}</span>
+              <span>{rot(l.origem)}</span>
               <span>
                 {l.valor >= 0 ? '+' : ''}
                 {l.valor}
@@ -35,7 +37,7 @@ export default function PopoverDetalhe({ detalhe, aoFechar }: Props) {
         </ul>
 
         <div className="detalhe-total">
-          <span>Total</span>
+          <span>{tx.geral.total}</span>
           <span>
             {detalhe.total >= 0 ? '+' : ''}
             {detalhe.total}

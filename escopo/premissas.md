@@ -32,7 +32,7 @@
 ### PWA, sem loja de apps
 Um código roda em Android e iPhone, instala por "Adicionar à tela inicial". O César desenvolve no Windows: compilar pro iPhone exigiria um **Mac só pra compilar**.
 
-- ⚠️ **A mesa é toda Android, e isso é sorte, não projeto.** O Safari do iOS **apaga armazenamento de site depois de ~7 dias sem uso** e as sessões são **quinzenais** — num iPhone a ficha podia sumir entre uma sessão e a outra, e o bug só apareceria na mesa, dois meses depois. **Se um iPhone entrar na mesa, reabrir esta premissa.**
+- ⚠️ **iPhone: instalar é obrigatório, não opcional.** O Safari apaga o armazenamento de **site** depois de ~7 dias sem uso, e as sessões são quinzenais. O app **adicionado à Tela de Início** tem contagem própria de dias de uso, e o WebKit diz não esperar apagar os dados dele (blog do WebKit, "Full Third-Party Cookie Blocking and More", 2020). Por isso: no iPhone, **sempre pela Tela de Início, nunca pela aba do Safari**. O app também pede armazenamento persistente (`main.tsx`) e o backup da engrenagem é a rede de segurança. O APK é só Android — ver [apk.md](../.claude/apk.md).
 - ⚠️ Instalar não é óbvio pra leigo — tem que ensinar o "Adicionar à tela inicial".
 - **Também existe um APK** (29/Set/2026), pra quem prefere instalar arquivo: é uma **TWA** — casca que abre o app publicado dentro do Chrome. Continua sendo o PWA: atualiza sozinho a cada push, a ficha é a mesma do Chrome, zero código a mais. Custa: depende do Chrome no celular (a mesa toda tem). Como gerar: [.claude/apk.md](../.claude/apk.md).
 
@@ -141,28 +141,25 @@ Fundo pergaminho, texto marrom-escuro, painéis creme com borda dupla, títulos 
 
 - ⚠️ **Na mesa à noite, tela clara ofusca.** Se incomodar na prática, a saída registrada é um **alternador claro/escuro** como incremento — **não** trocar o tema inteiro de novo.
 
+### Textos em variáveis, um arquivo por idioma
+O César pediu o app inteiro alternável entre português e inglês (30/Set/2026), na engrenagem do topo. Toda palavra de tela é uma **variável** organizada por tela: `idioma/pt.ts` tem o português, `idioma/en.ts` as **mesmas variáveis** em inglês — faltou ou sobrou uma, o app não compila. Somar um idioma = copiar um arquivo e traduzir.
+
+- **Nome de jogo não é variável de tela:** o que o Shards manda (perícia, arma, trilha…) volta pro inglês pelo caminho inverso dos de-para do tradutor; o dos catálogos de regra (ação, talento, lesão, fabrial) fica **ao lado do nome**, no catálogo (`nomeEn`). `idioma/nomes.ts` junta os dois — sem lista duplicada.
+- **A regra não escreve frase:** devolve uma Mensagem (qual variável + lacunas), e a tela escreve no idioma. Por isso `regras/` não carrega palavra.
+- **O que o jogador escreveu não traduz** (anotação, objetivo, Ideal, pertences) — decisão do César.
+- **Em etapas:** 1ª, botões, títulos e nomes; 2ª, as descrições de regra (resumo de ação, condição, fabrial, fluxo), que ganham o inglês ao lado no catálogo. Mensagem de erro do tradutor e do save continua só em português.
+- A escolha mora no aparelho (`localStorage`), não na ficha: não vai pro Shards.
+- Pesquisado contra as práticas do i18next, gettext, Lingui, FormatJS, Fluent, W3C e MDN: frase inteira (nunca pedaços colados), plural pela regra de cada idioma (`Intl.PluralRules`), número no formato do idioma (`Intl`), `<html lang>`.
+- ⚠️ **O compilador não pega tudo:** palavra escrita direto no componente, lacuna `{x}` que existe num idioma e não no outro, nome de jogo sem inglês. `idioma.test.ts` reprova os três.
+
 ## Código
 
 ### O que vira variável — `src/variaveis.ts`
-Símbolos, ícones e rótulos que a tela mostra moram num arquivo só. É o irmão do `estilos/base.css`: lá a **cor e a forma**, aqui o **glifo e a palavra**.
+Os **símbolos** e a **estrutura** da tela, sem palavra nenhuma: ícones de interação, símbolos de ativação (▶ ▷ ↻, do livro), o símbolo de cada recurso (♥ ◆ ✦ ⚡), quais verbos cada recurso usa, os 3 grupos da ficha e a ordem dos atributos. Três irmãos: aqui o **glifo**; em `estilos/base.css` a **cor e a forma**; em `idioma/pt.ts` e `en.ts` a **palavra** — ver "Textos em variáveis, um arquivo por idioma".
 
-**O critério de entrada, medido — não pelo gosto:**
+**O critério de entrada, medido — não pelo gosto:** entra o que **aparece em mais de um arquivo**, ou o que o César muda com frequência. **Conteúdo do sistema nunca entra** (talento, cultura, perícia, traço, tipo de dano): é regra do Cosmere, com dono em `regras/*.ts` e no tradutor.
 
-> Entra o que **aparece em mais de um arquivo**, ou o que o César muda com frequência.
-
-| ✅ Entra | ⛔ Não entra |
-|---|---|
-| Símbolo e nome dos **recursos** (♥ ◆ ✦ · Vida/Foco/Investidura) — estavam escritos 2× | **Conteúdo do sistema**: nome de talento, cultura, especialidade, perícia, traço de arma, tipo de dano |
-| Nome e abreviação dos **6 atributos** — estavam em 2 arquivos e em 2 formatos | Nomes das **abas** — já centralizados em `SECOES` |
-| Os **3 grupos** (Física · Cognitiva · Espiritual) e a ordem derivada deles | **Cores** — já são tokens do CSS |
-| **Ícones** de interação (o ✕ aparecia em 4 telas) e as bolinhas de graduação | Texto de **uma aparição só**: "carregando a ficha…", placeholders, a maioria dos `aria-label` |
-| **Rótulos de chrome**: botão de importar, aviso de save | |
-
-**Por que o conteúdo do sistema fica fora:** é **regra do Cosmere**, não cara do app — tem dono em `regras/*.ts` e no tradutor. Misturar as duas coisas num arquivo só apagaria a fronteira que o projeto mantém de propósito.
-
-**Por que o critério é escrito:** o arquivo se chama `variaveis.ts`, e nome genérico convida a virar depósito. Em seis meses tem número mágico e caminho de arquivo lá dentro se ninguém segurar a porta. **Cada variável leva uma nota** dizendo o que é e onde aparece — quando a nota fica difícil de escrever, é sinal de que aquilo não pertence ali.
-
-**Uma dívida conhecida:** o `regras/calculos.ts` importa o rótulo do atributo pra montar o detalhamento da perícia — regra puxando tela, arranhando o "`regras/` não conhece a tela". Já era assim antes (o nome vivia dentro do `calculos.ts`); a mudança só tirou a duplicação. O conserto de verdade é o `detalhePericia` devolver a **chave** e o componente resolver o nome.
+**Por que o critério é escrito:** o arquivo se chama `variaveis.ts`, e nome genérico convida a virar depósito. **Cada variável leva uma nota** dizendo o que é e onde aparece — quando a nota fica difícil de escrever, é sinal de que aquilo não pertence ali.
 
 ## Descartado — não repropor
 

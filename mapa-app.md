@@ -31,12 +31,16 @@
 | `index.html` | Casca do Vite (não é a ficha). `<div id="raiz">` · theme-color · apple-touch-icon |
 | `public/icone.svg` | Fonte do ícone do PWA (✦ creme sobre vinho) |
 | `public/icones/*.png` | Ícones 192, 512, maskable 512 e apple-touch 180 — gerados de `icone.svg` por `.claude/gerar-icones.mjs` |
-| `src/main.tsx` | Ponto de entrada — monta o React no `#raiz` |
-| `src/App.tsx` | Compõe a ficha: cabeçalho fixo + abas + conteúdo + rodapé (estado do save, importar arquivo do Shards, exportar pro Shards). Roteia pras abas prontas — resto é placeholder |
+| `src/main.tsx` | Ponto de entrada — monta o React no `#raiz`, dentro do `ProvedorIdioma` |
+| `src/App.tsx` | Compõe a ficha: cabeçalho fixo (com a engrenagem) + painel de turno + abas + conteúdo + rodapé (estado do save). Liga o `useTurno` ao `usePersonagem` |
 | `src/estado/usePersonagem.ts` | **Estado VIVO** — recursos, escolhas de vaga, `alternarEquipada`, `definirMarcos`, `adicionarItem`/`removerItem`, fabriais, `importarTexto`/`exportarJson`. Carrega do save; o JSON é semente e base da exportação |
+| `src/estado/useTurno.ts` | **Estado do combate** ligado à ficha: conta ▶/↻ por `regras/turno.ts` e paga Foco/Investidura/carga, aplica Inspirar/Aprimorar/Restaurar/Recuperar, tira Surpreendido no fim do turno. Chave própria no localStorage, fora do save |
 | `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre → **quarentena** (cópia guardada) + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
 | `src/estado/armazenamento.test.ts` | Testes do save: migração sem buraco, quarentena, gravação que falha, backup ida e volta |
-| `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo enxuto: identidade + Vida/Foco/Investidura com barra + faixa de condições. **O recurso é BOTÃO** — abre o `ControleRecurso` |
+| `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo enxuto: identidade + engrenagem + Vida/Foco/Investidura com barra + faixa de condições. **O recurso é BOTÃO** — abre o `ControleRecurso` |
+| `src/componentes/MenuEngrenagem.tsx` | A ⚙ do topo: importar (com confirmação), exportar pro Shards, baixar backup, idioma PT/EN |
+| `src/componentes/PainelTurno.tsx` | Faixa do turno no topo fixo: rodada, ▶ restantes, ↻, preparada; turno rápido/lento, encerrar (e manter Aprimorado), fim do combate |
+| `src/componentes/DialogoUso.tsx` | Pergunta o dado rolado antes de usar Restaurar (1d6), Recuperar (dado de recuperação) e quantas ▶ o Preparar reserva |
 | `src/componentes/ControleRecurso.tsx` | **Popover de ±**: botões − e + de ±1 + entrada numérica. Serve a qualquer contador atual/máximo — os 3 recursos e as cargas de fabrial |
 | `src/componentes/FormularioFabrial.tsx` | Montador de fabrial (novo/editar): padrão ou único, efeito, qualidade, aprimoramentos, revezes e características do livro, com avisos que não bloqueiam |
 | `src/componentes/ControleMarcos.tsx` | As 3 caixas de marco de história + concluir. Serve a Objetivos e Ideais |
@@ -45,12 +49,12 @@
 | `src/componentes/secoes/Principal.tsx` | Aba Principal — o "Abilities, Saves, Senses" do DDB: 3 cartões [atributo·DEFESA·atributo], Deflexão, movimento/sentidos/recuperação/carga/levantamento, com o efeito das condições |
 | `src/componentes/secoes/Pericias.tsx` | Aba Perícias — as 18 agrupadas por atributo, bolinha de graduação (◎ = de talento, isenta do teto) e o total calculado, grande. Toque no total abre o `PopoverDetalhe` |
 | `src/componentes/secoes/Talentos.tsx` | Aba Talentos — cruza talento (dado) × `regras/talentos.ts` (regra) × escolha do jogador (vivo). Talento com `vagas` ganha dropdown editável; sem vagas, fallback só-leitura |
-| `src/componentes/secoes/Acoes.tsx` | Aba Ações — ataques das armas equipadas (acerto/dano via `regras/calculos.ts`; arma que é fabrial gasta carga), ações concedidas por talento, e as 17 ações padrão de combate como referência |
+| `src/componentes/secoes/Acoes.tsx` | Aba Ações — tudo que o personagem pode fazer, cada item com "Usar" ligado ao turno: ataques (Golpear, mão inábil), fluxos (total, pagar Investidura, guia "Como usar"), Luz, as 17 padrão, fabriais de combate, espreno |
 | `src/componentes/secoes/Condicoes.tsx` | Aba Condições — "Agora" (ações/reação/movimento/lembretes), as 14 com checkbox e valor entre colchetes, lesões (rolagem guiada, dias, curar) e descanso curto/longo. Exporta `rotuloCondicao` pro cabeçalho |
 | `src/componentes/secoes/Fabriais.tsx` | Aba Fabriais — cartão por fabrial: cargas (±), usos que gastam carga, recarga com Investidura e grantormenta, efeito/aprimoramentos/revezes e avisos da regra |
 | `src/componentes/secoes/Personagem.tsx` | Aba Personagem — objetivos (marcos, concluir, adicionar, apagar), identidade e o texto de interpretação do Shards |
 | `src/componentes/secoes/Radiante.tsx` | Aba Radiante — vínculo, Ideais (marcos, Palavras, jurar) e fluxos com total via `detalhePericia` |
-| `src/componentes/secoes/Inventario.tsx` | Aba Inventário — peso carregado/máximo, marcos editável, armas (equipar), itens por categoria, "Gerenciar Inventário" (add/remover) |
+| `src/componentes/secoes/Inventario.tsx` | Aba Inventário — peso carregado/máximo, marcos editável, armas (equipar), itens por categoria, "Gerenciar Inventário" (add/remover), Pertences (texto livre do Shards) |
 | `src/componentes/secoes/Anotacoes.tsx` | Aba Anotações — blocos livres título+conteúdo, 100% do app (Shards não tem isso). Cabeçalho recolhe/expande o corpo |
 | `src/tipos/personagem.ts` | **O SCHEMA** — fonte única dos tipos. Sem `total` na perícia: quem calcula é `regras/calculos.ts` |
 | `src/regras/talentos.ts` | **Catálogo de talentos** — nome, fonte, pré-requisitos, ativação, descrição, e `vagas?` (escolhas em aberto). Um bloco por trilha |
@@ -63,13 +67,22 @@
 | `src/regras/condicoes.test.ts` | Testes de condição/lesão/descanso com os exemplos e faixas exatas do livro |
 | `src/regras/descanso.ts` | **Descanso** curto (soma o dado de recuperação distribuído) e longo (Vida/Foco cheios, Exausto −1, superficial cura) |
 | `src/regras/fabriais.ts` | **Regras de fabrial** (Cap. 7): 13 padrão, 15 efeitos únicos, aprimoramentos/revezes gerais com requisito, características avançadas, qualidade, patamar, recarga — e as contas (cargas pela regra, avisos, fabrial de uma arma) |
-| `src/regras/acoes.ts` | 17 ações padrão (Cap. 10) + ações de talento (Cap. 5, ex. Inspirar Luz) + Habilidades de Espreno (Cap. 5, condicional em `ficha.radiante`) |
+| `src/regras/acoes.ts` | 17 ações padrão (Cap. 10) + ações de talento (Cap. 5, ex. Inspirar Luz) + Habilidades de Espreno — com custo, efeito, "pode repetir" e "uma vez por cena" |
+| `src/regras/turno.ts` | **Regra do turno** (Cap. 10): rápido/lento, reação, uma vez por turno, Preparar, Focado no custo, Inconsciente — `avaliar` diz se dá e por quê, `gastar` desconta |
+| `src/regras/turno.test.ts` | Testes do turno com os casos do livro |
+| `src/regras/fluxos.ts` | Guia de uso dos fluxos (Cap. 6): escalonamento, CD e custo de Transformação e Transporte, notas gerais |
 | `src/estado/importarShards.ts` | **O TRADUTOR** — JSON do Shards → schema. **Grita** no que não reconhecer. Unidades pelos números do livro, inclusive com o Shards em métrico |
 | `src/estado/importarShards.test.ts` | Testes do tradutor com o `eccho.json`: valores prontos, as 18 perícias contra a conta refeita do JSON cru, ida e volta do export |
 | `src/estado/exportarShards.ts` | **O caminho de volta** — ficha → JSON que o Shards importa. Parte do JSON cru da importação e aplica só o que o app edita; o resto volta idêntico |
 | `src/estado/deparaShards.ts` | **Os de-para** EN→PT-BR do tradutor, um mapa por categoria — só dado. Fonte: `referencia/livro/dicionario-en-ptbr.md` |
 | `public/personagens/eccho.json` | Cópia do export do Shards — o que o app carrega. Deve obedecer ao schema |
-| `src/variaveis.ts` | **Símbolos, ícones e rótulos** da tela, num lugar só. Critério de entrada e o que fica de fora: [premissas](escopo/premissas.md) → "O que vira variável" |
+| `src/idioma/pt.ts` | **Toda palavra de tela em português**, uma variável por texto, por tela. Dá o formato (`Dicionario`) que todo idioma cumpre. Regra: [premissas](escopo/premissas.md) → "Textos em variáveis, um arquivo por idioma" |
+| `src/idioma/en.ts` | As mesmas variáveis, em inglês |
+| `src/idioma/nomes.ts` | Nome de jogo PT → EN: de-para do tradutor invertido + o `nomeEn` dos catálogos de regra |
+| `src/idioma/idioma.ts` | Preencher lacuna, plural (`Intl.PluralRules`), nome de jogo, mensagem de regra, número no formato do idioma |
+| `src/idioma/IdiomaContexto.tsx` | `ProvedorIdioma` + `useIdioma()` → `tx` (as palavras), `t`, `tn`, `nome`, `msg`, `num`; escolha salva no aparelho |
+| `src/idioma/idioma.test.ts` | Reprova palavra escrita no componente, lacuna diferente entre idiomas, nome sem inglês e mensagem de regra incompleta |
+| `src/variaveis.ts` | **Símbolos, ícones e estrutura** da tela (sem palavra). Critério: [premissas](escopo/premissas.md) → "O que vira variável" |
 | `src/fundos.ts` | Qual arte de fundo cada aba mostra pra este personagem (trilha → Principal, ordem → Radiante), pelo nome do arquivo |
 | `src/assets/fundos/` | As imagens `.webp` de fundo + `creditos.md` (origem e licença de cada uma). Quem cria: agente de arte |
 | `src/estilos/base.css` | Reset + **tokens do tema Shards claro** ([premissas](escopo/premissas.md) → "Tema Shards fiel") — fonte única de cor. Nenhum componente inventa cor |
@@ -109,14 +122,16 @@ tipos/personagem.ts  ← a raiz de tudo
 | Se mudar… | Revisar… | Por quê |
 |---|---|---|
 | **`tipos/personagem.ts`** ⚠️ | `regras/` · `estado/` · `componentes/` · `public/personagens/*.json` · [`escopo/dados.md`](escopo/dados.md) | **O de maior alcance.** Todo o resto lê a ficha por ele. Mudou campo → os JSONs viram inválidos |
-| **`estado/importarShards.ts`** (o tradutor) · `deparaShards.ts` · `exportarShards.ts` | `tipos/personagem.ts` · `public/personagens/*.json` · [`escopo/dados.md`](escopo/dados.md) · [`.claude/mapa-shards.md`](.claude/mapa-shards.md) | Única porta de entrada de dado. **Quebra calada** quando o Shards mudar — tem que validar e gritar ([premissas](escopo/premissas.md) → "Schema próprio em português + tradutor na entrada") |
+| **`estado/importarShards.ts`** (o tradutor) · `deparaShards.ts` · `exportarShards.ts` | `idioma/idioma.ts` (nomes em inglês vêm do de-para) · `tipos/personagem.ts` · `public/personagens/*.json` · [`escopo/dados.md`](escopo/dados.md) · [`.claude/mapa-shards.md`](.claude/mapa-shards.md) | Única porta de entrada de dado. **Quebra calada** quando o Shards mudar — tem que validar e gritar ([premissas](escopo/premissas.md) → "Schema próprio em português + tradutor na entrada") |
 | `regras/ordens.ts` | `secoes/Acoes.tsx` · `Radiante.tsx` · [`escopo/roadmap.md`](escopo/roadmap.md) perguntas 8–9 | As Ações de Luz/Mancha vêm daqui, não do JSON. Regra do livro: conferir contra transcrição |
 | `regras/talentos.ts` | `secoes/Talentos.tsx` · `usePersonagem.ts` | Nome/efeito/vagas de cada talento — um bloco de trilha por vez |
 | `regras/especialidades.ts` | `usePersonagem.ts` · `secoes/Talentos.tsx` | Um bloco por personagem, chaveado por `meta.nome`. Personagem sem entrada **funciona** — o total cai no `bonusNaoAtribuido` |
 | `regras/pericias.ts` | `secoes/Pericias.tsx` | Teto por patamar — as bolinhas ○ são as vagas até ele |
 | `regras/calculos.ts` | `secoes/Talentos.tsx` · `Acoes.tsx` · `secoes/Pericias.tsx` · `secoes/Radiante.tsx` (fluxo conta como perícia) | O total da perícia sai daqui — é o número que vai pra mesa |
 | `regras/condicoes.ts` | `regras/calculos.ts` (total da perícia) · `CabecalhoFixo.tsx` · `secoes/Principal.tsx` · `secoes/Condicoes.tsx` · `secoes/Pericias.tsx` · `estado/armazenamento.ts` (migração v3→v4) | Mudou uma condição → o total de TODA perícia pode mudar. Ids são o que a ficha salva: renomear quebra o save. Regra: `transcricao/09-aventurando-se/06-condicoes.md` |
-| `regras/acoes.ts` | `secoes/Acoes.tsx` | Ações padrão + concedidas por talento |
+| `regras/acoes.ts` · `regras/turno.ts` | `secoes/Acoes.tsx` · `estado/useTurno.ts` · `PainelTurno.tsx` | Custo e efeito das ações — o que o "Usar" desconta da ficha |
+| `idioma/pt.ts` · `idioma/en.ts` | Toda tela (`tx`) · `regras/*.ts` (Mensagem) | Variável nova vai nos dois arquivos — o compilador reprova se faltar num |
+| Catálogos de regra (`acoes` · `talentos` · `condicoes` · `fabriais` · `fluxos`) | `idioma/nomes.ts` | Nome novo leva o `nomeEn` ao lado — o tipo exige |
 | `regras/fabriais.ts` | `secoes/Fabriais.tsx` · `FormularioFabrial.tsx` · `secoes/Acoes.tsx` · `estado/importarShards.ts` · `estado/armazenamento.ts` | Ids de efeito/aprimoramento são o que a ficha salva — **renomear um id quebra o save**. Regra do livro: conferir contra `transcricao/07-itens/09-manufaturando.md` |
 | `regras/dados.ts` (Fase 4) | rolador · [`escopo/interface.md`](escopo/interface.md) → "Tela de dados" | Regra provisória ([premissas](escopo/premissas.md) → "O Dado de Trama e a vantagem seguem o livro") |
 | `estado/armazenamento.ts` ⚠️ | `estado/usePersonagem.ts` · `tipos/personagem.ts` | Salva a ficha inteira. Mudou o schema → subir `VERSAO_ESQUEMA` **e** escrever a entrada em `MIGRACOES` — o teste reprova se faltar. Sem migração o save vai pra quarentena e a ficha volta pra semente |

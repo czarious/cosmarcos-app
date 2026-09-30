@@ -551,6 +551,7 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
     talentos: traduzTalentos(c),
     armas,
     itens,
+    equipamentoTexto: texto(c.equipment),
     fabriais: traduzFabriais(c.fabrials),
     marcos: num(rec.marks ?? 0, 'resources.marks'),
     proposito: texto(meta.purpose),

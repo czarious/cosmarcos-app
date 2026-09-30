@@ -2,12 +2,8 @@
 import { useState } from 'react'
 import type { Personagem, Item } from '../../tipos/personagem'
 import { pesoCarregado, pesoEmKg } from '../../regras/calculos'
-import { ICONE, ROTULO } from '../../variaveis'
-
-/** 14.5 → "14,5" — peso na tela em PT-BR. */
-function kg(n: number, casas?: number): string {
-  return n.toLocaleString('pt-BR', { minimumFractionDigits: casas ?? 0, maximumFractionDigits: casas ?? 2 })
-}
+import { ICONE } from '../../variaveis'
+import { useIdioma } from '../../idioma/IdiomaContexto'
 
 // Aba Inventário — resumo de peso carregado/máximo + marcos (moeda) editável no topo, botão
 // "Gerenciar Inventário" (adicionar/remover), Armas (com checkbox de
@@ -17,6 +13,7 @@ type Props = {
   ficha: Personagem
   alternarEquipada: (nomeArma: string) => void
   definirMarcos: (valor: number) => void
+  definirEquipamentoTexto: (texto: string) => void
   adicionarItem: (item: Item) => void
   removerItem: (indice: number) => void
 }
@@ -32,6 +29,7 @@ function GerenciarInventario({
   removerItem: (indice: number) => void
   aoFechar: () => void
 }) {
+  const { tx, t, nome: nomeJogo } = useIdioma()
   const [nome, setNome] = useState('')
   const [tipo, setTipo] = useState('')
   const [peso, setPeso] = useState('')
@@ -56,8 +54,8 @@ function GerenciarInventario({
     <div className="cr-overlay" onClick={aoFechar}>
       <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
-          <span className="cr-titulo">Gerenciar Inventário</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label={ROTULO.fechar}>
+          <span className="cr-titulo">{tx.inventario.gerenciar}</span>
+          <button className="cr-fechar" onClick={aoFechar} aria-label={tx.geral.fechar}>
             {ICONE.fechar}
           </button>
         </div>
@@ -65,13 +63,13 @@ function GerenciarInventario({
         <div className="gerenciar-form">
           <input
             className="cr-input"
-            placeholder="Nome do item"
+            placeholder={tx.inventario.nomeItem}
             value={nome}
             onChange={(e) => setNome(e.target.value)}
           />
           <input
             className="cr-input"
-            placeholder="Categoria (ex.: Ferramenta)"
+            placeholder={tx.inventario.categoriaExemplo}
             value={tipo}
             onChange={(e) => setTipo(e.target.value)}
           />
@@ -80,7 +78,7 @@ function GerenciarInventario({
               className="cr-input"
               type="number"
               inputMode="decimal"
-              placeholder="Peso (kg)"
+              placeholder={tx.inventario.pesoKg}
               value={peso}
               onChange={(e) => setPeso(e.target.value)}
             />
@@ -88,13 +86,13 @@ function GerenciarInventario({
               className="cr-input"
               type="number"
               inputMode="numeric"
-              placeholder="Qtd"
+              placeholder={tx.inventario.qtd}
               value={qtd}
               onChange={(e) => setQtd(e.target.value)}
             />
           </div>
           <button className="cr-btn cr-mais" onClick={adicionar} disabled={!nome.trim()}>
-            + Adicionar
+            {tx.geral.adicionar}
           </button>
         </div>
 
@@ -103,12 +101,12 @@ function GerenciarInventario({
             {ficha.itens.map((item, indice) => (
               <li key={`${item.nome}-${indice}`} className="gerenciar-linha">
                 <span>
-                  {item.nome} <i>({item.tipo})</i>
+                  {nomeJogo(item.nome)} <i>({nomeJogo(item.tipo)})</i>
                 </span>
                 <button
                   className="gerenciar-remover"
                   onClick={() => removerItem(indice)}
-                  aria-label={`Remover ${item.nome}`}
+                  aria-label={t(tx.geral.removerNome, { nome: nomeJogo(item.nome) })}
                 >
                   🗑
                 </button>
@@ -121,7 +119,8 @@ function GerenciarInventario({
   )
 }
 
-export default function Inventario({ ficha, alternarEquipada, definirMarcos, adicionarItem, removerItem }: Props) {
+export default function Inventario({ ficha, alternarEquipada, definirMarcos, definirEquipamentoTexto, adicionarItem, removerItem }: Props) {
+  const { tx, nome, num: kg } = useIdioma()
   const [editandoMarcos, setEditandoMarcos] = useState(false)
   const [valorMarcos, setValorMarcos] = useState('')
   const [gerenciando, setGerenciando] = useState(false)
@@ -154,19 +153,19 @@ export default function Inventario({ ficha, alternarEquipada, definirMarcos, adi
       <div className="inv-topo">
         <div className="inv-resumo">
           <div className="inv-resumo-bloco">
-            <span className="inv-resumo-rotulo">Peso carregado</span>
+            <span className="inv-resumo-rotulo">{tx.inventario.pesoCarregado}</span>
             <span className="inv-resumo-valor">
               {kg(carregado, 2)} <i>kg</i>
               {maximo > 0 && <span className="inv-peso-max"> / {maximo} kg</span>}
             </span>
             {maximo > 0 && (
               <span className={sobrecarregado ? 'inv-status inv-status-alerta' : 'inv-status'}>
-                {sobrecarregado ? 'Sobrecarregado' : 'Livre'}
+                {sobrecarregado ? tx.inventario.sobrecarregado : tx.inventario.livre}
               </span>
             )}
           </div>
           <div className="inv-resumo-bloco inv-resumo-marcos">
-            <span className="inv-resumo-rotulo">Marcos</span>
+            <span className="inv-resumo-rotulo">{tx.inventario.marcos}</span>
             {editandoMarcos ? (
               <input
                 className="inv-marcos-input"
@@ -187,29 +186,29 @@ export default function Inventario({ ficha, alternarEquipada, definirMarcos, adi
         </div>
 
         <button className="botao-gerenciar" onClick={() => setGerenciando(true)}>
-          Gerenciar Inventário
+          {tx.inventario.gerenciar}
         </button>
       </div>
 
       <section className="grupo-acoes">
         <h2 className="titulo-secao">
-          Armas <span className="contador">({ficha.armas.length})</span>
+          {tx.inventario.armas} <span className="contador">({ficha.armas.length})</span>
         </h2>
         {ficha.armas.length === 0 ? (
-          <p className="proximo">Nenhuma arma veio no JSON deste personagem.</p>
+          <p className="proximo">{tx.inventario.nenhumaArma}</p>
         ) : (
           <div className="tabela-itens">
             <div className="tabela-itens-cabecalho">
               <span />
-              <span>Item</span>
-              <span>Peso</span>
-              <span>Qtd</span>
-              <span>Total</span>
+              <span>{tx.inventario.item}</span>
+              <span>{tx.inventario.peso}</span>
+              <span>{tx.inventario.qtd}</span>
+              <span>{tx.geral.total}</span>
             </div>
             {ficha.armas.map((a) => (
               <label className="linha-item" key={a.nome}>
                 <input type="checkbox" checked={a.equipada} onChange={() => alternarEquipada(a.nome)} />
-                <span>{a.nome}</span>
+                <span>{nome(a.nome)}</span>
                 <span>{kg(a.peso)} kg</span>
                 <span>1</span>
                 <span>{kg(a.peso)} kg</span>
@@ -221,26 +220,26 @@ export default function Inventario({ ficha, alternarEquipada, definirMarcos, adi
 
       <section className="grupo-acoes">
         <h2 className="titulo-secao">
-          Equipamentos <span className="contador">({ficha.itens.length})</span>
+          {tx.inventario.equipamentos} <span className="contador">({ficha.itens.length})</span>
         </h2>
         {ficha.itens.length === 0 ? (
-          <p className="proximo">Nenhum equipamento — use "Gerenciar Inventário" pra adicionar.</p>
+          <p className="proximo">{tx.inventario.nenhumEquipamento}</p>
         ) : (
           Object.entries(porCategoria).map(([categoria, linhas]) => (
             <div key={categoria} className="inv-categoria">
-              <h3 className="inv-categoria-titulo">{categoria}</h3>
+              <h3 className="inv-categoria-titulo">{categoria === 'Outros' ? tx.inventario.outros : nome(categoria)}</h3>
               <div className="tabela-itens">
                 <div className="tabela-itens-cabecalho">
                   <span />
-                  <span>Item</span>
-                  <span>Peso</span>
-                  <span>Qtd</span>
-                  <span>Total</span>
+                  <span>{tx.inventario.item}</span>
+                  <span>{tx.inventario.peso}</span>
+                  <span>{tx.inventario.qtd}</span>
+                  <span>{tx.geral.total}</span>
                 </div>
                 {linhas.map((item, i) => (
                   <div className="linha-item" key={`${item.nome}-${i}`}>
                     <span />
-                    <span>{item.nome}</span>
+                    <span>{nome(item.nome)}</span>
                     <span>{kg(item.peso)} kg</span>
                     <span>{item.qtd}</span>
                     <span>{kg(item.peso * item.qtd, 2)} kg</span>
@@ -250,6 +249,18 @@ export default function Inventario({ ficha, alternarEquipada, definirMarcos, adi
             </div>
           ))
         )}
+      </section>
+
+      <section className="grupo-acoes">
+        <h2 className="titulo-secao">{tx.inventario.pertences}</h2>
+        <p className="proximo">{tx.inventario.pertencesAjuda}</p>
+        <textarea
+          className="cr-input anotacao-textarea"
+          rows={Math.max(3, ficha.equipamentoTexto.split('\n').length + 1)}
+          value={ficha.equipamentoTexto}
+          onChange={(e) => definirEquipamentoTexto(e.target.value)}
+          aria-label={tx.inventario.pertences}
+        />
       </section>
 
       {gerenciando && (

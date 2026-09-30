@@ -13,7 +13,8 @@ import {
   resultadoLesao,
   type CondicaoEfetiva,
 } from '../../regras/condicoes'
-import { ATRIBUTO, ORDEM_ATRIBUTOS } from '../../variaveis'
+import { ORDEM_ATRIBUTOS } from '../../variaveis'
+import { useIdioma } from '../../idioma/IdiomaContexto'
 
 // Aba Condições (itens 1.5 e 3.3) — condições, lesões e descanso juntos,
 // porque se amarram: efeito de lesão É condição, e o descanso longo reduz
@@ -24,10 +25,10 @@ import { ATRIBUTO, ORDEM_ATRIBUTOS } from '../../variaveis'
 // de uma ao mesmo tempo. Condição com colchetes pede o valor antes de aplicar.
 
 /** "Exausto [−2]", "Aprimorado [+1 VEL]", "Afligido [1d4 vital]" — o nome como a mesa fala. */
-export function rotuloCondicao(c: Omit<Condicao, 'uid'>): string {
-  const nome = CONDICOES.find((d) => d.id === c.id)?.nome ?? c.id
+export function rotuloCondicao(c: Omit<Condicao, 'uid'>, { nome: nomeJogo, tx }: Pick<ReturnType<typeof useIdioma>, 'nome' | 'tx'>): string {
+  const nome = nomeJogo(CONDICOES.find((d) => d.id === c.id)?.nome ?? c.id)
   if (c.id === 'exausto') return `${nome} [−${c.valor ?? '?'}]`
-  if (c.id === 'aprimorado') return `${nome} [+${c.valor ?? '?'} ${c.atributo ? ATRIBUTO[c.atributo].abrev : ''}]`
+  if (c.id === 'aprimorado') return `${nome} [+${c.valor ?? '?'} ${c.atributo ? tx.atributosAbrev[c.atributo] : ''}]`
   if (c.id === 'afligido') return `${nome} [${c.dano || '?'}]`
   return nome
 }
@@ -61,37 +62,41 @@ export default function Condicoes(props: Props) {
 
 /** O que as condições mudam NESTE turno — o motivo da aba existir. */
 function Agora({ ficha }: { ficha: Personagem }) {
+  const idioma = useIdioma()
+  const { t, tx, nome, msg } = idioma
   const turno = acoesNoTurno(ficha)
   const mov = movimentoComCondicoes(ficha)
   const avisos = lembretes(ficha)
   return (
     <div className="cond-agora">
-      <h2 className="titulo-secao">Agora</h2>
+      <h2 className="titulo-secao">{t(tx.condicoes.agora)}</h2>
       <p>
-        <b>Turno rápido:</b> {turno.rapido === null ? 'não pode' : `${turno.rapido} ▶`} · <b>lento:</b> {turno.lento} ▶ ·{' '}
-        <b>reação:</b> {turno.reacao ? '1 ↻' : 'nenhuma'}
-        {turno.motivos.length > 0 && <span className="proximo"> ({turno.motivos.join('; ')})</span>}
+        <b>{t(tx.condicoes.turnoRapido)}:</b> {turno.rapido === null ? t(tx.condicoes.naoPode) : `${turno.rapido} ▶`} · <b>{t(tx.condicoes.lento)}:</b> {turno.lento} ▶ ·{' '}
+        <b>{t(tx.condicoes.reacao)}:</b> {turno.reacao ? '1 ↻' : t(tx.condicoes.nenhuma)}
+        {turno.motivos.length > 0 && <span className="proximo"> ({turno.motivos.map((m) => msg(m)).join('; ')})</span>}
       </p>
       <p>
-        <b>Movimento:</b> {formatarMetros(mov.metros)}
-        {mov.motivo && <span className="proximo"> ({mov.motivo})</span>}
+        <b>{t(tx.condicoes.movimento)}:</b> {formatarMetros(mov.metros)}
+        {mov.motivos.length > 0 && <span className="proximo"> ({mov.motivos.map((m) => nome(m)).join(' · ')})</span>}
       </p>
       {avisos.length > 0 && (
         <ul className="cond-lembretes">
-          {avisos.map((a) => <li key={a}>{a}</li>)}
+          {avisos.map((a) => <li key={msg(a)}>{msg(a)}</li>)}
         </ul>
       )}
-      <p className="proximo">Perícias já mostram Aprimorado e Exausto no total; vantagem e desvantagem aparecem marcadas lá.</p>
+      <p className="proximo">{t(tx.condicoes.periciasJaMostramAprimorado)}</p>
     </div>
   )
 }
 
 function ListaCondicoes({ efetivas, adicionarCondicao, removerCondicao }: Props & { efetivas: CondicaoEfetiva[] }) {
+  const idioma = useIdioma()
+  const { t, tx, nome } = idioma
   // Condição com colchetes em edição: o formulário abre embaixo dela.
   const [pedindo, setPedindo] = useState<IdCondicao | null>(null)
   return (
     <div className="cond-lista">
-      <h2 className="titulo-secao">Condições</h2>
+      <h2 className="titulo-secao">{t(tx.condicoes.condicoes)}</h2>
       <ul>
         {CONDICOES.map((def) => {
           const ativas = efetivas.filter((c) => c.id === def.id)
@@ -118,10 +123,10 @@ function ListaCondicoes({ efetivas, adicionarCondicao, removerCondicao }: Props 
                   disabled={marcada && manuais.length === 0}
                   onChange={alternar}
                 />
-                <span className="cond-nome">{def.nome}</span>
+                <span className="cond-nome">{nome(def.nome)}</span>
                 {def.cumulativa && marcada && podeMarcarMais && (
                   <button type="button" className="rodape-botao" onClick={() => setPedindo(def.id)}>
-                    + outra
+                    {t(tx.condicoes.outra)}
                   </button>
                 )}
               </label>
@@ -129,11 +134,11 @@ function ListaCondicoes({ efetivas, adicionarCondicao, removerCondicao }: Props 
                 <ul className="cond-instancias">
                   {ativas.map((c) => (
                     <li key={c.uid}>
-                      {rotuloCondicao(c)}
+                      {rotuloCondicao(c, idioma)}
                       {c.origem === 'lesao' ? (
-                        <span className="proximo"> — de lesão</span>
+                        <span className="proximo"> — {t(tx.condicoes.deLesao)}</span>
                       ) : (
-                        <button type="button" className="cond-x" aria-label={`Remover ${rotuloCondicao(c)}`} onClick={() => removerCondicao(c.uid)}>
+                        <button type="button" className="cond-x" aria-label={t(tx.geral.removerNome, { nome: rotuloCondicao(c, idioma) })} onClick={() => removerCondicao(c.uid)}>
                           ✕
                         </button>
                       )}
@@ -141,7 +146,7 @@ function ListaCondicoes({ efetivas, adicionarCondicao, removerCondicao }: Props 
                   ))}
                 </ul>
               )}
-              {!def.parametro && ativas.some((c) => c.origem === 'lesao') && <span className="proximo cond-origem">de lesão</span>}
+              {!def.parametro && ativas.some((c) => c.origem === 'lesao') && <span className="proximo cond-origem">{t(tx.condicoes.deLesao)}</span>}
               {pedindo === def.id && (
                 <ParametroCondicao
                   id={def.id}
@@ -163,17 +168,19 @@ function ListaCondicoes({ efetivas, adicionarCondicao, removerCondicao }: Props 
 
 /** O valor entre colchetes: dano do Afligido, atributo e bônus do Aprimorado, penalidade do Exausto. */
 function ParametroCondicao({ id, aplicar, cancelar }: { id: IdCondicao; aplicar: (c: Omit<Condicao, 'uid'>) => void; cancelar: () => void }) {
+  const idioma = useIdioma()
+  const { t, tx } = idioma
   const [valor, setValor] = useState(1)
   const [atributo, setAtributo] = useState<NomeAtributo>('forca')
   const [dano, setDano] = useState('1d4 vital')
   return (
     <div className="cond-parametro">
       {id === 'afligido' && (
-        <input className="cr-input" value={dano} onChange={(e) => setDano(e.target.value)} placeholder="1d4 vital" aria-label="Dano por turno" />
+        <input className="cr-input" value={dano} onChange={(e) => setDano(e.target.value)} placeholder={t(tx.condicoes.n1d4Vital)} aria-label={t(tx.condicoes.danoTurno)} />
       )}
       {id === 'aprimorado' && (
-        <select className="cr-input" value={atributo} onChange={(e) => setAtributo(e.target.value as NomeAtributo)} aria-label="Atributo">
-          {ORDEM_ATRIBUTOS.map((a) => <option key={a} value={a}>{ATRIBUTO[a].nome}</option>)}
+        <select className="cr-input" value={atributo} onChange={(e) => setAtributo(e.target.value as NomeAtributo)} aria-label={t(tx.condicoes.atributo)}>
+          {ORDEM_ATRIBUTOS.map((a) => <option key={a} value={a}>{tx.atributos[a]}</option>)}
         </select>
       )}
       {(id === 'aprimorado' || id === 'exausto') && (
@@ -189,19 +196,21 @@ function ParametroCondicao({ id, aplicar, cancelar }: { id: IdCondicao; aplicar:
           aplicar(id === 'afligido' ? { id, dano: dano.trim() } : id === 'aprimorado' ? { id, atributo, valor } : { id, valor })
         }
       >
-        Aplicar
+        {tx.geral.aplicar}
       </button>
-      <button type="button" className="rodape-botao" onClick={cancelar}>Cancelar</button>
+      <button type="button" className="rodape-botao" onClick={cancelar}>{tx.geral.cancelar}</button>
     </div>
   )
 }
 
 function Lesoes({ ficha, salvarLesao, removerLesao }: Props) {
+  const idioma = useIdioma()
+  const { t, tx, tn, nome } = idioma
   const [nova, setNova] = useState(false)
   return (
     <div className="cond-lesoes">
-      <h2 className="titulo-secao">Lesões</h2>
-      {ficha.lesoes.length === 0 && !nova && <p className="proximo">Nenhuma lesão.</p>}
+      <h2 className="titulo-secao">{t(tx.condicoes.lesoes)}</h2>
+      {ficha.lesoes.length === 0 && !nova && <p className="proximo">{t(tx.condicoes.nenhumaLesao)}</p>}
       <ul>
         {ficha.lesoes.map((l) => {
           const efeito = EFEITOS_LESAO.find((e) => e.id === l.efeito)
@@ -209,19 +218,19 @@ function Lesoes({ ficha, salvarLesao, removerLesao }: Props) {
           return (
             <li key={l.uid} className="lesao-item">
               <div>
-                <b>{GRAVIDADE[l.gravidade].nome}</b> · {efeito?.nome}
+                <b>{nome(GRAVIDADE[l.gravidade].nome)}</b> · {efeito && nome(efeito.nome)}
                 {l.descricao && <span className="proximo"> — {l.descricao}</span>}
               </div>
               <div className="lesao-acoes">
                 {conta ? (
                   <>
-                    <button type="button" className="rodape-botao" aria-label="Menos um dia" onClick={() => salvarLesao({ ...l, diasRestantes: Math.max(0, (l.diasRestantes ?? 0) - 1) })}>−1 dia</button>
-                    <span>{l.diasRestantes ?? '?'} dia(s)</span>
+                    <button type="button" className="rodape-botao" aria-label={t(tx.condicoes.menosDia)} onClick={() => salvarLesao({ ...l, diasRestantes: Math.max(0, (l.diasRestantes ?? 0) - 1) })}>{t(tx.condicoes.n1Dia)}</button>
+                    <span>{l.diasRestantes === undefined ? '—' : tn(tx.condicoes.dias, l.diasRestantes)}</span>
                   </>
                 ) : (
-                  <span className="proximo">{GRAVIDADE[l.gravidade].duracao}</span>
+                  <span className="proximo">{nome(GRAVIDADE[l.gravidade].duracao)}</span>
                 )}
-                <button type="button" className="rodape-botao" onClick={() => removerLesao(l.uid)}>Curou</button>
+                <button type="button" className="rodape-botao" onClick={() => removerLesao(l.uid)}>{t(tx.condicoes.curou)}</button>
               </div>
             </li>
           )
@@ -230,9 +239,9 @@ function Lesoes({ ficha, salvarLesao, removerLesao }: Props) {
       {nova ? (
         <NovaLesao ficha={ficha} salvar={(l) => { salvarLesao(l); setNova(false) }} cancelar={() => setNova(false)} />
       ) : (
-        <button type="button" className="rodape-botao" onClick={() => setNova(true)}>+ Registrar lesão</button>
+        <button type="button" className="rodape-botao" onClick={() => setNova(true)}>{t(tx.condicoes.registrarLesao)}</button>
       )}
-      <p className="proximo">Recesso cura duas vezes mais rápido: tire 2 dias por dia de recesso.</p>
+      <p className="proximo">{t(tx.condicoes.recessoCuraDuasVezes)}</p>
     </div>
   )
 }
@@ -242,6 +251,8 @@ function Lesoes({ ficha, salvarLesao, removerLesao }: Props) {
  * rola na mão e digita; o app diz a gravidade e o dado da duração.
  */
 function NovaLesao({ ficha, salvar, cancelar }: { ficha: Personagem; salvar: (l: Lesao) => void; cancelar: () => void }) {
+  const idioma = useIdioma()
+  const { t, tx, nome, rot } = idioma
   const mod = modificadorRolagemLesao(ficha)
   const [d20, setD20] = useState('')
   const [gravidade, setGravidade] = useState<GravidadeLesao>('leve')
@@ -260,38 +271,40 @@ function NovaLesao({ ficha, salvar, cancelar }: { ficha: Personagem; salvar: (l:
   return (
     <div className="lesao-nova">
       <p>
-        Role <b>1d20 {mod.total >= 0 ? '+' : '−'} {Math.abs(mod.total)}</b>{' '}
-        <span className="proximo">({mod.linhas.map((l) => `${l.origem} ${l.valor >= 0 ? '+' : ''}${l.valor}`).join(' · ')}; some talento à mão)</span>
+        {t(tx.condicoes.role1d20SinalN, { sinal: mod.total >= 0 ? '+' : '−', n: Math.abs(mod.total) })}{' '}
+        <span className="proximo">
+          {t(tx.condicoes.linhasSomeTalentoMao, { linhas: mod.linhas.map((l) => `${rot(l.origem)} ${l.valor >= 0 ? '+' : ''}${l.valor}`).join(' · ') })}
+        </span>
       </p>
       <label>
-        d20 rolado <input className="cr-input cond-numero" type="number" min={1} max={20} value={d20} onChange={(e) => aoRolar(e.target.value)} />
+        {t(tx.condicoes.d20Rolado)} <input className="cr-input cond-numero" type="number" min={1} max={20} value={d20} onChange={(e) => aoRolar(e.target.value)} />
       </label>
       {rolado !== null && (
         <p className={pelaTabela === 'morte' ? 'erro' : undefined}>
-          Total <b>{rolado}</b> →{' '}
-          {pelaTabela === 'morte' ? <b>MORTE — combine com o Mestre</b> : <b>{GRAVIDADE[pelaTabela!].nome}</b>}
+          {tx.geral.total} <b>{rolado}</b> →{' '}
+          {pelaTabela === 'morte' ? <b>{t(tx.condicoes.morteCombineMestre)}</b> : <b>{nome(GRAVIDADE[pelaTabela!].nome)}</b>}
         </p>
       )}
       <label>
-        Gravidade{' '}
+        {t(tx.condicoes.gravidade)}{' '}
         <select className="cr-input" value={gravidade} onChange={(e) => setGravidade(e.target.value as GravidadeLesao)}>
           {(Object.keys(GRAVIDADE) as GravidadeLesao[]).map((g) => (
-            <option key={g} value={g}>{GRAVIDADE[g].nome} ({GRAVIDADE[g].faixa}) — {GRAVIDADE[g].duracao}</option>
+            <option key={g} value={g}>{nome(GRAVIDADE[g].nome)} ({GRAVIDADE[g].faixa}) — {nome(GRAVIDADE[g].duracao)}</option>
           ))}
         </select>
       </label>
       {(gravidade === 'leve' || gravidade === 'grave') && (
         <label>
-          Role {GRAVIDADE[gravidade].duracao}: <input className="cr-input cond-numero" type="number" min={1} value={dias} onChange={(e) => setDias(e.target.value)} />
+          {t(tx.condicoes.roleDuracao, { duracao: nome(GRAVIDADE[gravidade].duracao) })} <input className="cr-input cond-numero" type="number" min={1} value={dias} onChange={(e) => setDias(e.target.value)} />
         </label>
       )}
       <label>
-        Efeito (você escolhe, ou rola 1d8){' '}
+        {t(tx.condicoes.efeitoVoceEscolheOu)}{' '}
         <select className="cr-input" value={efeito} onChange={(e) => setEfeito(e.target.value as EfeitoLesao)}>
-          {EFEITOS_LESAO.map((e) => <option key={e.id} value={e.id}>{e.d8} · {e.nome}</option>)}
+          {EFEITOS_LESAO.map((e) => <option key={e.id} value={e.id}>{e.d8} · {nome(e.nome)}</option>)}
         </select>
       </label>
-      <input className="cr-input" value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="O que foi (opcional)" />
+      <input className="cr-input" value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder={t(tx.condicoes.oFoiOpcional)} />
       <div className="lesao-acoes">
         <button
           type="button"
@@ -306,28 +319,28 @@ function NovaLesao({ ficha, salvar, cancelar }: { ficha: Personagem; salvar: (l:
             })
           }
         >
-          Registrar
+          {t(tx.condicoes.registrar)}
         </button>
-        <button type="button" className="rodape-botao" onClick={cancelar}>Cancelar</button>
+        <button type="button" className="rodape-botao" onClick={cancelar}>{tx.geral.cancelar}</button>
       </div>
     </div>
   )
 }
 
 function Descanso({ ficha, fazerDescansoCurto, fazerDescansoLongo }: Props) {
+  const idioma = useIdioma()
+  const { t, tx } = idioma
   const [vida, setVida] = useState('')
   const [foco, setFoco] = useState('')
   const [confirmandoLongo, setConfirmandoLongo] = useState(false)
   const { recursos, derivados } = ficha
   return (
     <div className="cond-descanso">
-      <h2 className="titulo-secao">Descanso</h2>
-      <p>
-        <b>Curto</b> (1 h): role <b>{derivados.dadoRecuperacao}</b> e divida entre Vida e Foco.
-      </p>
+      <h2 className="titulo-secao">{t(tx.condicoes.descanso)}</h2>
+      <p>{t(tx.condicoes.curto1HRole, { dado: derivados.dadoRecuperacao })}</p>
       <div className="lesao-acoes">
-        <label>Vida + <input className="cr-input cond-numero" type="number" min={0} value={vida} onChange={(e) => setVida(e.target.value)} /></label>
-        <label>Foco + <input className="cr-input cond-numero" type="number" min={0} value={foco} onChange={(e) => setFoco(e.target.value)} /></label>
+        <label>{tx.condicoes.vidaMais} <input className="cr-input cond-numero" type="number" min={0} value={vida} onChange={(e) => setVida(e.target.value)} /></label>
+        <label>{tx.condicoes.focoMais} <input className="cr-input cond-numero" type="number" min={0} value={foco} onChange={(e) => setFoco(e.target.value)} /></label>
         <button
           type="button"
           className="rodape-botao"
@@ -338,23 +351,21 @@ function Descanso({ ficha, fazerDescansoCurto, fazerDescansoLongo }: Props) {
             setFoco('')
           }}
         >
-          Aplicar
+          {tx.geral.aplicar}
         </button>
       </div>
-      <p>
-        <b>Longo</b> (8 h): Vida {recursos.vida.max} e Foco {recursos.foco.max}, Exausto −1, lesão superficial cura.
-      </p>
+      <p>{t(tx.condicoes.longo8HVida, { vida: recursos.vida.max, foco: recursos.foco.max })}</p>
       {confirmandoLongo ? (
         <div className="lesao-acoes">
           <button type="button" className="rodape-botao rodape-perigo" onClick={() => { fazerDescansoLongo(); setConfirmandoLongo(false) }}>
-            Confirmar descanso longo
+            {t(tx.condicoes.confirmarDescansoLongo)}
           </button>
-          <button type="button" className="rodape-botao" onClick={() => setConfirmandoLongo(false)}>Cancelar</button>
+          <button type="button" className="rodape-botao" onClick={() => setConfirmandoLongo(false)}>{tx.geral.cancelar}</button>
         </div>
       ) : (
-        <button type="button" className="rodape-botao" onClick={() => setConfirmandoLongo(true)}>Descanso longo</button>
+        <button type="button" className="rodape-botao" onClick={() => setConfirmandoLongo(true)}>{t(tx.condicoes.descansoLongo)}</button>
       )}
-      <p className="proximo">Lesão leve/grave conta dias, não descansos — use o −1 dia de cada uma.</p>
+      <p className="proximo">{t(tx.condicoes.lesaoLeveGraveConta)}</p>
     </div>
   )
 }

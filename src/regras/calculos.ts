@@ -7,18 +7,15 @@
  */
 
 import { CATALOGO_TALENTOS, type EscolhaVaga } from './talentos'
-import type { Personagem, Pericia } from '../tipos/personagem'
-import { ATRIBUTO, ROTULO } from '../variaveis'
+import type { Fluxo, Personagem, Pericia } from '../tipos/personagem'
 import { efeitoCondicoesPericia, type UsoPericia } from './condicoes'
+import type { Rotulo } from '../idioma/pt'
 
-// ⚠️ Ressalva conhecida: `regras/` não deveria conhecer a tela, e aqui ele
-// importa um RÓTULO (o nome do atributo) pra montar o detalhamento da perícia.
-// O conserto de verdade é `detalhePericia` devolver a CHAVE do atributo e o
-// componente resolver o nome — refatoração maior, anotada e não feita.
-// O que está aqui já era assim antes; a mudança só tirou a duplicação (o nome
-// completo vivia aqui e a abreviação no CabecalhoFixo).
+// A origem de cada parcela é um Rótulo: nome de jogo (texto, que a tela passa
+// por `nome()`) ou uma Mensagem que aponta a variável de texto — a regra diz
+// QUAL palavra, a tela escreve no idioma. Assim `regras/` não carrega palavra.
 
-export type ParcelaBonus = { origem: string; valor: number }
+export type ParcelaBonus = { origem: Rotulo; valor: number }
 
 /**
  * De ONDE vem o bônus de escolha de uma perícia — uma linha por vaga que
@@ -112,11 +109,17 @@ export function alteradoPorCondicao(pericia: Pericia, ficha: Personagem, uso: Us
 }
 
 /** Acha a perícia da ficha pelo NOME (é como uma Arma referencia sua perícia). */
+/** Fluxo no formato de perícia — o livro manda contar igual ("Usando Fluxos"). Abas Radiante e Ações. */
+export function fluxoComoPericia(f: Fluxo): Pericia {
+  return { id: f.id, nome: f.nome, atributo: f.atributo, graduacao: f.graduacao, graduacaoBonus: 0, misc: 0 }
+}
+
 export function periciaPorNome(nome: string, ficha: Personagem): Pericia | undefined {
   return ficha.pericias.find((p) => p.nome === nome)
 }
 
 export type DetalhePericia = {
+  /** Nome da perícia (nome de jogo). */
   titulo: string
   linhas: ParcelaBonus[]
   total: number
@@ -131,14 +134,14 @@ export function detalhePericia(
 ): DetalhePericia {
   const atributoEfetivo = ficha.atributos[pericia.atributo] + ficha.atributosMod[pericia.atributo]
   const linhas: ParcelaBonus[] = [
-    { origem: ATRIBUTO[pericia.atributo].nome, valor: atributoEfetivo },
-    { origem: 'Graduação', valor: pericia.graduacao },
+    { origem: { texto: (d) => d.atributos[pericia.atributo] }, valor: atributoEfetivo },
+    { origem: { texto: (d) => d.geral.graduacao }, valor: pericia.graduacao },
     ...origensBonusPericia(pericia.id, escolhas),
   ]
   // Honestidade: o app mostra o número certo E diz que não sabe de onde veio.
   const naoAtribuido = bonusNaoAtribuido(pericia, escolhas)
-  if (naoAtribuido > 0) linhas.push({ origem: ROTULO.bonusSemOrigem, valor: naoAtribuido })
-  if (pericia.misc !== 0) linhas.push({ origem: 'Outros (misc)', valor: pericia.misc })
+  if (naoAtribuido > 0) linhas.push({ origem: { texto: (d) => d.geral.bonusSemOrigem }, valor: naoAtribuido })
+  if (pericia.misc !== 0) linhas.push({ origem: { texto: (d) => d.geral.outrosMisc }, valor: pericia.misc })
   // Condição ativa (Aprimorado, Exausto) entra como parcela nomeada — o jogador
   // vê que o número caiu E por quê (regras/condicoes.ts).
   linhas.push(...efeitoCondicoesPericia(pericia, ficha, uso).linhas)

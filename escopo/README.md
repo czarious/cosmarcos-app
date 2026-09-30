@@ -16,23 +16,12 @@
 | **[dados.md](dados.md)** | O schema · o tradutor do Shards · o que é FIXO e o que é PROVISÓRIO |
 | **[notas-do-livro.md](notas-do-livro.md)** | Índice das notas `📌 Para o app` da transcrição do livro (fórmulas, condições, dano/lesões) |
 | **[conferencia-formulas.md](conferencia-formulas.md)** | Verificações das fórmulas contra a ficha real do Eccho (as caixas ✅ movidas da transcrição) |
+| **[checklist-shards.md](checklist-shards.md)** | Tudo o que o Shards faz, tela por tela, e se o app já faz — de onde sai o que falta |
 | **[premissas.md](premissas.md)** | Toda decisão de arquitetura numa página só — **vigente, sobrescrita quando muda**. Dentro: o porquê, o que custa, e 🪦 **"Descartado — não repropor"** (leia antes de propor ideia) |
 
-## Estado do app (12/Set/2026)
+## Estado do app
 
-**Código na raiz do projeto**, junto com a documentação ([premissas](premissas.md) → "Código e documentação na mesma pasta, fora do Drive") — mapa próprio: [`mapa-app.md`](../mapa-app.md).
-
-| Fase 1 — MVP | |
-|---|---|
-| ✅ 1.0 Ler a ficha do JSON (tradutor) | ✅ 1.1 Cabeçalho fixo (ficha em miniatura, métrico) |
-| ✅ 1.2 Dano e cura | ✅ 1.3 Foco e Investidura |
-| ✅ 1.4 Perícias (total calculado) | ⬜ 1.5 Condições |
-
-| Fase 2 — PWA | |
-|---|---|
-| ⬜ 2.1 Instalável · ⬜ 2.2 Offline | ✅ **2.3 Persistência (localStorage)** · ⬜ 2.4 Deploy automático |
-
-Transcrição do livro em andamento: `referencia/livro/transcricao/` (Introdução + Cap. 3 = as fórmulas da ficha ✅).
+O que está pronto e o que falta: [roadmap.md](roadmap.md). O código mora na raiz do projeto, junto com a documentação ([premissas](premissas.md) → "Código e documentação na mesma pasta, fora do Drive") — mapa próprio: [`mapa-app.md`](../mapa-app.md).
 
 ## Por onde começar
 

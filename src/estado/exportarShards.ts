@@ -13,7 +13,8 @@
  * O que o app edita e volta: Vida/Foco/Investidura atuais · marcos · armas
  * equipadas · itens (adicionados/removidos) · fabriais (cargas, qualidade,
  * aprimoramentos, revezes, novos/removidos) · anotações (→ campo NOTES) ·
- * objetivos (marcos, concluído, novos/removidos) · ideais (marcos, jurado, texto).
+ * objetivos (marcos, concluído, novos/removidos) · ideais (marcos, jurado, texto) ·
+ * equipamento em texto livre (→ campo EQUIPMENT).
  */
 
 import type { Personagem, Fabrial, Ideal } from '../tipos/personagem'
@@ -212,6 +213,7 @@ export function exportarShards(ficha: Personagem, semente: Obj): string {
   if (ficha.radiante) c.radiant = radianteShards(ficha.radiante.ideais, c.radiant as Obj)
 
   c.notes = notasShards(ficha)
+  c.equipment = ficha.equipamentoTexto
   c.updatedAt = new Date().toISOString()
 
   return JSON.stringify({ format: 'cosmere-v3', version: 1, characters: [c] }, null, 2)

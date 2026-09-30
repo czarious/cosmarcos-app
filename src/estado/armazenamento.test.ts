@@ -60,6 +60,15 @@ describe('migração v4 → v5 (Ideal ganhou marcos)', () => {
   })
 })
 
+describe('migração v5 → v6 (pertences em texto livre)', () => {
+  it('o texto vem do JSON cru guardado no save, sem reimportar', () => {
+    const f = ficha() as unknown as Record<string, unknown>
+    delete f.equipamentoTexto
+    MIGRACOES[5](f as never, eccho.characters[0] as unknown as Record<string, unknown>)
+    expect(f.equipamentoTexto).toContain('Amuleto de Sorte')
+  })
+})
+
 describe('save que não abre', () => {
   it('corrompido: avisa e guarda o texto cru antes de qualquer gravação por cima', () => {
     localStorage.setItem('cosmarcos:ficha:eccho', '{isso não é json')

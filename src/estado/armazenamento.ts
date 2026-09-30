@@ -31,13 +31,13 @@ import type { EscolhaVaga } from '../regras/talentos'
  * `lerFicha`). Subiu este número? Escreva a entrada em MIGRACOES — o teste
  * `armazenamento.test.ts` reprova se faltar.
  */
-export const VERSAO_ESQUEMA = 5
+export const VERSAO_ESQUEMA = 6
 
 /**
  * Migrações: save de versão antiga que ainda dá pra aproveitar. Cada entrada
  * leva a ficha da versão N pra N+1 — sem ela, o save cairia no descarte.
  */
-export const MIGRACOES: Record<number, (ficha: Personagem) => void> = {
+export const MIGRACOES: Record<number, (ficha: Personagem, semente?: Record<string, unknown>) => void> = {
   // v1 → v2: especialidade tinha só 'cultural' | 'especialista'; o livro tem 5
   // categorias. 'especialista' do v1 era a de Perito ("Specialist" do Shards).
   1: (ficha) => {
@@ -96,6 +96,11 @@ export const MIGRACOES: Record<number, (ficha: Personagem) => void> = {
       ideais.sort((x, y) => x.n - y.n)
     }
   },
+  // v5 → v6: o "Equipment" do Shards (texto livre) passou a entrar na ficha.
+  // O save já guarda o JSON cru — dá pra buscar lá sem reimportar.
+  5: (ficha, semente) => {
+    ficha.equipamentoTexto = typeof semente?.equipment === 'string' ? semente.equipment : ''
+  },
 }
 
 export type FichaSalva = {
@@ -140,7 +145,7 @@ function pareceFichaSalva(x: unknown): x is FichaSalva {
  */
 function migrar(dado: FichaSalva): FichaSalva | null {
   while (dado.versaoEsquema < VERSAO_ESQUEMA && MIGRACOES[dado.versaoEsquema]) {
-    MIGRACOES[dado.versaoEsquema](dado.ficha)
+    MIGRACOES[dado.versaoEsquema](dado.ficha, dado.semente)
     dado.versaoEsquema += 1
   }
   return dado.versaoEsquema === VERSAO_ESQUEMA ? dado : null

@@ -18,7 +18,8 @@ import {
   avisosFabrial,
   type OpcaoGeral,
 } from '../regras/fabriais'
-import { ICONE, ROTULO } from '../variaveis'
+import { ICONE } from '../variaveis'
+import { useIdioma } from '../idioma/IdiomaContexto'
 
 // Montador de fabrial — novo ou edição. As opções saem todas de
 // regras/fabriais.ts (o livro). Combinação fora da regra só AVISA, não
@@ -41,6 +42,8 @@ function alterna(lista: string[], id: string): string[] {
 }
 
 export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }: Props) {
+  const { t, tx, nome, msg } = useIdioma()
+  const ff = tx.formularioFabrial
   const [f, setF] = useState<Fabrial>(inicial ?? novoFabrial())
   const [livreAprimoramento, setLivreAprimoramento] = useState('')
   const [livreReves, setLivreReves] = useState('')
@@ -88,8 +91,8 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
       <label className={`fab-opcao${cabe ? '' : ' fab-opcao-nao-cabe'}`} key={op.id}>
         <input type="checkbox" checked={marcado} onChange={() => muda({ [lado]: alterna(f[lado], op.id) })} />
         <span>
-          <b>{op.nome}</b> — {op.resumo}
-          {!cabe && <i className="fab-nao-cabe"> (não cabe neste efeito)</i>}
+          <b>{nome(op.nome)}</b> — {op.resumo}
+          {!cabe && <i className="fab-nao-cabe"> {ff.naoCabe}</i>}
         </span>
       </label>
     )
@@ -99,40 +102,40 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
     <div className="cr-overlay" onClick={aoFechar}>
       <div className="cr-painel fab-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
-          <span className="cr-titulo">{inicial ? 'Editar Fabrial' : 'Novo Fabrial'}</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label={ROTULO.fechar}>
+          <span className="cr-titulo">{inicial ? ff.editarFabrial : ff.novoFabrial}</span>
+          <button className="cr-fechar" onClick={aoFechar} aria-label={tx.geral.fechar}>
             {ICONE.fechar}
           </button>
         </div>
 
         <div className="gerenciar-form">
           <div className="fab-tipo">
-            {(['unico', 'padrao'] as const).map((t) => (
+            {(['unico', 'padrao'] as const).map((tipo) => (
               <button
-                key={t}
-                className={`fab-tipo-botao${f.tipo === t ? ' fab-tipo-ativo' : ''}`}
-                onClick={() => setF({ ...novoFabrial(), id: f.id, tipo: t })}
+                key={tipo}
+                className={`fab-tipo-botao${f.tipo === tipo ? ' fab-tipo-ativo' : ''}`}
+                onClick={() => setF({ ...novoFabrial(), id: f.id, tipo })}
               >
-                {t === 'unico' ? 'Único (inventado)' : 'Padrão (da tabela)'}
+                {tipo === 'unico' ? ff.unico : ff.padrao}
               </button>
             ))}
           </div>
 
           <label className="fab-campo">
-            <span>{f.tipo === 'padrao' ? 'Fabrial' : 'Efeito'}</span>
+            <span>{f.tipo === 'padrao' ? ff.fabrial : ff.efeito}</span>
             <select className="cr-input" value={f.modelo ?? ''} onChange={(e) => escolherModelo(e.target.value)}>
-              <option value="">— livre (fora do livro) —</option>
+              <option value="">{ff.livre}</option>
               {f.tipo === 'padrao'
                 ? FABRIAIS_PADRAO.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.nome} · {p.cargas ?? '∞'} cargas · {p.preco}
+                      {t(ff.cargasPreco, { nome: nome(p.nome), cargas: p.cargas ?? '∞', preco: p.preco })}
                     </option>
                   ))
                 : ([1, 2, 3, 4] as const).map((pat) => (
-                    <optgroup key={pat} label={`Patamar ${pat} — ${PATAMAR[pat].custo}, prender espreno CD ${PATAMAR[pat].cd}`}>
+                    <optgroup key={pat} label={t(ff.patamar, { n: pat, marcos: PATAMAR[pat].marcos, cd: PATAMAR[pat].cd })}>
                       {EFEITOS_UNICOS.filter((e) => e.patamar === pat).map((e) => (
                         <option key={e.id} value={e.id}>
-                          {e.nome} · {e.cargas} cargas
+                          {t(ff.cargasN, { nome: nome(e.nome), cargas: e.cargas })}
                         </option>
                       ))}
                     </optgroup>
@@ -143,14 +146,14 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
           {efeito && <p className="fab-regra">{efeito.resumo}</p>}
 
           <label className="fab-campo">
-            <span>Nome</span>
-            <input className="cr-input" value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} placeholder="Nome do fabrial" />
+            <span>{ff.nome}</span>
+            <input className="cr-input" value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} placeholder={ff.nomeFabrial} />
           </label>
 
           {f.tipo === 'unico' && (
             <>
               <label className="fab-campo">
-                <span>Qualidade (teste de Manufatura)</span>
+                <span>{ff.qualidade}</span>
                 <select
                   className="cr-input"
                   value={f.qualidade ?? ''}
@@ -159,8 +162,14 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
                   <option value="">—</option>
                   {(Object.keys(QUALIDADE) as QualidadeFabrial[]).map((k) => (
                     <option key={k} value={k}>
-                      {QUALIDADE[k].nome} ({QUALIDADE[k].resultado})
-                      {QUALIDADE[k].aprimoramentos !== null && ` · ${QUALIDADE[k].aprimoramentos} aprim. · ${QUALIDADE[k].revezes} revés`}
+                      {QUALIDADE[k].aprimoramentos !== null
+                        ? t(ff.qualidadeOpcao, {
+                            nome: nome(QUALIDADE[k].nome),
+                            resultado: QUALIDADE[k].resultado,
+                            aprimoramentos: QUALIDADE[k].aprimoramentos,
+                            revezes: QUALIDADE[k].revezes ?? 0,
+                          })
+                        : `${nome(QUALIDADE[k].nome)} (${QUALIDADE[k].resultado})`}
                     </option>
                   ))}
                 </select>
@@ -168,7 +177,7 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
 
               <fieldset className="fab-grupo">
                 <legend>
-                  Aprimoramentos{' '}
+                  {ff.aprimoramentos}{' '}
                   <span className="contador">
                     ({gastos}
                     {q?.aprimoramentos != null && `/${q.aprimoramentos}`})
@@ -178,17 +187,17 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
                   <label className="fab-opcao">
                     <input type="checkbox" checked={f.aprimoramentos.includes(ID_PROPRIO)} onChange={() => muda({ aprimoramentos: alterna(f.aprimoramentos, ID_PROPRIO) })} />
                     <span>
-                      <b>Do {efeito.nome}</b> — {efeito.aprimoramento}
+                      <b>{t(ff.doEfeito, { efeito: nome(efeito.nome) })}</b> — {efeito.aprimoramento}
                     </span>
                   </label>
                 )}
                 {APRIMORAMENTOS_GERAIS.map((op) => linhaOpcao(op, 'aprimoramentos'))}
-                <p className="fab-sub">Características avançadas — custam 2 aprimoramentos (1 com Trabalho Manual Refinado, uma vez por item)</p>
+                <p className="fab-sub">{ff.caracteristicasAvancadas}</p>
                 {CARACTERISTICAS_AVANCADAS.map((c) => (
                   <label className="fab-opcao" key={c.id}>
                     <input type="checkbox" checked={f.aprimoramentos.includes(c.id)} onChange={() => muda({ aprimoramentos: alterna(f.aprimoramentos, c.id) })} />
                     <span>
-                      <b>{c.nome}</b> — {c.resumo}
+                      <b>{nome(c.nome)}</b> — {c.resumo}
                     </span>
                   </label>
                 ))}
@@ -196,12 +205,12 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
                   <label className="fab-opcao" key={id}>
                     <input type="checkbox" checked onChange={() => muda({ aprimoramentos: alterna(f.aprimoramentos, id) })} />
                     <span>
-                      <b>{id}</b> <i>(combinado com o Mestre)</i>
+                      <b>{id}</b> <i>{ff.combinadoMestre}</i>
                     </span>
                   </label>
                 ))}
                 <div className="fab-livre">
-                  <input className="cr-input" placeholder="Outro, combinado com o Mestre" value={livreAprimoramento} onChange={(e) => setLivreAprimoramento(e.target.value)} />
+                  <input className="cr-input" placeholder={ff.outroCombinado} value={livreAprimoramento} onChange={(e) => setLivreAprimoramento(e.target.value)} />
                   <button
                     className="cr-btn"
                     disabled={!livreAprimoramento.trim()}
@@ -217,7 +226,7 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
 
               <fieldset className="fab-grupo">
                 <legend>
-                  Revezes{' '}
+                  {ff.revezes}{' '}
                   <span className="contador">
                     ({f.revezes.length}
                     {q?.revezes != null && `/${q.revezes}`})
@@ -227,7 +236,7 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
                   <label className="fab-opcao">
                     <input type="checkbox" checked={f.revezes.includes(ID_PROPRIO)} onChange={() => muda({ revezes: alterna(f.revezes, ID_PROPRIO) })} />
                     <span>
-                      <b>Do {efeito.nome}</b> — {efeito.reves}
+                      <b>{t(ff.doEfeito, { efeito: nome(efeito.nome) })}</b> — {efeito.reves}
                     </span>
                   </label>
                 )}
@@ -236,12 +245,12 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
                   <label className="fab-opcao" key={id}>
                     <input type="checkbox" checked onChange={() => muda({ revezes: alterna(f.revezes, id) })} />
                     <span>
-                      <b>{id}</b> <i>(combinado com o Mestre)</i>
+                      <b>{id}</b> <i>{ff.combinadoMestre}</i>
                     </span>
                   </label>
                 ))}
                 <div className="fab-livre">
-                  <input className="cr-input" placeholder="Outro, combinado com o Mestre" value={livreReves} onChange={(e) => setLivreReves(e.target.value)} />
+                  <input className="cr-input" placeholder={ff.outroCombinado} value={livreReves} onChange={(e) => setLivreReves(e.target.value)} />
                   <button
                     className="cr-btn"
                     disabled={!livreReves.trim()}
@@ -259,11 +268,11 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
 
           <div className="fab-cargas">
             <label className="fab-campo">
-              <span>Cargas atuais</span>
+              <span>{ff.cargasAtuais}</span>
               <input className="cr-input" type="number" inputMode="numeric" min={0} value={f.cargas.atual} onChange={(e) => setF({ ...f, cargas: { ...f.cargas, atual: Math.max(0, Number(e.target.value) || 0) } })} />
             </label>
             <label className="fab-campo">
-              <span>Máximo</span>
+              <span>{ff.maximo}</span>
               <input className="cr-input" type="number" inputMode="numeric" min={0} value={f.cargas.max} onChange={(e) => setF({ ...f, cargas: { ...f.cargas, max: Math.max(0, Number(e.target.value) || 0) } })} />
             </label>
           </div>
@@ -271,25 +280,25 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
           {f.tipo === 'unico' && (
             <div className="fab-cargas">
               <label className="fab-campo">
-                <span>Gema</span>
+                <span>{ff.gema}</span>
                 <input className="cr-input" value={f.gema ?? ''} onChange={(e) => setF({ ...f, gema: e.target.value || undefined })} />
               </label>
               <label className="fab-campo">
-                <span>Material</span>
+                <span>{ff.material}</span>
                 <input className="cr-input" value={f.material ?? ''} onChange={(e) => setF({ ...f, material: e.target.value || undefined })} />
               </label>
             </div>
           )}
 
           <label className="fab-campo">
-            <span>Notas</span>
+            <span>{ff.notas}</span>
             <textarea className="cr-input anotacao-textarea" rows={3} value={f.notas ?? ''} onChange={(e) => setF({ ...f, notas: e.target.value || undefined })} />
           </label>
 
           {avisos.length > 0 && (
             <ul className="fab-avisos">
               {avisos.map((a) => (
-                <li key={a}>⚠️ {a}</li>
+                <li key={msg(a)}>⚠️ {msg(a)}</li>
               ))}
             </ul>
           )}
@@ -302,7 +311,7 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
               aoFechar()
             }}
           >
-            Salvar
+            {tx.geral.salvar}
           </button>
         </div>
       </div>

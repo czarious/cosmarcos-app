@@ -11,8 +11,9 @@ import {
 } from '../../regras/calculos'
 import { tetoPericiaNormal } from '../../regras/pericias'
 import { efeitoCondicoesPericia } from '../../regras/condicoes'
-import { ATRIBUTO, ICONE, ORDEM_ATRIBUTOS, ROTULO } from '../../variaveis'
+import { ICONE, ORDEM_ATRIBUTOS } from '../../variaveis'
 import PopoverDetalhe from '../PopoverDetalhe'
+import { useIdioma } from '../../idioma/IdiomaContexto'
 
 // Aba Perícias (item 1.4) — as 18 com a bolinha de graduação e o total
 // CALCULADO. Esse total é o número que o César soma ao d20 rolado na mão
@@ -31,6 +32,7 @@ type Props = {
 }
 
 export default function Pericias({ ficha, escolhasTalento }: Props) {
+  const { t, tx, nome } = useIdioma()
   const [detalheAberto, setDetalheAberto] = useState<Pericia | null>(null)
   const teto = tetoPericiaNormal(ficha.meta.nivel)
 
@@ -42,7 +44,7 @@ export default function Pericias({ ficha, escolhasTalento }: Props) {
 
         return (
           <div className="grupo-pericias" key={atributo}>
-            <h2 className="titulo-secao">{ATRIBUTO[atributo].nome}</h2>
+            <h2 className="titulo-secao">{tx.atributos[atributo]}</h2>
             <ul className="lista-pericias">
               {doGrupo.map((p) => {
                 const total = totalPericia(p, ficha, escolhasTalento)
@@ -63,7 +65,9 @@ export default function Pericias({ ficha, escolhasTalento }: Props) {
                   <li className="linha-pericia" key={p.id}>
                     <span
                       className="pericia-graduacao"
-                      aria-label={`graduação ${p.graduacao} de ${casas}${bonus > 0 ? `, mais ${bonus} de talento` : ''}${semOrigem > 0 ? `, mais ${semOrigem} de origem não identificada` : ''}`}
+                      aria-label={
+                        t(tx.pericias.graduacaoDetalhe, { n: p.graduacao, casas, bonus, semOrigem })
+                      }
                     >
                       {Array.from({ length: casas }, (_, i) => (
                         <i key={i} className={i < p.graduacao ? 'grad-cheia' : 'grad-vazia'}>
@@ -79,7 +83,7 @@ export default function Pericias({ ficha, escolhasTalento }: Props) {
                         <i
                           key={`sem-origem-${i}`}
                           className="grad-sem-origem"
-                          title={ROTULO.bonusSemOrigem}
+                          title={tx.geral.bonusSemOrigem}
                         >
                           {ICONE.graduacaoTalento}
                         </i>
@@ -87,14 +91,14 @@ export default function Pericias({ ficha, escolhasTalento }: Props) {
                     </span>
 
                     <span className="pericia-nome">
-                      {p.nome}
+                      {nome(p.nome)}
                       {/* Condição ativa: vantagem/desvantagem não mexem no número, mas mudam a rolagem */}
                       {(() => {
                         const { vantagem, desvantagem } = efeitoCondicoesPericia(p, ficha)
                         return (
                           <>
-                            {vantagem.length > 0 && <small className="pericia-vant" title={vantagem.join(', ')}> vantagem</small>}
-                            {desvantagem.length > 0 && <small className="pericia-desv" title={desvantagem.join(', ')}> desvantagem</small>}
+                            {vantagem.length > 0 && <small className="pericia-vant" title={vantagem.map((v) => nome(v)).join(', ')}> {tx.pericias.vantagem}</small>}
+                            {desvantagem.length > 0 && <small className="pericia-desv" title={desvantagem.map((v) => nome(v)).join(', ')}> {tx.pericias.desvantagem}</small>}
                           </>
                         )
                       })()}
@@ -103,7 +107,7 @@ export default function Pericias({ ficha, escolhasTalento }: Props) {
                     <button
                       className={`numero-detalhavel pericia-total${alterado ? ' numero-alterado' : ''}`}
                       onClick={() => setDetalheAberto(p)}
-                      aria-label={`${p.nome}, total ${total}${alterado ? ', alterado por condição' : ''}. Ver de onde vem`}
+                      aria-label={t(alterado ? tx.geral.nomeTotalAlteradoVer : tx.geral.nomeTotalVer, { nome: nome(p.nome), total })}
                     >
                       {total >= 0 ? '+' : ''}
                       {total}
@@ -117,10 +121,9 @@ export default function Pericias({ ficha, escolhasTalento }: Props) {
       })}
 
       <p className="proximo legenda-pericias">
-        {ICONE.graduacaoCheia} graduação · {ICONE.graduacaoVazia} vaga até o teto de {teto} (nível{' '}
-        {ficha.meta.nivel}) · {ICONE.graduacaoTalento} graduação de talento, isenta do teto ·{' '}
-        <i className="grad-sem-origem">{ICONE.graduacaoTalento}</i> veio do Shards, talento ainda
-        não identificado — defina na aba Talentos. Toque no número pra ver de onde ele vem.
+        {ICONE.graduacaoCheia} {t(tx.pericias.graduacao)} · {ICONE.graduacaoVazia} {t(tx.pericias.vagaAteTetoTeto, { teto, nivel: ficha.meta.nivel })} ·{' '}
+        {ICONE.graduacaoTalento} {t(tx.pericias.graduacaoTalentoIsentaTeto)} · <i className="grad-sem-origem">{ICONE.graduacaoTalento}</i>{' '}
+        {t(tx.pericias.veioShardsTalentoAinda)}
       </p>
 
       {detalheAberto && (

@@ -16,6 +16,7 @@ import {
   ESPECIALIDADES_UTILIDADE_EXEMPLO,
   ESPECIALIDADES_PERITO_EXEMPLO,
 } from '../../regras/especialidadesUtilidadePerito'
+import { useIdioma } from '../../idioma/IdiomaContexto'
 
 // Aba Talentos — cruza 4 fontes pra cada talento do personagem carregado:
 //  1. ficha.talentos          → o que o Shards diz que ele TEM (dado)
@@ -34,10 +35,10 @@ type Props = {
   definirEscolhaVaga: (talentoId: string, tipo: TipoVaga, indice: number, valor: string | undefined) => void
 }
 
-const GRUPOS: Array<{ origem: Talento['origem']; titulo: string }> = [
-  { origem: 'heroica', titulo: 'Heroicos' },
-  { origem: 'radiante', titulo: 'Radiantes' },
-  { origem: 'ancestral', titulo: 'Ancestrais' },
+const GRUPOS: Array<{ origem: Talento['origem']; titulo: 'heroicos' | 'radiantes' | 'ancestrais' }> = [
+  { origem: 'heroica', titulo: 'heroicos' },
+  { origem: 'radiante', titulo: 'radiantes' },
+  { origem: 'ancestral', titulo: 'ancestrais' },
 ]
 
 const OUTRA = '__outra__'
@@ -56,6 +57,7 @@ function CampoVaga({
   escolhasTalento: Record<string, EscolhaVaga>
   definirEscolhaVaga: Props['definirEscolhaVaga']
 }) {
+  const { t, tx, nome } = useIdioma()
   const chave = chaveVaga(talentoId, vaga.tipo, vaga.indice)
   const valorAtual = escolhasTalento[chave]?.valor ?? ''
 
@@ -64,20 +66,20 @@ function CampoVaga({
     const opcoes = ficha.pericias.filter((p) => (vaga.filtroPericia ? vaga.filtroPericia(p) : true))
     return (
       <label className="talento-vaga">
-        <span className="talento-vaga-rotulo">{vaga.rotulo}</span>
+        <span className="talento-vaga-rotulo">{nome(vaga.rotulo)}</span>
         <select
           className="talento-vaga-select"
           value={valorAtual}
           onChange={(e) => definirEscolhaVaga(talentoId, vaga.tipo, vaga.indice, e.target.value || undefined)}
         >
-          <option value="">— Nenhuma —</option>
+          <option value="">{tx.geral.nenhuma}</option>
           {opcoes.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.nome}
+              {nome(p.nome)}
             </option>
           ))}
         </select>
-        {bonus > 0 && <span className="talento-vaga-bonus">+{bonus} graduação</span>}
+        {bonus > 0 && <span className="talento-vaga-bonus">{t(tx.talentos.graduacaoBonus, { n: bonus })}</span>}
       </label>
     )
   }
@@ -99,7 +101,7 @@ function CampoVaga({
 
   return (
     <label className="talento-vaga">
-      <span className="talento-vaga-rotulo">{vaga.rotulo}</span>
+      <span className="talento-vaga-rotulo">{nome(vaga.rotulo)}</span>
       <select
         className="talento-vaga-select"
         value={modoTexto ? OUTRA : valorAtual}
@@ -114,28 +116,28 @@ function CampoVaga({
           }
         }}
       >
-        <option value="">— Nenhuma —</option>
-        <optgroup label="Culturais">
-          {culturais.map((nome) => (
-            <option key={nome} value={nome}>
-              {nome}
+        <option value="">{tx.geral.nenhuma}</option>
+        <optgroup label={tx.talentos.grupoCulturais}>
+          {culturais.map((esp) => (
+            <option key={esp} value={esp}>
+              {nome(esp)}
             </option>
           ))}
         </optgroup>
-        <optgroup label="Utilidade / Perito (exemplos do livro)">
-          {utilidadePerito.map((nome) => (
-            <option key={nome} value={nome}>
-              {nome}
+        <optgroup label={tx.talentos.grupoUtilidadePerito}>
+          {utilidadePerito.map((esp) => (
+            <option key={esp} value={esp}>
+              {nome(esp)}
             </option>
           ))}
         </optgroup>
-        <option value={OUTRA}>Outra (digitar)…</option>
+        <option value={OUTRA}>{tx.talentos.outraDigitar}</option>
       </select>
       {modoTexto && (
         <input
           className="talento-vaga-texto"
           type="text"
-          placeholder="Nome da especialidade"
+          placeholder={tx.talentos.nomeEspecialidade}
           value={valorAtual}
           onChange={(e) => definirEscolhaVaga(talentoId, vaga.tipo, vaga.indice, e.target.value || undefined)}
         />
@@ -176,16 +178,17 @@ function VagasTalento({
 /** Fallback pra talento SEM vaga editável (ex.: Aquisição Valiosa — sem ambiguidade,
  * o próprio Shards já rotula a origem). Lê o vínculo estático, só leitura. */
 function ConcessaoFixa({ id, ficha }: { id: string; ficha: Personagem }) {
+  const { t, tx, nome } = useIdioma()
   const vinculo = vinculosDe(ficha.meta.nome)[id]
   if (!vinculo) return null
 
   const pericias = (vinculo.periciasIds ?? []).map((periciaId) => {
     const p = ficha.pericias.find((x) => x.id === periciaId)
-    return p ? `${p.nome} (+${p.graduacaoBonus} graduação bônus)` : `${periciaId} (não encontrada na ficha atual)`
+    return p ? t(tx.talentos.comGraduacaoBonus, { nome: nome(p.nome), n: p.graduacaoBonus }) : t(tx.talentos.naoEncontrada, { nome: periciaId })
   })
-  const especialidades = (vinculo.especialidades ?? []).map((nome) => {
-    const existe = ficha.especializacoes.some((e) => e.nome === nome)
-    return existe ? nome : `${nome} (não encontrada na ficha atual)`
+  const especialidades = (vinculo.especialidades ?? []).map((esp) => {
+    const existe = ficha.especializacoes.some((e) => e.nome === esp)
+    return existe ? nome(esp) : t(tx.talentos.naoEncontrada, { nome: nome(esp) })
   })
 
   const itens = [...especialidades, ...pericias]
@@ -201,12 +204,13 @@ function ConcessaoFixa({ id, ficha }: { id: string; ficha: Personagem }) {
 }
 
 export default function Talentos({ ficha, escolhasTalento, definirEscolhaVaga }: Props) {
+  const { t, tx, nome } = useIdioma()
   const { talentos } = ficha
 
   if (talentos.length === 0) {
     return (
       <div className="secao talentos">
-        <p className="proximo">Nenhum talento veio no JSON deste personagem.</p>
+        <p className="proximo">{tx.talentos.nenhumTalento}</p>
       </div>
     )
   }
@@ -214,51 +218,51 @@ export default function Talentos({ ficha, escolhasTalento, definirEscolhaVaga }:
   return (
     <div className="secao talentos">
       {GRUPOS.map(({ origem, titulo }) => {
-        const doGrupo = talentos.filter((t) => t.origem === origem)
+        const doGrupo = talentos.filter((tal) => tal.origem === origem)
         if (doGrupo.length === 0) return null
         return (
           <section key={origem} className="grupo-talentos">
             <h2 className="titulo-secao">
-              {titulo} <span className="contador">({doGrupo.length})</span>
+              {tx.talentos[titulo]} <span className="contador">({doGrupo.length})</span>
             </h2>
             <ul className="lista-talentos">
-              {doGrupo.map((t) => {
-                const info = CATALOGO_TALENTOS[t.id]
-                const nomeExibido = info?.nome ?? t.nome
+              {doGrupo.map((tal) => {
+                const info = CATALOGO_TALENTOS[tal.id]
+                const nomeExibido = nome(info?.nome ?? tal.nome)
                 return (
-                  <li className="talento" key={t.id || t.nome}>
+                  <li className="talento" key={tal.id || tal.nome}>
                     <div className="talento-cabeca">
                       <span className="talento-nome">
-                        {t.chave && <i className="talento-chave-marca">{ICONE.talentoChave}</i>} {nomeExibido}
-                        {!info && <i className="talento-sem-traducao"> (sem tradução)</i>}
+                        {tal.chave && <i className="talento-chave-marca">{ICONE.talentoChave}</i>} {nomeExibido}
+                        {!info && <i className="talento-sem-traducao"> {tx.talentos.semTraducao}</i>}
                       </span>
-                      {info?.fonte && <span className="talento-fonte">{info.fonte}</span>}
+                      {info?.fonte && <span className="talento-fonte">{nome(info.fonte)}</span>}
                     </div>
 
                     {info && (
                       <p className="talento-meta">
                         <span className="talento-ativacao">{SIMBOLO_ATIVACAO[info.ativacao]}</span>
-                        {' · Pré-requisitos: '}
-                        {info.preRequisitos}
+                        {' · '}
+                        {t(tx.talentos.preRequisitos, { texto: info.preRequisitos })}
                       </p>
                     )}
 
                     {info?.descricao ? (
                       <p className="talento-desc">{info.descricao}</p>
                     ) : (
-                      <p className="talento-desc talento-desc-vazia">(ainda sem entrada no catálogo)</p>
+                      <p className="talento-desc talento-desc-vazia">{tx.talentos.semEntradaCatalogo}</p>
                     )}
 
                     {info?.vagas ? (
                       <VagasTalento
-                        talentoId={t.id}
+                        talentoId={tal.id}
                         vagas={info.vagas}
                         ficha={ficha}
                         escolhasTalento={escolhasTalento}
                         definirEscolhaVaga={definirEscolhaVaga}
                       />
                     ) : (
-                      <ConcessaoFixa id={t.id} ficha={ficha} />
+                      <ConcessaoFixa id={tal.id} ficha={ficha} />
                     )}
                   </li>
                 )

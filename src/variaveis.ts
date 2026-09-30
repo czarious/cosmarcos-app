@@ -1,10 +1,11 @@
 /* arquivo: variaveis.ts */
 
 /**
- * VARIÁVEIS DO PROJETO — o que a tela mostra em **palavra** e em **símbolo**.
+ * VARIÁVEIS GLOBAIS — os **símbolos** e a **estrutura** da tela, sem palavra nenhuma.
  *
- * Irmão do `estilos/base.css`: lá mora a **cor e a forma**, aqui o **glifo e a
- * palavra**. Mudou o visual de alguma coisa? Provavelmente é num dos dois.
+ * Três irmãos: aqui o **glifo**; em `estilos/base.css` a **cor e a forma**; em
+ * `idioma/pt.ts` e `idioma/en.ts` a **palavra**, em cada idioma. Mudou o visual
+ * de alguma coisa? Provavelmente é num dos três.
  *
  * ⚠️ ANTES DE ACRESCENTAR ALGO AQUI — as duas regras, e o porquê delas está
  * em escopo/premissas.md → "O que vira variável":
@@ -34,6 +35,8 @@ export const ICONE = {
   graduacaoTalento: '◎',
   /** Marca de talento-chave da trilha (o ★ do Shards). */
   talentoChave: '★',
+  /** A engrenagem do topo (MenuEngrenagem) — importar, exportar, backup. */
+  menu: '⚙',
 } as const
 
 /**
@@ -55,50 +58,28 @@ export const SIMBOLO_ATIVACAO: Record<Ativacao, string> = {
 }
 
 /**
- * Os 6 atributos em texto. Duas formas porque a tela precisa das duas:
- * `abrev` onde não cabe mais que 3 letras (rótulo do Aprimorado [+1 FOR]) e `nome` nos
- * títulos da aba Perícias e no detalhamento de um total.
- *
- * ⚠️ O **valor** do atributo não mora aqui — vem da ficha. Aqui é só o rótulo.
+ * Símbolo de cada contador da ficha — cabeçalho fixo, popover de ±, custo no
+ * "Usar" da aba Ações. O NOME e os verbos são palavras: moram em idioma/pt.ts →
+ * `recursos` (e o en.ts), e `VERBOS_RECURSO` diz quais.
  */
-export const ATRIBUTO: Record<NomeAtributo, { nome: string; abrev: string }> = {
-  forca: { nome: 'Força', abrev: 'FOR' },
-  velocidade: { nome: 'Velocidade', abrev: 'VEL' },
-  intelecto: { nome: 'Intelecto', abrev: 'INT' },
-  vontade: { nome: 'Vontade', abrev: 'VON' },
-  consciencia: { nome: 'Consciência', abrev: 'CON' },
-  presenca: { nome: 'Presença', abrev: 'PRE' },
+export const SIMBOLO_RECURSO: Record<keyof Personagem['recursos'] | 'cargas', string> = {
+  vida: '♥',
+  foco: '◆',
+  investidura: '✦',
+  cargas: '⚡',
 }
 
 /**
- * Os 3 recursos, com tudo que a tela precisa dizer sobre eles num lugar só:
- * símbolo e abreviação no cabeçalho fixo, nome e verbos no popover de
- * dano/cura (ControleRecurso).
- *
- * Os **verbos mudam por recurso** de propósito: em Vida se toma *dano* e se
- * *cura*; em Foco e Investidura se *gasta* e se *recupera*. É vocabulário de
- * mesa — o jogador não "cura foco".
+ * Os **verbos mudam por contador** de propósito: em Vida se toma *dano* e se
+ * *cura*; em Foco e Investidura se *gasta* e se *recupera*; carga se *recarrega*.
+ * É vocabulário de mesa — o jogador não "cura foco". Valores = chaves de `recursos` no idioma.
  */
-export const RECURSO: Record<
-  keyof Personagem['recursos'],
-  { nome: string; abrev: string; simbolo: string; diminuir: string; aumentar: string }
-> = {
-  vida: { nome: 'Vida', abrev: 'VIDA', simbolo: '♥', diminuir: 'Dano', aumentar: 'Curar' },
-  foco: { nome: 'Foco', abrev: 'FOCO', simbolo: '◆', diminuir: 'Gastar', aumentar: 'Recuperar' },
-  investidura: {
-    nome: 'Investidura',
-    abrev: 'INVEST', // cabeçalho não comporta "Investidura" inteiro
-    simbolo: '✦',
-    diminuir: 'Gastar',
-    aumentar: 'Recuperar',
-  },
-}
-
-/**
- * Cargas de fabrial — mesmo papel do RECURSO, pro popover de ± (ControleRecurso)
- * aberto pela aba Fabriais e pelo ataque de fabrial em Ações.
- */
-export const CARGAS = { nome: 'Cargas', abrev: 'CARGAS', simbolo: '⚡', diminuir: 'Gastar', aumentar: 'Recarregar' }
+export const VERBOS_RECURSO = {
+  vida: ['dano', 'curar'],
+  foco: ['gastar', 'recuperar'],
+  investidura: ['gastar', 'recuperar'],
+  cargas: ['gastar', 'recarregar'],
+} as const
 
 /**
  * Os 3 grupos da ficha oficial — cada um junta uma defesa, dois atributos e
@@ -110,15 +91,10 @@ export const CARGAS = { nome: 'Cargas', abrev: 'CARGAS', simbolo: '⚡', diminui
  * um dia virar conta, vira regra e muda de casa.
  */
 export const GRUPOS_FICHA = [
-  { nome: 'Física', defesa: 'fisica', atribs: ['forca', 'velocidade'], recurso: 'vida' },
-  { nome: 'Cognitiva', defesa: 'cognitiva', atribs: ['intelecto', 'vontade'], recurso: 'foco' },
-  {
-    nome: 'Espiritual',
-    defesa: 'espiritual',
-    atribs: ['consciencia', 'presenca'],
-    recurso: 'investidura',
-  },
-] as const
+  { defesa: 'fisica', atribs: ['forca', 'velocidade'], recurso: 'vida' },
+  { defesa: 'cognitiva', atribs: ['intelecto', 'vontade'], recurso: 'foco' },
+  { defesa: 'espiritual', atribs: ['consciencia', 'presenca'], recurso: 'investidura' },
+] as const // o nome de cada grupo é palavra: idioma/pt.ts → grupos
 
 /**
  * A ordem dos 6 atributos na tela — **derivada** dos grupos acima, nunca
@@ -126,38 +102,3 @@ export const GRUPOS_FICHA = [
  * e podia divergir da ficha oficial sem ninguém notar.
  */
 export const ORDEM_ATRIBUTOS: readonly NomeAtributo[] = GRUPOS_FICHA.flatMap((g) => [...g.atribs])
-
-/**
- * Rótulos de chrome — texto de botão e de aviso que não pertence a nenhuma
- * seção específica. Entram aqui os que aparecem em mais de um ponto da tela
- * ou que o César quis poder trocar numa linha só.
- *
- * Texto de uma aparição só ("carregando a ficha…", "algo quebrou") **não vem
- * pra cá** — fica onde é usado.
- */
-export const ROTULO = {
-  /** Mesmo botão pro export do Shards e pro backup do app — aparece 2× no rodapé. */
-  importarJson: 'Importar JSON',
-  fichaSalva: 'Ficha salva neste aparelho.',
-  /** A gravação falhou (cota cheia, storage bloqueado) — a tela nunca diz "salva" nesse caso. */
-  naoSalvou: 'NÃO salvou neste aparelho — baixe um backup agora.',
-  /** Backup completo do app: ficha + escolhas + JSON do Shards. Volta pelo Importar. */
-  baixarBackup: 'Baixar backup',
-  backupBaixado: 'Backup baixado — guarde o arquivo. Ele volta pelo Importar.',
-  /** Aviso fixo quando o save deste aparelho não abriu (foi pra quarentena). */
-  saveNaoAbriu: 'O save deste aparelho não abriu',
-  baixarDescartado: 'Baixar o save que não abriu',
-  entendi: 'Entendi',
-  /** Baixa o JSON que o Shards importa (Files → Import JSON). */
-  exportarJson: 'Exportar pro Shards',
-  exportado: 'Baixado — no Shards: Files → Import JSON.',
-  /** Save antigo, sem o JSON original guardado: exportar precisa de uma importação antes. */
-  exportarSemSemente: 'Importe o JSON do Shards uma vez antes de exportar.',
-  /** Aviso antes de importar: importar sobrescreve tudo, sem fusão. */
-  importarApaga: 'apaga tudo',
-  cancelar: 'Cancelar',
-  /** Bônus que o Shards exportou mas o app não soube ligar a um talento. */
-  bonusSemOrigem: 'Talento não identificado (do Shards)',
-  /** `aria-label` dos ✕ — leitor de tela precisa de palavra, não de glifo. */
-  fechar: 'Fechar',
-} as const

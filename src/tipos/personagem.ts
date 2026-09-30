@@ -240,6 +240,8 @@ export type Personagem = {
 
   armas: Arma[]
   itens: Item[]
+  /** O "Equipment" do Shards: texto livre, uma coisa por linha (amuleto, telepena…). Editável no Inventário. */
+  equipamentoTexto: string
   fabriais: Fabrial[]
   marcos: number // a moeda
 

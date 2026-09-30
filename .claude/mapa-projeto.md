@@ -47,6 +47,7 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | `escopo/jogadores.md` | De-para jogador → personagem e contato da mesa. **Não versionado** — nome de pessoa não vai pro repo público |
 | [`escopo/notas-do-livro.md`](../escopo/notas-do-livro.md) | Índice das notas `📌 Para o app` da transcrição |
 | [`escopo/conferencia-formulas.md`](../escopo/conferencia-formulas.md) | Verificações das fórmulas contra a ficha real do Eccho (movidas da transcrição) |
+| [`escopo/checklist-shards.md`](../escopo/checklist-shards.md) | Tudo o que o Shards faz × o que o app faz — ✅ 🔶 ❌ ➖ por tela |
 | [`escopo/premissas.md`](../escopo/premissas.md) | **Toda decisão de arquitetura**, numa página só — vigente, sobrescrita quando muda. Inclui "Descartado — não repropor" |
 | [`referencia/README.md`](../referencia/README.md) | Explica a pasta `referencia/` — material de consulta, no `.gitignore` |
 | `referencia/ddb/` | Prints de referência de interface, de consulta do César. **Não versionado** (gitignore) — interface de terceiro, nunca sobe |
@@ -90,7 +91,7 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | `escopo/roadmap.md` | `CLAUDE.md` → "Roadmap" | Lá só tem ponteiro + estado atual; confirmar que o estado ainda bate |
 | **Qualquer arquivo criado/movido/apagado** | **este mapa** | Regra de manutenção — ver "Checklist" |
 | **Estrutura, pastas, onde um doc mora** | [`.claude/organizacao.md`](organizacao.md) | É lá que moram a regra do CLAUDE.md, os gatilhos de refatoração e a revisão periódica |
-| **Um iPhone entrar na mesa** | [premissas](../escopo/premissas.md) → "PWA, sem loja de apps" · [premissas](../escopo/premissas.md) → "localStorage, sem servidor" | O Safari apaga storage após ~7 dias sem uso, e as sessões são quinzenais — a ficha sumiria entre sessões |
+| **Um iPhone entrar na mesa** | [premissas](../escopo/premissas.md) → "PWA, sem loja de apps" · [premissas](../escopo/premissas.md) → "localStorage, sem servidor" | No iPhone só vale o app instalado na Tela de Início (o site no Safari perde o save em ~7 dias) — detalhe na premissa |
 
 ### Dependências do código
 

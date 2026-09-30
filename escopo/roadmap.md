@@ -19,6 +19,7 @@
 | 1.3 | ✅ **Foco e Investidura** | **O mesmo componente da 1.2** (`ControleRecurso`), usado nos 3 recursos | ✅ Toco no Foco, ▼: 4 → 3. Labels viram "Gastar/Recuperar" |
 | **1.4** | ✅ **Lista de Perícias** | 18 perícias agrupadas por atributo, com a bolinha de graduação e o total **CALCULADO** (`regras/calculos.ts`) | ✅ Dedução com ◎ e **+7 calculado**, batendo com o Shards; as 18 conferidas contra a fórmula |
 | 1.5 | 🔶 **Condições e buffs** | Aba Condições: as 14 do livro com checkbox; colchetes pedem o valor; Aprimorado/Exausto entram no total da perícia, Lento/Imobilizado no movimento, Atordoado/Surpreendido nas ações do turno. Faixa no cabeçalho em qualquer aba | Marco "Atordoado", ele aparece no cabeçalho e "Agora" mostra 1 ▶ no turno lento; desmarco, some |
+| 1.6 | 🔶 **Rastreador de turno** | Aba Ações: iniciar combate, turno rápido (2 ▶) ou lento (3 ▶) menos o que as condições tiram, 1 ↻. Toda ação da ficha (ataques, fluxos, Luz, padrão, reações, fabriais, espreno) tem "Usar": gasta ▶/↻ e paga Foco, Investidura ou carga na hora; o que não cabe fica apagado com o motivo. Aplica o efeito: Inspirar enche a Investidura, Aprimorar põe Aprimorado e pergunta se mantém no fim do turno, Restaurar e Recuperar pedem o dado rolado. Surpreendido sai no fim do turno; Potencializado enche a Investidura no começo. Guia de cada fluxo (CD, custo por tamanho). Regra: `10-combate/01-ordem-de-combate.md` e `02-acoes-e-reacoes.md` — o Cosmere não tem iniciativa | Inicio o combate, turno lento, Golpear: sobram 2 ▶. Inspirar: Investidura cheia e 0 ▶; Aprimorar fica apagado ("faltam ▶"). Esquivar fora do turno: −1 Foco e o ↻ apaga |
 
 **Pronta quando:** o César joga uma sessão inteira só com o celular na mão e o dado na outra, sem abrir o PDF nem o Shards.
 
@@ -50,6 +51,7 @@
 | 3.2 | ✅ **Fabriais com cargas** | Aba Fabriais: gasto e recupero carga (± , Investidura, grantormenta); monto fabrial único com as opções do livro; o PROJÉTIL gasta carga em Ações |
 | 3.3 | 🔶 **Lesões com contagem de dias** | Temporária conta dias; permanente não some sozinha. Rolagem guiada (d20 + deflexão − 5 por lesão → gravidade), efeito d8 vira condição. Junto: **descanso** curto e longo |
 | 3.4 | 🔶 **Personagem e Radiante** | Aba Personagem: objetivos com 3 marcos + concluir/adicionar/apagar, identidade, propósito, obstáculo, personalidade, conexões. Aba Radiante: vínculo, Ideais com marcos e "Dizer as Palavras", fluxos com total. Os dois voltam no "Exportar pro Shards" | Marco um marco em "Achar Assassino de Kavel", fecho e reabro: continua marcado. No 2º Ideal, marco os 3 e aparece "Dizer as Palavras" |
+| 3.5 | 🔶 **Pertences em texto livre** | Inventário → Pertences: o "Equipment notes" do Shards, editável, volta no "Exportar pro Shards" | Vejo "Amuleto de Sorte" e a telepena; edito, exporto, e o Shards mostra o texto novo |
 
 > ✅ **Respondido (12/Set/2026): ZERA.** Importar sobrescreve a ficha inteira, sem fusão — o app é dono da ficha depois da importação, e trazer um JSON desatualizado é perda de dado assumida por quem importa. O 3.1 é só a interface de escolher o arquivo; a semântica já está no item 2.3. Ver [premissas](premissas.md) → "O Shards é SEMENTE; o app é dono da ficha".
 
@@ -64,6 +66,7 @@
 | 4.2 | **Log de sessão** | Histórico do que rolei/gastei na sessão |
 | 4.3 | **Reordenar seções** | Escolho a ordem e ela persiste |
 | 4.4 | **Multi-personagem** | Troco entre fichas da mesa. *Quase de graça: o JSON já vem como `characters: []`* |
+| 4.5 | 🔶 **Idioma inglês** — 1ª etapa feita (botões, títulos, nomes do jogo); 2ª etapa: as descrições de regra. Como: [premissas](premissas.md) → "Textos em variáveis, um arquivo por idioma" | Engrenagem → English: abas, botões e nomes (Deduction, Strike, Stunned) em inglês; o que eu escrevi continua como escrevi |
 
 > 📌 **O 4.0 desceu da Fase 1** em 16/Jul/2026 — **o dado é rolado na mão** ([premissas](premissas.md) → "O dado é rolado na mão"). A spec está inteira e pronta; é só implementar quando chegar a vez. **As perguntas 1 a 4 daqui de baixo existem só por causa dele** — por isso deixaram de bloquear qualquer coisa.
 
@@ -168,12 +171,10 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 
 | Ideia | Nota |
 |---|---|
-| **Usar a ação e já pagar o custo** | O texto das ações (Mancha, Luz, reações de 1 foco) já está na aba Ações — pergunta 9. Falta o toque que desconta o Foco/Investidura na hora, sem ir no topo |
 | **Base de regras Cosmere própria** | Evolução natural da [premissas](premissas.md) → "Ler primeiro, calcular depois": conforme o livro for transcrito, PROVISÓRIO vira FIXO calculado. **Não é pré-requisito de nada** — o Shards já entrega as contas prontas |
 | Descanso e dado de recuperação | 🔶 Entrou junto com o 3.3 (aba Condições). Pelo livro o descanso recupera **Vida e Foco**, não Investidura — Investidura volta por Inspirar Luz das Tempestades |
 | Exportar estado / backup manual | Contra perder tudo se limpar o navegador. Cresce de importância se a Fase 5 não sair |
 | Marcos (moeda) — gastar/ganhar | ✅ `resources.marks` = 65. Baixa prioridade na mesa |
-| Iniciativa | Confirmar se o Cosmere usa e como |
 | Especializações na tela | ✅ `expertises[]` — o Eccho tem 4 |
 
 ---
@@ -208,9 +209,9 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 | Pergunta | Resposta | Fonte |
 |---|---|---|
 | ~~Quais **valores** do d6 dão Oportunidade/Complicação?~~ | **Pergunta errada.** Não são valores, são **símbolos**: 2 branco · 2 Oportunidade · 2 Complicação (+2 e +4) | [Dungeon Mister](https://dungeonmister.com/cosmere-rpg/plot-die-in-cosmere-rpg/) + César |
-| ~~Vantagem é 2d20 pega-o-melhor, como no D&D?~~ | **Não.** É rerrolagem de qualquer dado, gastando recurso contável | César + [Wargamer](https://www.wargamer.com/cosmere-rpg/review); *"ganha **uma** vantagem"* nas transcrições do Alternauta |
+| ~~Vantagem é 2d20 pega-o-melhor, como no D&D?~~ | ~~Não, é rerrolagem~~ → **derrubada pelo livro** (pág. 58): rola 2, escolhe um — ver pergunta 1 | Livro ✓ (antes: César + [Wargamer](https://www.wargamer.com/cosmere-rpg/review)) |
 | ~~Vantagem e desvantagem se anulam?~~ | **Sim, 1 a 1.** Vale o líquido | César + [Wargamer](https://www.wargamer.com/cosmere-rpg/review) |
 | ~~Vantagem vale no Dado de Trama?~~ | **Sim** | César |
-| ~~Vantagens múltiplas podem ir no **mesmo dado**?~~ | **Sim.** ⚠️ Contraria o Wargamer (*"must be used on different dice"*) — vale o César até o livro desempatar | César |
+| ~~Vantagens múltiplas podem ir no **mesmo dado**?~~ | ~~Sim~~ → **derrubada pelo livro** (pág. 58): cada vantagem vai num dado diferente — ver pergunta 1 | Livro ✓ (antes: César) |
 | ~~O JSON do Shards bate com o schema?~~ | **Não — quase nada batia.** O schema vinha do PDF. Reescrito contra o export real | Export `stormlight-characters-2026-07-03.json` |
 | ~~Estado vivo nasce só no app?~~ | **Não.** O Shards manda `conditions`, `injuries`, `rollLog`, `healthCur`, `focusCur` | Export real |

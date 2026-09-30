@@ -1,7 +1,8 @@
 /* arquivo: ControleRecurso.tsx */
 import { useState } from 'react'
 import type { Recurso } from '../tipos/personagem'
-import { ICONE, ROTULO } from '../variaveis'
+import { ICONE, SIMBOLO_RECURSO, VERBOS_RECURSO } from '../variaveis'
+import { useIdioma } from '../idioma/IdiomaContexto'
 
 // Popover que abre ao tocar num recurso do cabeçalho. Duas formas de mexer:
 //   − e + grandes  → ±1 (o caso comum: 1 de foco, 1 de investidura)
@@ -9,19 +10,23 @@ import { ICONE, ROTULO } from '../variaveis'
 // Trava em 0 e no máximo (a trava mora no hook; aqui é só a UI).
 //
 // Serve a qualquer contador atual/máximo: os 3 recursos do cabeçalho e as
-// cargas de fabrial. Nome, símbolo e os verbos ("Dano/Curar" ×
-// "Gastar/Recarregar") vêm de quem chama — RECURSO e CARGAS no variaveis.ts.
+// cargas de fabrial. Quem chama diz QUAL é; o símbolo e os verbos ("Dano/Curar"
+// × "Gastar/Recarregar") saem de variaveis.ts, a palavra, do idioma.
 
-export type RotuloContador = { nome: string; simbolo: string; diminuir: string; aumentar: string }
+export type Contador = keyof typeof VERBOS_RECURSO
 
 type Props = {
-  rotulo: RotuloContador
+  qual: Contador
+  /** Complemento do título — o nome do fabrial, nas cargas. */
+  de?: string
   recurso: Recurso
   alterar: (delta: number) => void
   aoFechar: () => void
 }
 
-export default function ControleRecurso({ rotulo: rec, recurso, alterar, aoFechar }: Props) {
+export default function ControleRecurso({ qual, de, recurso, alterar, aoFechar }: Props) {
+  const { t, tx } = useIdioma()
+  const [diminuir, aumentar] = VERBOS_RECURSO[qual]
   const [valor, setValor] = useState('')
 
   const n = Math.abs(parseInt(valor, 10)) || 0
@@ -37,9 +42,10 @@ export default function ControleRecurso({ rotulo: rec, recurso, alterar, aoFecha
       <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
           <span className="cr-titulo">
-            <span className="cr-simbolo">{rec.simbolo}</span> {rec.nome}
+            <span className="cr-simbolo">{SIMBOLO_RECURSO[qual]}</span> {tx.recursos[qual]}
+            {de && ` — ${de}`}
           </span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label={ROTULO.fechar}>
+          <button className="cr-fechar" onClick={aoFechar} aria-label={tx.geral.fechar}>
             {ICONE.fechar}
           </button>
         </div>
@@ -50,7 +56,7 @@ export default function ControleRecurso({ rotulo: rec, recurso, alterar, aoFecha
             className="cr-passo"
             onClick={() => alterar(-1)}
             disabled={recurso.atual <= 0}
-            aria-label="Menos um"
+            aria-label={t(tx.recurso.menos)}
           >
             −
           </button>
@@ -62,7 +68,7 @@ export default function ControleRecurso({ rotulo: rec, recurso, alterar, aoFecha
             className="cr-passo"
             onClick={() => alterar(+1)}
             disabled={recurso.atual >= recurso.max}
-            aria-label="Mais um"
+            aria-label={t(tx.recurso.mais)}
           >
             +
           </button>
@@ -74,17 +80,17 @@ export default function ControleRecurso({ rotulo: rec, recurso, alterar, aoFecha
           type="number"
           inputMode="numeric"
           min={0}
-          placeholder="quantidade"
+          placeholder={t(tx.recurso.quantidade)}
           value={valor}
           onChange={(e) => setValor(e.target.value)}
           autoFocus
         />
         <div className="cr-aplicar">
           <button className="cr-btn cr-menos" onClick={() => aplicar(-1)} disabled={n === 0}>
-            − {rec.diminuir}
+            − {tx.recursos[diminuir]}
           </button>
           <button className="cr-btn cr-mais" onClick={() => aplicar(+1)} disabled={n === 0}>
-            + {rec.aumentar}
+            + {tx.recursos[aumentar]}
           </button>
         </div>
       </div>

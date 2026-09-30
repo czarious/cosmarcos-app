@@ -10,7 +10,8 @@ import {
   avisosFabrial,
   usosDoFabrial,
 } from '../../regras/fabriais'
-import { CARGAS, RECURSO } from '../../variaveis'
+import { SIMBOLO_RECURSO } from '../../variaveis'
+import { useIdioma } from '../../idioma/IdiomaContexto'
 import ControleRecurso from '../ControleRecurso'
 import FormularioFabrial from '../FormularioFabrial'
 
@@ -29,6 +30,7 @@ type Props = {
 }
 
 function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Personagem; props: Props; aoEditar: () => void }) {
+  const { t, tx, nome, msg } = useIdioma()
   const [recolhido, setRecolhido] = useState(false)
   const [cargasAbertas, setCargasAbertas] = useState(false)
   const padrao = f.tipo === 'padrao' ? fabrialPadrao(f.modelo) : undefined
@@ -40,8 +42,8 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
 
   const etiqueta =
     f.tipo === 'padrao'
-      ? 'Padrão'
-      : [efeito ? `Patamar ${efeito.patamar}` : 'Único', f.qualidade && QUALIDADE[f.qualidade].nome].filter(Boolean).join(' · ')
+      ? tx.fabriais.padrao
+      : [efeito ? t(tx.fabriais.patamarN, { n: efeito.patamar }) : tx.fabriais.unico, f.qualidade && nome(QUALIDADE[f.qualidade].nome)].filter(Boolean).join(' · ')
 
   return (
     <li className={`anotacao fab-cartao${recolhido ? ' anotacao-recolhida' : ''}`}>
@@ -49,13 +51,13 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
         <button className="fab-titulo-botao" onClick={() => setRecolhido(!recolhido)}>
           <span className="anotacao-seta">{recolhido ? '▸' : '▾'}</span>
           <span className="anotacao-titulo">
-            {f.nome}
+            {nome(f.nome)}
             <i className="fab-etiqueta">{etiqueta}</i>
           </span>
         </button>
         {!ilimitado && (
-          <button className="fab-cargas-botao" onClick={() => setCargasAbertas(true)} aria-label={`Cargas de ${f.nome}`}>
-            {CARGAS.simbolo} {f.cargas.atual}
+          <button className="fab-cargas-botao" onClick={() => setCargasAbertas(true)} aria-label={t(tx.fabriais.cargasDe, { nome: nome(f.nome) })}>
+            {SIMBOLO_RECURSO.cargas} {f.cargas.atual}
             <small>/{f.cargas.max}</small>
           </button>
         )}
@@ -66,7 +68,7 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
           {padrao && (
             <>
               <p>{padrao.resumo}</p>
-              <p className="fab-regra">Gasto: {padrao.gasto}</p>
+              <p className="fab-regra">{t(tx.fabriais.gasto, { gasto: padrao.gasto })}</p>
             </>
           )}
           {efeito && (
@@ -78,13 +80,13 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
 
           {f.aprimoramentos.length > 0 && (
             <div className="fab-lista">
-              <h4>Aprimoramentos</h4>
+              <h4>{tx.fabriais.aprimoramentos}</h4>
               <ul>
                 {f.aprimoramentos.map((id) => {
                   const d = descreverOpcao(id, efeito, 'aprimoramento')
                   return (
                     <li key={id}>
-                      <b>{d.nome}</b>
+                      <b>{nome(d.nome)}</b>
                       {d.resumo && <> — {d.resumo}</>}
                     </li>
                   )
@@ -94,13 +96,13 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
           )}
           {f.revezes.length > 0 && (
             <div className="fab-lista fab-lista-reves">
-              <h4>Revezes</h4>
+              <h4>{tx.fabriais.revezes}</h4>
               <ul>
                 {f.revezes.map((id) => {
                   const d = descreverOpcao(id, efeito, 'reves')
                   return (
                     <li key={id}>
-                      <b>{d.nome}</b>
+                      <b>{nome(d.nome)}</b>
                       {d.resumo && <> — {d.resumo}</>}
                     </li>
                   )
@@ -110,14 +112,14 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
           )}
 
           {(f.gema || f.material) && (
-            <p className="fab-regra">{[f.gema && `Gema: ${f.gema}`, f.material && `Material: ${f.material}`].filter(Boolean).join(' · ')}</p>
+            <p className="fab-regra">{[f.gema && t(tx.fabriais.gema, { gema: f.gema }), f.material && t(tx.fabriais.material, { material: f.material })].filter(Boolean).join(' · ')}</p>
           )}
           {f.notas && <p className="fab-notas">{f.notas}</p>}
 
           {avisos.length > 0 && (
             <ul className="fab-avisos">
               {avisos.map((a) => (
-                <li key={a}>⚠️ {a}</li>
+                <li key={msg(a)}>⚠️ {msg(a)}</li>
               ))}
             </ul>
           )}
@@ -125,7 +127,7 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
           <div className="fab-botoes">
             {usosDoFabrial(f).map((u) => (
               <button key={u.rotulo} className="cr-btn cr-menos" disabled={f.cargas.atual < u.custo} onClick={() => props.alterarCargas(f.id, -u.custo)}>
-                {u.rotulo} (−{u.custo} {CARGAS.simbolo})
+                {nome(u.rotulo)} (−{u.custo} {SIMBOLO_RECURSO.cargas})
               </button>
             ))}
             {!ilimitado && (
@@ -135,16 +137,16 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
                 onClick={() => props.recarregarComInvestidura(f.id)}
                 title={RECARGA.descansoCurto}
               >
-                +1 {CARGAS.simbolo} com Investidura ({RECURSO.investidura.simbolo} {investidura.atual})
+                {t(tx.fabriais.recarregarInvestidura, { carga: SIMBOLO_RECURSO.cargas, simbolo: SIMBOLO_RECURSO.investidura, n: investidura.atual })}
               </button>
             )}
           </div>
           <div className="fab-botoes fab-botoes-edicao">
-            <button className="anotacao-botao" onClick={aoEditar} aria-label={`Editar ${f.nome}`}>
-              ✏️ Editar
+            <button className="anotacao-botao" onClick={aoEditar} aria-label={t(tx.geral.editarNome, { nome: nome(f.nome) })}>
+              {tx.fabriais.editar}
             </button>
-            <button className="anotacao-botao" onClick={() => props.removerFabrial(f.id)} aria-label={`Excluir ${f.nome}`}>
-              🗑️ Excluir
+            <button className="anotacao-botao" onClick={() => props.removerFabrial(f.id)} aria-label={t(tx.geral.excluirNome, { nome: nome(f.nome) })}>
+              {tx.fabriais.excluir}
             </button>
           </div>
         </div>
@@ -152,7 +154,8 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
 
       {cargasAbertas && (
         <ControleRecurso
-          rotulo={{ ...CARGAS, nome: `${CARGAS.nome} — ${f.nome}` }}
+          qual="cargas"
+          de={nome(f.nome)}
           recurso={f.cargas}
           alterar={(delta) => props.alterarCargas(f.id, delta)}
           aoFechar={() => setCargasAbertas(false)}
@@ -164,6 +167,7 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
 
 export default function Fabriais(props: Props) {
   const { ficha } = props
+  const { tx } = useIdioma()
   const [editando, setEditando] = useState<Fabrial | null>(null)
   const [criando, setCriando] = useState(false)
 
@@ -171,10 +175,10 @@ export default function Fabriais(props: Props) {
     <div className="secao fabriais">
       <div className="fab-topo">
         <button className="botao-gerenciar" onClick={() => setCriando(true)}>
-          + Novo Fabrial
+          {tx.fabriais.novoFabrial}
         </button>
         <button className="botao-gerenciar" onClick={props.recarregarTodos} title={RECARGA.grantormenta}>
-          🌩️ Grantormenta
+          {tx.fabriais.grantormenta}
         </button>
       </div>
       <p className="fab-regra">
@@ -182,7 +186,7 @@ export default function Fabriais(props: Props) {
       </p>
 
       {ficha.fabriais.length === 0 ? (
-        <p className="proximo">Nenhum fabrial — toque em "+ Novo Fabrial".</p>
+        <p className="proximo">{tx.fabriais.nenhumFabrial}</p>
       ) : (
         <ul className="lista-anotacoes">
           {ficha.fabriais.map((f) => (

@@ -52,7 +52,7 @@ type Personagem = {
     id; nome; atributo;          // key / name / trait
     graduacao;                   // rank (0–2 até o nv 5)
     graduacaoBonus; misc;        // componentes que o Shards manda
-    total;                       // ⚠️ DIGITADO pelo César — o Shards não manda. Ver "O que o Shards NÃO dá"
+    // SEM total, de propósito: quem calcula é regras/calculos.ts
   }>;
 
   especializacoes: Array<{ tipo: 'arma' | 'armadura' | 'cultural' | 'utilidade' | 'perito'; nome }>; // as 5 do livro
@@ -65,6 +65,7 @@ type Personagem = {
 
   armas: Array<{ ... }>;         // ⚠️ derivado: inventory.items com type: "weapon"
   itens: Array<{ nome; tipo; qtd; peso; equipado; tracos: string[] }>;
+  equipamentoTexto: string;      // ← equipment: texto livre ("Equipment notes" na tela do Shards); volta no export
   fabriais: Array<{ id; nome; tipo: 'padrao' | 'unico'; modelo?; cargas: { atual; max };
                    qualidade?; aprimoramentos: id[]; revezes: id[]; gema?; material?; notas? }>; // ids: regras/fabriais.ts
   marcos: number;                                                 // moeda
@@ -85,8 +86,8 @@ type Personagem = {
   };
 
   // estado vivo — ⚠️ o Shards TAMBÉM manda estes campos. Ver "Ficha × estado vivo"
-  condicoes: Array<{ nome; duracao }>;
-  lesoes: Array<{ tipo: 'temporaria' | 'permanente'; descricao; diasRestantes? }>;
+  condicoes: Array<{ uid; id: IdCondicao; valor?; atributo?; dano?; nota? }>;      // as 14 do livro — regras/condicoes.ts
+  lesoes: Array<{ uid; gravidade; efeito; descricao?; diasRestantes? }>;
 };
 
 type Ativacao = '1acao' | '2acoes' | '3acoes' | 'livre' | 'reacao' | 'especial' | 'sempre';

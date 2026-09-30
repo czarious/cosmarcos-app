@@ -17,6 +17,7 @@
 
 import type { Personagem, Pericia, NomeAtributo, Condicao, Lesao, IdCondicao, EfeitoLesao, GravidadeLesao } from '../tipos/personagem'
 import type { ParcelaBonus } from './calculos'
+import type { Mensagem } from '../idioma/pt'
 
 type DefCondicao = {
   id: IdCondicao
@@ -66,21 +67,21 @@ export function defCondicao(id: IdCondicao): DefCondicao {
 // ── lesões ────────────────────────────────────────────────────────────
 
 /** Efeitos de lesão da tabela d8 — cada um vira condição, menos "uma mão" e o livre. */
-export const EFEITOS_LESAO: { id: EfeitoLesao; nome: string; d8: string; condicao?: Omit<Condicao, 'uid'> }[] = [
-  { id: 'exausto-1', nome: 'Exausto [−1]', d8: '1–2', condicao: { id: 'exausto', valor: 1 } },
-  { id: 'exausto-2', nome: 'Exausto [−2]', d8: '3', condicao: { id: 'exausto', valor: 2 } },
-  { id: 'lento', nome: 'Lento', d8: '4–5', condicao: { id: 'lento' } },
-  { id: 'desorientado', nome: 'Desorientado', d8: '6', condicao: { id: 'desorientado' } },
-  { id: 'surpreendido', nome: 'Surpreendido', d8: '7', condicao: { id: 'surpreendido' } },
-  { id: 'uma-mao', nome: 'Só pode usar uma mão', d8: '8' },
-  { id: 'outro', nome: 'Outro (combinado com o Mestre)', d8: '—' },
+export const EFEITOS_LESAO: { id: EfeitoLesao; nome: string; nomeEn: string; d8: string; condicao?: Omit<Condicao, 'uid'> }[] = [
+  { id: 'exausto-1', nome: 'Exausto [−1]', nomeEn: 'Exhausted [−1]', d8: '1–2', condicao: { id: 'exausto', valor: 1 } },
+  { id: 'exausto-2', nome: 'Exausto [−2]', nomeEn: 'Exhausted [−2]', d8: '3', condicao: { id: 'exausto', valor: 2 } },
+  { id: 'lento', nome: 'Lento', nomeEn: 'Slowed', d8: '4–5', condicao: { id: 'lento' } },
+  { id: 'desorientado', nome: 'Desorientado', nomeEn: 'Disoriented', d8: '6', condicao: { id: 'desorientado' } },
+  { id: 'surpreendido', nome: 'Surpreendido', nomeEn: 'Surprised', d8: '7', condicao: { id: 'surpreendido' } },
+  { id: 'uma-mao', nome: 'Só pode usar uma mão', nomeEn: 'Can only use one hand', d8: '8' },
+  { id: 'outro', nome: 'Outro (combinado com o Mestre)', nomeEn: 'Other (agreed with the GM)', d8: '—' },
 ]
 
-export const GRAVIDADE: Record<GravidadeLesao, { nome: string; duracao: string; faixa: string }> = {
-  superficial: { nome: 'Superficial', duracao: 'até o próximo descanso longo', faixa: '16+' },
-  leve: { nome: 'Leve', duracao: '1d6 dias', faixa: '6 a 15' },
-  grave: { nome: 'Grave', duracao: '6d6 dias', faixa: '1 a 5' },
-  permanente: { nome: 'Permanente', duracao: 'só cura por meio sobrenatural', faixa: '−5 a 0' },
+export const GRAVIDADE: Record<GravidadeLesao, { nome: string; nomeEn: string; duracao: string; duracaoEn: string; faixa: string }> = {
+  superficial: { nome: 'Superficial', nomeEn: 'Shallow', duracao: 'até o próximo descanso longo', duracaoEn: 'until your next long rest', faixa: '16+' },
+  leve: { nome: 'Leve', nomeEn: 'Minor', duracao: '1d6 dias', duracaoEn: '1d6 days', faixa: '6 a 15' },
+  grave: { nome: 'Grave', nomeEn: 'Serious', duracao: '6d6 dias', duracaoEn: '6d6 days', faixa: '1 a 5' },
+  permanente: { nome: 'Permanente', nomeEn: 'Permanent', duracao: 'só cura por meio sobrenatural', duracaoEn: 'only heals by supernatural means', faixa: '−5 a 0' },
 }
 
 /**
@@ -88,8 +89,9 @@ export const GRAVIDADE: Record<GravidadeLesao, { nome: string; duracao: string; 
  * que já existe. Talento que mexe nisso não está aqui — o jogador soma à mão.
  */
 export function modificadorRolagemLesao(ficha: Personagem): { total: number; linhas: ParcelaBonus[] } {
-  const linhas: ParcelaBonus[] = [{ origem: 'Deflexão', valor: ficha.deflect }]
-  if (ficha.lesoes.length > 0) linhas.push({ origem: `${ficha.lesoes.length} lesão(ões) × −5`, valor: -5 * ficha.lesoes.length })
+  const linhas: ParcelaBonus[] = [{ origem: { texto: (d) => d.geral.deflexao }, valor: ficha.deflect }]
+  const n = ficha.lesoes.length
+  if (n > 0) linhas.push({ origem: { texto: (d) => d.detalhe.lesoesVezes5, vars: { n } }, valor: -5 * n })
   return { total: linhas.reduce((s, l) => s + l.valor, 0), linhas }
 }
 
@@ -173,7 +175,8 @@ export function movimentoPelaVelocidade(velocidade: number): number {
  * talento) e soma só a DIFERENÇA que o Aprimorado de Velocidade causa na
  * tabela — assim nenhum bônus de talento se perde.
  */
-export function movimentoComCondicoes(ficha: Personagem): { metros: number; motivo?: string } {
+/** `motivos`: nomes das condições que mexeram (vazio = movimento normal). */
+export function movimentoComCondicoes(ficha: Personagem): { metros: number; motivos: string[] } {
   const efetivas = condicoesEfetivas(ficha)
   const base = parseFloat(ficha.derivados.movimento.replace(',', '.')) || 0
   const vel = ficha.atributos.velocidade + ficha.atributosMod.velocidade
@@ -181,23 +184,23 @@ export function movimentoComCondicoes(ficha: Personagem): { metros: number; moti
   let metros = base + (extra ? movimentoPelaVelocidade(vel + extra) - movimentoPelaVelocidade(vel) : 0)
   const motivos: string[] = extra ? ['Aprimorado'] : []
   const zera = (['imobilizado', 'inconsciente', 'restringido'] as IdCondicao[]).find((id) => tem(efetivas, id))
-  if (zera) return { metros: 0, motivo: defCondicao(zera).nome }
+  if (zera) return { metros: 0, motivos: [defCondicao(zera).nome] }
   const metade = (['lento', 'prostrado'] as IdCondicao[]).find((id) => tem(efetivas, id))
   if (metade) {
     metros = metros / 2
     motivos.push(defCondicao(metade).nome)
   }
-  return { metros, motivo: motivos.join(' · ') || undefined }
+  return { metros, motivos }
 }
 
 /** Ações e reação no próximo turno, rápido e lento (2/3 ▶ + 1 ↻, menos o que as condições tiram). */
-export function acoesNoTurno(ficha: Personagem): { rapido: number | null; lento: number; reacao: boolean; motivos: string[] } {
+export function acoesNoTurno(ficha: Personagem): { rapido: number | null; lento: number; reacao: boolean; motivos: Mensagem[] } {
   const efetivas = condicoesEfetivas(ficha)
-  const motivos: string[] = []
-  if (tem(efetivas, 'inconsciente')) return { rapido: null, lento: 0, reacao: false, motivos: ['Inconsciente'] }
+  const motivos: Mensagem[] = []
+  if (tem(efetivas, 'inconsciente')) return { rapido: null, lento: 0, reacao: false, motivos: [{ texto: (d) => d.regras.inconsciente }] }
   let menos = 0
-  if (tem(efetivas, 'atordoado')) { menos += 2; motivos.push('Atordoado −2 ▶') }
-  if (tem(efetivas, 'surpreendido')) { menos += 1; motivos.push('Surpreendido −1 ▶, sem turno rápido') }
+  if (tem(efetivas, 'atordoado')) { menos += 2; motivos.push({ texto: (d) => d.regras.atordoadoMenos2 }) }
+  if (tem(efetivas, 'surpreendido')) { menos += 1; motivos.push({ texto: (d) => d.regras.surpreendidoMenos1 }) }
   const semReacao = (['atordoado', 'desorientado', 'surpreendido'] as IdCondicao[]).filter((id) => tem(efetivas, id))
   return {
     rapido: tem(efetivas, 'surpreendido') ? null : Math.max(0, 2 - menos),
@@ -208,14 +211,16 @@ export function acoesNoTurno(ficha: Personagem): { rapido: number | null; lento:
 }
 
 /** Lembretes do que a mesa costuma esquecer, pra cada condição ativa que precisa de lembrete. */
-export function lembretes(ficha: Personagem): string[] {
+export function lembretes(ficha: Personagem): Mensagem[] {
   const efetivas = condicoesEfetivas(ficha)
-  const r: string[] = []
-  for (const c of efetivas.filter((x) => x.id === 'afligido')) r.push(`Fim do seu turno: sofra ${c.dano || 'o dano da aflição'}.`)
-  if (tem(efetivas, 'focado')) r.push('Focado: habilidade que custa foco sai 1 mais barata.')
-  if (tem(efetivas, 'potencializado')) r.push('Potencializado: encha a Investidura no início de cada turno seu.')
-  if (tem(efetivas, 'determinado')) r.push('Determinado: falhou um teste? Pode somar uma Oportunidade (e a condição acaba).')
-  if (tem(efetivas, 'prostrado')) r.push('Prostrado: corpo a corpo contra você tem vantagem. Levantar custa ▷.')
-  if (ficha.lesoes.some((l) => l.efeito === 'uma-mao')) r.push('Lesão: só pode usar uma mão.')
+  const r: Mensagem[] = []
+  for (const c of efetivas.filter((x) => x.id === 'afligido')) {
+    r.push(c.dano ? { texto: (d) => d.regras.fimTurnoSofra, vars: { dano: c.dano } } : { texto: (d) => d.regras.fimTurnoSofraAflicao })
+  }
+  if (tem(efetivas, 'focado')) r.push({ texto: (d) => d.regras.lembreteFocado })
+  if (tem(efetivas, 'potencializado')) r.push({ texto: (d) => d.regras.lembretePotencializado })
+  if (tem(efetivas, 'determinado')) r.push({ texto: (d) => d.regras.lembreteDeterminado })
+  if (tem(efetivas, 'prostrado')) r.push({ texto: (d) => d.regras.lembreteProstrado })
+  if (ficha.lesoes.some((l) => l.efeito === 'uma-mao')) r.push({ texto: (d) => d.regras.lembreteUmaMao })
   return r
 }

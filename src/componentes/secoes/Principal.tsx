@@ -1,6 +1,7 @@
 /* arquivo: Principal.tsx */
 import type { Personagem, NomeAtributo } from '../../tipos/personagem'
-import { ATRIBUTO, GRUPOS_FICHA } from '../../variaveis'
+import { GRUPOS_FICHA } from '../../variaveis'
+import { useIdioma } from '../../idioma/IdiomaContexto'
 import { condicoesEfetivas, bonusAprimorado, movimentoComCondicoes } from '../../regras/condicoes'
 import { formatarMetros } from './Condicoes'
 
@@ -12,6 +13,7 @@ import { formatarMetros } from './Condicoes'
 type Props = { ficha: Personagem }
 
 export default function Principal({ ficha }: Props) {
+  const { t, tx, nome } = useIdioma()
   const { atributos, atributosMod, defesas, deflect, derivados } = ficha
   const efetivas = condicoesEfetivas(ficha)
   const mov = movimentoComCondicoes(ficha)
@@ -20,32 +22,33 @@ export default function Principal({ ficha }: Props) {
     const aprimorado = bonusAprimorado(efetivas, a)
     return (
       <div className="pr-atrib" key={a}>
-        <span className="pr-rotulo">{ATRIBUTO[a].nome}</span>
-        <b className={aprimorado ? 'numero-alterado' : undefined} title={aprimorado ? 'Aprimorado' : undefined}>
+        <span className="pr-rotulo">{tx.atributos[a]}</span>
+        <b className={aprimorado ? 'numero-alterado' : undefined} title={aprimorado ? nome('Aprimorado') : undefined}>
           {atributos[a] + atributosMod[a] + aprimorado}
         </b>
       </div>
     )
   }
 
+  const motivoMov = mov.motivos.map((m) => nome(m)).join(' · ')
   const derivadosLinhas: { rotulo: string; valor: string; motivo?: string }[] = [
-    { rotulo: 'Movimento', valor: mov.motivo ? formatarMetros(mov.metros) : derivados.movimento, motivo: mov.motivo },
-    { rotulo: 'Alcance dos sentidos', valor: derivados.alcanceSentidos },
-    { rotulo: 'Dado de recuperação', valor: derivados.dadoRecuperacao },
-    { rotulo: 'Capacidade de carga', valor: derivados.capacidadeCarga },
-    { rotulo: 'Capacidade de levantamento', valor: derivados.capacidadeLevantamento },
+    { rotulo: tx.principal.movimento, valor: motivoMov ? formatarMetros(mov.metros) : derivados.movimento, motivo: motivoMov || undefined },
+    { rotulo: tx.principal.alcanceSentidos, valor: derivados.alcanceSentidos },
+    { rotulo: tx.principal.dadoRecuperacao, valor: derivados.dadoRecuperacao },
+    { rotulo: tx.principal.capacidadeCarga, valor: derivados.capacidadeCarga },
+    { rotulo: tx.principal.capacidadeLevantamento, valor: derivados.capacidadeLevantamento },
   ]
 
   return (
     <div className="secao principal">
-      <h2 className="titulo-secao">Atributos e Defesas</h2>
+      <h2 className="titulo-secao">{t(tx.principal.atributosDefesas)}</h2>
       {GRUPOS_FICHA.map((g) => (
-        <section className="pr-grupo" key={g.defesa} aria-label={`Grupo ${g.nome}`}>
-          <h3 className="pr-grupo-nome">{g.nome}</h3>
+        <section className="pr-grupo" key={g.defesa} aria-label={t(tx.principal.grupoNome, { nome: tx.grupos[g.defesa] })}>
+          <h3 className="pr-grupo-nome">{tx.grupos[g.defesa]}</h3>
           <div className="pr-grupo-linha">
             {atributo(g.atribs[0])}
             <div className="pr-defesa">
-              <span className="pr-rotulo">Defesa</span>
+              <span className="pr-rotulo">{t(tx.principal.defesa)}</span>
               <b>{defesas[g.defesa]}</b>
             </div>
             {atributo(g.atribs[1])}
@@ -56,11 +59,11 @@ export default function Principal({ ficha }: Props) {
       <ul className="pr-derivados">
         <li>
           <b>{deflect}</b>
-          <span>Deflexão</span>
+          <span>{tx.geral.deflexao}</span>
         </li>
       </ul>
 
-      <h2 className="titulo-secao">Deslocamento e Sentidos</h2>
+      <h2 className="titulo-secao">{t(tx.principal.deslocamentoSentidos)}</h2>
       <ul className="pr-derivados">
         {derivadosLinhas.map((d) => (
           <li key={d.rotulo} title={d.motivo}>
