@@ -100,7 +100,7 @@ Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não 
 
 ## Estado atual — 30/Set/2026
 
-Publicado (v0.9.2): **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
+Publicado (v0.10.0): **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
 
 **Pedidos do César, em ordem — nenhum se apaga, só muda de estado (ele pediu, 30/Set/2026):**
 1. ✅ Plano do turno, Desfazer e travas de carga (v0.9.0).
@@ -108,7 +108,7 @@ Publicado (v0.9.2): **rastreador de turno** na aba Ações · guia dos fluxos ·
 3. ✅ Ligações entre abas conferidas na tela (equipar ↔ ataques, recarga com Investidura ↔ cargas e topo, ação ↔ Foco, Aprimorar ↔ Principal/Perícias/Condições, descanso ↔ topo, fluxo Radiante ↔ Ações, vaga de talento ↔ perícia) (v0.9.2).
 4. ✅ Salvar/exportar/importar: condições e lesões vão e voltam pro Shards; "Voltar à ficha de antes da importação" na ⚙ (v0.9.2). Falta ele conferir no celular.
 5. ⏳ Teste de iPhone (`gh workflow run iphone.yml`): consertar o roteiro (troca de abas com nome exato) e o passo do simulador (run 36746128698). As recusas de CSP no log são da foto do Playwright.
-6. ⏳ Armadura no JSON — o Shards grava como item `armor` com `deflect`, e item vestido pode ter `modifiers` (`js/rules/itemRules.js → collectItemEffects`).
+6. ✅ Armadura (v0.10.0): vestir/tirar no Inventário, deflexão total, Desajeitada. **Ainda falta:** `modifiers` de item vestido do Shards (+N em atributo/perícia/defesa/recurso — `js/rules/itemRules.js → collectItemEffects`); nenhum personagem da mesa usa ainda.
 7. ⏳ Mapeamento do Shards mais fundo.
 8. ⏳ Funcionalidades que faltam, pela [checklist](escopo/checklist-shards.md).
 9. ⏳ 2ª etapa do idioma (descrições de regra).

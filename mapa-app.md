@@ -73,6 +73,8 @@
 | `src/regras/turno.ts` | **Regra do turno** (Cap. 10): rápido/lento, reação, uma vez por turno, Preparar, Focado, Inconsciente, carga "ao acertar" — `avaliar`, `gastar`, e `simularPlano`/`aplicarUso` (a ficha depois do plano, pura) |
 | `src/regras/turno.test.ts` | Testes do turno com os casos do livro |
 | `src/regras/turno.cenarios.test.ts` | 20 turnos de jogador (10 lentos, 10 rápidos): a fala do jogador + o plano que ele montaria, conferidos contra o livro |
+| `src/regras/armadura.ts` | **Armadura** (Cap. 7): deflexão total (a da ficha + a vestida, a maior), Desajeitada [X] com traço de perito → Lento e desvantagem em Velocidade |
+| `src/regras/armadura.test.ts` | Testes da armadura: deflexão, Desajeitada, perito, tradutor, volta pro Shards, migração |
 | `src/regras/fluxos.ts` | Guia de uso dos fluxos (Cap. 6): escalonamento, CD e custo de Transformação e Transporte, notas gerais |
 | `src/estado/importarShards.ts` | **O TRADUTOR** — JSON do Shards → schema. **Grita** no que não reconhecer. Unidades pelos números do livro, inclusive com o Shards em métrico |
 | `src/estado/importarShards.test.ts` | Testes do tradutor com o `eccho.json`: valores prontos, as 18 perícias contra a conta refeita do JSON cru, ida e volta do export |

@@ -12,6 +12,8 @@ import { useIdioma } from '../../idioma/IdiomaContexto'
 type Props = {
   ficha: Personagem
   alternarEquipada: (nomeArma: string) => void
+  /** Veste/tira armadura (item com deflexão) pelo índice. */
+  alternarItemEquipado: (indice: number) => void
   definirMarcos: (valor: number) => void
   definirEquipamentoTexto: (texto: string) => void
   adicionarItem: (item: Item) => void
@@ -119,8 +121,8 @@ function GerenciarInventario({
   )
 }
 
-export default function Inventario({ ficha, alternarEquipada, definirMarcos, definirEquipamentoTexto, adicionarItem, removerItem }: Props) {
-  const { tx, nome, num: kg } = useIdioma()
+export default function Inventario({ ficha, alternarEquipada, alternarItemEquipado, definirMarcos, definirEquipamentoTexto, adicionarItem, removerItem }: Props) {
+  const { t, tx, nome, num: kg } = useIdioma()
   const [editandoMarcos, setEditandoMarcos] = useState(false)
   const [valorMarcos, setValorMarcos] = useState('')
   const [gerenciando, setGerenciando] = useState(false)
@@ -140,9 +142,10 @@ export default function Inventario({ ficha, alternarEquipada, definirMarcos, def
     setEditandoMarcos(false)
   }
 
-  const porCategoria = ficha.itens.reduce<Record<string, Item[]>>((grupos, item) => {
+  // o índice original vai junto: é por ele que se veste/tira a armadura
+  const porCategoria = ficha.itens.reduce<Record<string, { item: Item; indice: number }[]>>((grupos, item, indice) => {
     const chave = item.tipo || 'Outros'
-    ;(grupos[chave] ??= []).push(item)
+    ;(grupos[chave] ??= []).push({ item, indice })
     return grupos
   }, {})
 
@@ -236,14 +239,23 @@ export default function Inventario({ ficha, alternarEquipada, definirMarcos, def
                   <span>{tx.inventario.qtd}</span>
                   <span>{tx.geral.total}</span>
                 </div>
-                {linhas.map((item, i) => (
-                  <div className="linha-item" key={`${item.nome}-${i}`}>
-                    <span />
-                    <span>{nome(item.nome)}</span>
+                {linhas.map(({ item, indice }) => (
+                  <label className="linha-item" key={`${item.nome}-${indice}`}>
+                    {/* armadura (tem deflexão) se veste aqui; item comum não tem o que vestir */}
+                    {item.deflexao !== undefined ? (
+                      <input type="checkbox" checked={item.equipado} onChange={() => alternarItemEquipado(indice)} aria-label={t(tx.inventario.vestir, { nome: nome(item.nome) })} />
+                    ) : (
+                      <span />
+                    )}
+                    <span>
+                      {nome(item.nome)}
+                      {item.deflexao !== undefined && <small className="inv-deflexao"> · {t(tx.inventario.deflexaoN, { n: item.deflexao })}</small>}
+                      {(item.tracos ?? []).length > 0 && <small className="inv-deflexao"> · {(item.tracos ?? []).map((x) => nome(x)).join(', ')}</small>}
+                    </span>
                     <span>{kg(item.peso)} kg</span>
                     <span>{item.qtd}</span>
                     <span>{kg(item.peso * item.qtd, 2)} kg</span>
-                  </div>
+                  </label>
                 ))}
               </div>
             </div>

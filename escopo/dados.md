@@ -65,6 +65,7 @@ type Personagem = {
 
   armas: Array<{ ... }>;         // ⚠️ derivado: inventory.items com type: "weapon"
   itens: Array<{ nome; tipo; qtd; peso; equipado; tracos: string[] }>;
+  // armadura é item com deflexao?/tracos?/tracosPerito? (Shards: type "armor", deflect) — regras/armadura.ts
   equipamentoTexto: string;      // ← equipment: texto livre ("Equipment notes" na tela do Shards); volta no export
   fabriais: Array<{ id; nome; tipo: 'padrao' | 'unico'; modelo?; cargas: { atual; max };
                    qualidade?; aprimoramentos: id[]; revezes: id[]; gema?; material?; notas? }>; // ids: regras/fabriais.ts

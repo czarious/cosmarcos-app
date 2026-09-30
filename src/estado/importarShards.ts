@@ -30,6 +30,7 @@ import type {
 } from '../tipos/personagem'
 import {
   ATRIBUTO,
+  ARMADURA_NOME,
   GRAVIDADE_LESAO,
   PERICIA_NOME,
   PERICIA_NOME_POR_INGLES,
@@ -81,6 +82,11 @@ function separaDano(bruto: string): { dado: string; tipoDano: string } {
  * livro. Distância de traço vem em pés mesmo com o Shards em métrico.
  */
 function traduzTraco(bruto: string): string {
+  // traço de perito de armadura: "Unique: loses Cumbersome trait" / "Unique: Cumbersome [3] instead of Cumbersome [4]"
+  const perde = bruto.match(/^Unique: loses (\w+) trait$/)
+  if (perde) return `Única: perde o traço ${TRACO_ARMA[perde[1]] ?? perde[1]}`
+  const troca = bruto.match(/^Unique: (.+?) instead of (.+)$/)
+  if (troca) return `Única: ${traduzTraco(troca[1])} em vez de ${traduzTraco(troca[2])}`
   const m = bruto.trim().match(/^([^[(]+?)\s*(?:[[(]([^\])]*)[\])])?$/)
   if (!m) return bruto
   const [, nome, valor] = m
@@ -215,7 +221,9 @@ function traduzEspecializacoes(bruto: unknown): Especializacao[] {
     const bruto = texto(o.type)
     const tipo = TIPO_ESPECIALIDADE[bruto]
     if (!tipo) throw new ErroImportacao(`expertises: tipo desconhecido "${bruto}" (${texto(o.name)})`)
-    return { tipo, nome: texto(o.name) }
+    // especialidade em arma/armadura: o nome da peça, traduzido igual ao item — o traço de perito compara os dois
+    const nome = texto(o.name)
+    return { tipo, nome: tipo === 'armadura' ? (ARMADURA_NOME[nome] ?? nome) : tipo === 'arma' ? (ARMA_NOME[nome] ?? nome) : nome }
   })
 }
 
@@ -274,11 +282,18 @@ function separaInventario(bruto: unknown): { armas: Arma[]; itens: Item[] } {
       const categoria = texto(it.category) || texto(it.type)
       itens.push({
         idShards: texto(it.id) || undefined,
-        nome: traduz(ITEM_NOME, texto(it.name)),
+        nome: texto(it.type) === 'armor' ? (ARMADURA_NOME[texto(it.name)] ?? texto(it.name)) : traduz(ITEM_NOME, texto(it.name)),
         tipo: traduz(CATEGORIA_ITEM, categoria),
         qtd: num(it.quantity ?? 1, 'item.quantity'),
         peso: pesoItem(num(it.weight ?? 0, 'item.weight'), sistema),
         equipado: it.equipped === true,
+        ...(texto(it.type) === 'armor'
+          ? {
+              deflexao: num(it.deflect || 0, 'armor.deflect'),
+              tracos: lista(it.traits).map(texto).map(traduzTraco),
+              tracosPerito: lista(it.expertTraits).map(texto).map(traduzTraco),
+            }
+          : {}),
       })
     }
   }

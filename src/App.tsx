@@ -34,6 +34,7 @@ export default function App() {
     escolhasTalento,
     definirEscolhaVaga,
     alternarEquipada,
+    alternarItemEquipado,
     definirMarcos,
     definirEquipamentoTexto,
     adicionarItem,
@@ -207,6 +208,7 @@ export default function App() {
           <Inventario
             ficha={ficha}
             alternarEquipada={alternarEquipada}
+            alternarItemEquipado={alternarItemEquipado}
             definirMarcos={definirMarcos}
             definirEquipamentoTexto={definirEquipamentoTexto}
             adicionarItem={adicionarItem}

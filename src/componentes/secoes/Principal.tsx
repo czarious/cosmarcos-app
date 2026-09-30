@@ -4,6 +4,9 @@ import { GRUPOS_FICHA } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
 import { condicoesEfetivas, bonusAprimorado, movimentoComCondicoes } from '../../regras/condicoes'
 import { formatarMetros } from './Condicoes'
+import { useState } from 'react'
+import { deflexaoTotal } from '../../regras/armadura'
+import PopoverDetalhe from '../PopoverDetalhe'
 
 // Aba Principal — o "Abilities, Saves, Senses" do DDB com as regras do Cosmere
 // (cosmere-e-a-interface.md): o atributo JÁ é o modificador (sem o número de
@@ -17,6 +20,8 @@ export default function Principal({ ficha }: Props) {
   const { atributos, atributosMod, defesas, deflect, derivados } = ficha
   const efetivas = condicoesEfetivas(ficha)
   const mov = movimentoComCondicoes(ficha)
+  const defl = deflexaoTotal(ficha)
+  const [vendoDeflexao, setVendoDeflexao] = useState(false)
 
   const atributo = (a: NomeAtributo) => {
     const aprimorado = bonusAprimorado(efetivas, a)
@@ -56,12 +61,23 @@ export default function Principal({ ficha }: Props) {
         </section>
       ))}
       {/* Deflexão: reduz dano afiado, energético e impactante (livro, "Defesas e Deflexão") — não pertence a um grupo */}
+      {/* a da ficha + a da armadura vestida (regras/armadura.ts); toque pra ver de onde vem */}
       <ul className="pr-derivados">
         <li>
-          <b>{deflect}</b>
+          <button
+            className={`numero-detalhavel${defl.total !== deflect ? ' numero-alterado' : ''}`}
+            onClick={() => setVendoDeflexao(true)}
+            aria-label={t(tx.principal.verDeflexao, { n: defl.total })}
+          >
+            {defl.total}
+          </button>
           <span>{tx.geral.deflexao}</span>
         </li>
       </ul>
+      {defl.variasVestidas && <p className="proximo">{tx.principal.duasArmaduras}</p>}
+      {vendoDeflexao && (
+        <PopoverDetalhe detalhe={{ titulo: tx.geral.deflexao, linhas: defl.linhas, total: defl.total }} aoFechar={() => setVendoDeflexao(false)} />
+      )}
 
       <h2 className="titulo-secao">{t(tx.principal.deslocamentoSentidos)}</h2>
       <ul className="pr-derivados">

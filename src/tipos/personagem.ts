@@ -98,6 +98,11 @@ export type Item = {
   qtd: number
   peso: number // em KG — o tradutor converte de lb (×0,5)
   equipado: boolean
+  /** Só armadura: o valor de deflexão (Shards: item `armor`, campo `deflect`). Ver regras/armadura.ts. */
+  deflexao?: number
+  /** Só armadura: traços (Desajeitada [X], Apresentável…) e traços de perito. */
+  tracos?: string[]
+  tracosPerito?: string[]
 }
 
 /** Fabrial — cargas são estado vivo (Clock 3/3, Diapasão 0/5). */

@@ -147,6 +147,13 @@ function ListaCondicoes({ efetivas, adicionarCondicao, removerCondicao }: Props 
                 </ul>
               )}
               {!def.parametro && ativas.some((c) => c.origem === 'lesao') && <span className="proximo cond-origem">{t(tx.condicoes.deLesao)}</span>}
+              {ativas
+                .filter((c) => c.origem === 'armadura')
+                .map((c) => (
+                  <span key={c.uid} className="proximo cond-origem">
+                    {t(tx.condicoes.daArmadura, { nome: nome(c.nota ?? '') })}
+                  </span>
+                ))}
               {pedindo === def.id && (
                 <ParametroCondicao
                   id={def.id}

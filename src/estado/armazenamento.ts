@@ -23,6 +23,7 @@
 import type { Personagem, Fabrial, Ideal } from '../tipos/personagem'
 import { FABRIAIS_PADRAO, efeitoPorNome } from '../regras/fabriais'
 import { CONDICOES } from '../regras/condicoes'
+import { importarShards } from './importarShards'
 import type { EscolhaVaga } from '../regras/talentos'
 
 /**
@@ -31,7 +32,7 @@ import type { EscolhaVaga } from '../regras/talentos'
  * `lerFicha`). Subiu este número? Escreva a entrada em MIGRACOES — o teste
  * `armazenamento.test.ts` reprova se faltar.
  */
-export const VERSAO_ESQUEMA = 6
+export const VERSAO_ESQUEMA = 7
 
 /**
  * Migrações: save de versão antiga que ainda dá pra aproveitar. Cada entrada
@@ -100,6 +101,21 @@ export const MIGRACOES: Record<number, (ficha: Personagem, semente?: Record<stri
   // O save já guarda o JSON cru — dá pra buscar lá sem reimportar.
   5: (ficha, semente) => {
     ficha.equipamentoTexto = typeof semente?.equipment === 'string' ? semente.equipment : ''
+  },
+  // v6 → v7: armadura ganhou deflexão e traços (antes era item comum). Vêm da
+  // semente, pelo id do Shards — sem reimportar.
+  6: (ficha, semente) => {
+    if (!semente) return
+    let doShards: Personagem['itens'] = []
+    try {
+      doShards = importarShards({ characters: [semente] })[0]?.itens ?? []
+    } catch {
+      return // semente que o tradutor de hoje não lê: fica como estava (reimportar resolve)
+    }
+    ficha.itens = ficha.itens.map((it) => {
+      const cru = doShards.find((x) => x.idShards && x.idShards === it.idShards)
+      return cru?.deflexao !== undefined ? { ...it, deflexao: cru.deflexao, tracos: cru.tracos, tracosPerito: cru.tracosPerito } : it
+    })
   },
 }
 

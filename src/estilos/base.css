@@ -2352,3 +2352,7 @@ label.linha-item input[type='checkbox'] {
   min-height: 28px;
   cursor: pointer;
 }
+
+.inv-deflexao {
+  color: var(--cor-texto-suave);
+}

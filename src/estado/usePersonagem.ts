@@ -28,6 +28,8 @@ type Retorno = {
   definirEscolhaVaga: (talentoId: string, tipo: TipoVaga, indice: number, valor: string | undefined) => void
   /** Liga/desliga `equipada` de uma arma (por nome — Arma ainda não tem id estável). */
   alternarEquipada: (nomeArma: string) => void
+  /** Veste/tira um item (armadura) pelo índice em `ficha.itens`. */
+  alternarItemEquipado: (indice: number) => void
   /** Define os marcos (moeda) diretamente — toca no número pra editar. */
   definirMarcos: (valor: number) => void
   /** O texto livre de pertences (o "Equipment" do Shards). */
@@ -325,6 +327,10 @@ export function usePersonagem(caminhoJson: string): Retorno {
     [],
   )
 
+  const alternarItemEquipado = useCallback((indice: number) => {
+    setFicha((atual) => (atual ? { ...atual, itens: atual.itens.map((it, i) => (i === indice ? { ...it, equipado: !it.equipado } : it)) } : atual))
+  }, [])
+
   const alternarEquipada = useCallback((nomeArma: string) => {
     setFicha((atual) => {
       if (!atual) return atual
@@ -507,6 +513,7 @@ export function usePersonagem(caminhoJson: string): Retorno {
     escolhasTalento,
     definirEscolhaVaga,
     alternarEquipada,
+    alternarItemEquipado,
     definirMarcos,
     definirEquipamentoTexto,
     adicionarItem,

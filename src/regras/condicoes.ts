@@ -18,6 +18,7 @@
 import type { Personagem, Pericia, NomeAtributo, Condicao, Lesao, IdCondicao, EfeitoLesao, GravidadeLesao } from '../tipos/personagem'
 import type { ParcelaBonus } from './calculos'
 import type { Mensagem } from '../idioma/pt'
+import { armaduraPesada, deflexaoTotal } from './armadura'
 
 type DefCondicao = {
   id: IdCondicao
@@ -89,7 +90,8 @@ export const GRAVIDADE: Record<GravidadeLesao, { nome: string; nomeEn: string; d
  * que já existe. Talento que mexe nisso não está aqui — o jogador soma à mão.
  */
 export function modificadorRolagemLesao(ficha: Personagem): { total: number; linhas: ParcelaBonus[] } {
-  const linhas: ParcelaBonus[] = [{ origem: { texto: (d) => d.geral.deflexao }, valor: ficha.deflect }]
+  // a deflexão da rolagem é a total: a da ficha + a da armadura vestida
+  const linhas: ParcelaBonus[] = [...deflexaoTotal(ficha).linhas]
   const n = ficha.lesoes.length
   if (n > 0) linhas.push({ origem: { texto: (d) => d.detalhe.lesoesVezes5, vars: { n } }, valor: -5 * n })
   return { total: linhas.reduce((s, l) => s + l.valor, 0), linhas }
@@ -106,16 +108,18 @@ export function resultadoLesao(total: number): GravidadeLesao | 'morte' {
 
 // ── o que está valendo agora ──────────────────────────────────────────
 
-export type CondicaoEfetiva = Omit<Condicao, 'uid'> & { uid: string; origem: 'manual' | 'lesao' }
+export type CondicaoEfetiva = Omit<Condicao, 'uid'> & { uid: string; origem: 'manual' | 'lesao' | 'armadura' }
 
-/** Condições aplicadas à mão + as que vêm do efeito de cada lesão. */
+/** Condições aplicadas à mão + as que vêm do efeito de cada lesão + Lento da armadura Desajeitada. */
 export function condicoesEfetivas(ficha: Personagem): CondicaoEfetiva[] {
   const manuais: CondicaoEfetiva[] = ficha.condicoes.map((c) => ({ ...c, origem: 'manual' }))
   const deLesao: CondicaoEfetiva[] = ficha.lesoes.flatMap((l: Lesao) => {
     const c = EFEITOS_LESAO.find((e) => e.id === l.efeito)?.condicao
     return c ? [{ ...c, uid: `lesao-${l.uid}`, origem: 'lesao' as const }] : []
   })
-  return [...manuais, ...deLesao]
+  const pesada = armaduraPesada(ficha)
+  const daArmadura: CondicaoEfetiva[] = pesada ? [{ id: 'lento', uid: `armadura-${pesada.nome}`, origem: 'armadura', nota: pesada.nome }] : []
+  return [...manuais, ...deLesao, ...daArmadura]
 }
 
 function tem(efetivas: CondicaoEfetiva[], id: IdCondicao): boolean {
@@ -155,7 +159,9 @@ export function efeitoCondicoesPericia(pericia: Pericia, ficha: Personagem, uso:
   const vantagem: string[] = []
   const desvantagem: string[] = []
   if (tem(efetivas, 'potencializado')) vantagem.push('Potencializado')
-  if (tem(efetivas, 'restringido')) desvantagem.push('Restringido (menos pra escapar)')
+  if (tem(efetivas, 'restringido')) desvantagem.push('Restringido')
+  // Desajeitada: desvantagem nos testes de Velocidade enquanto veste (07-itens/05-armaduras.md)
+  if (pericia.atributo === 'velocidade' && armaduraPesada(ficha)) desvantagem.push('Desajeitada')
   if (tem(efetivas, 'desorientado') && pericia.id === 'perception') desvantagem.push('Desorientado')
   return { linhas, vantagem, desvantagem }
 }

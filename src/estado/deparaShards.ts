@@ -299,7 +299,19 @@ export const TALENTO_FLUXO: Record<string, string> = {
 }
 
 /** Categoria de item do Shards — o catálogo só usa "equipment". */
-export const CATEGORIA_ITEM: Record<string, string> = { equipment: 'Equipamento', item: 'Item' }
+/** As 8 armaduras (dicionário → "Armaduras", 07-itens/05-armaduras.md). Vale pro item e pra especialidade em armadura. */
+export const ARMADURA_NOME: Record<string, string> = {
+  Uniform: 'Uniforme',
+  Leather: 'Couro',
+  Chain: 'Cota de Malha',
+  Breastplate: 'Placa Peitoral',
+  'Half Plate': 'Meia Armadura',
+  'Full Plate': 'Armadura Completa',
+  Shardplate: 'Armadura Fractal',
+  'Shardplate (Radiant)': 'Armadura Fractal (Radiante)',
+}
+
+export const CATEGORIA_ITEM: Record<string, string> = { equipment: 'Equipamento', item: 'Item', armor: 'Armadura' }
 
 /** De-para com fallback: termo fora do mapa passa cru, pra nunca sumir da tela. */
 export function traduz(mapa: Record<string, string>, termo: string): string {
@@ -323,6 +335,7 @@ export const TRACO_ARMA: Record<string, string> = {
   Momentum: 'Ímpeto', // ✅ confirmado
   Offhand: 'Mão Inábil',
   Pierce: 'Perfurante',
+  Presentable: 'Apresentável', // armadura
   Quickdraw: 'Saque Rápido',
   Thrown: 'Arremesso',
   'Two-Handed': 'Duas Mãos',

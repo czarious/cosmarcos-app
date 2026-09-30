@@ -48,7 +48,7 @@
 | Notas de trilha | ❌ | Campo livre do Shards que o tradutor não lê |
 | Defesas Física · Cognitiva · Espiritual | ✅ | Aba Principal |
 | Armas equipadas (dano, alcance, perícia, bônus) | ✅ | Aba Ações, com Golpear no rastreador de turno |
-| **Armadura equipada** | ❌ | **O tradutor não lê armadura.** O Eccho não usa; personagem com armadura perderia a deflexão dela. Prioridade antes da mesa inteira usar o app |
+| Armadura equipada | ✅ | Inventário: vestir/tirar; deflexão soma na Principal e na rolagem de lesão; Desajeitada [X] deixa Lento e com desvantagem em Velocidade (v0.10.0) |
 | Fabriais padrão (cargas, descrição, aprimoramentos, revezes) | ✅ | Aba Fabriais |
 | Fabriais únicos (nome, qualidade, cargas, material, gema, características, efeitos) | ✅ | Aba Fabriais, montador |
 | "Surge power" do fabrial | ❌ | Campo do Shards pra fabrial com fluxo; ninguém usa ainda |
