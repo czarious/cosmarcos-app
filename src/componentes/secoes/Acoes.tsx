@@ -19,12 +19,13 @@ import {
   fluxoComoPericia,
 } from '../../regras/calculos'
 import type { UsoPericia } from '../../regras/condicoes'
-import { avaliar, custoEfetivo, usavelDe, type AcaoUsavel } from '../../regras/turno'
+import { avaliar, custoEfetivo, golpesDaArma, usavelDe, type AcaoUsavel } from '../../regras/turno'
 import { ESCALONAMENTO_FLUXO, GUIAS_FLUXO, NOTAS_FLUXO } from '../../regras/fluxos'
 import { ativacaoDoFabrial, fabrialDaArma, usosDoFabrial } from '../../regras/fabriais'
 import type { Turno } from '../../estado/useTurno'
 import PopoverDetalhe from '../PopoverDetalhe'
 import DialogoUso, { precisaDialogo } from '../DialogoUso'
+import ControleRecurso from '../ControleRecurso'
 import { useIdioma } from '../../idioma/IdiomaContexto'
 
 // Aba Ações — tudo que o personagem pode FAZER, olhando a ficha inteira, e
@@ -42,23 +43,17 @@ import { useIdioma } from '../../idioma/IdiomaContexto'
 type Props = {
   ficha: Personagem
   escolhasTalento: Record<string, EscolhaVaga>
+  /** O ± das cargas de uma arma-fabrial, aqui mesmo — é o mesmo fabrial da aba Fabriais. */
+  alterarCargas: (idFabrial: string, delta: number) => void
   turno: Turno
 }
 
 const GOLPEAR = usavelDe('padrao', ACOES_PADRAO.find((a) => a.nome === 'Golpear')!)
 
-/** O Golpear com uma arma: chave própria, pra carga "ao acertar" contar os ataques dela. */
-const golpearCom = (arma: string): AcaoUsavel => ({ ...GOLPEAR, chave: `golpear:${arma}`, alvo: arma })
-
-/**
- * Os ataques de uma arma. Arma-fabrial cujo disparo gasta carga (Projétil) só
- * ataca pela carga — "Disparar", e "Ataque duplo" com o aprimoramento próprio;
- * sem carga, não dispara. Arma comum: o Golpear.
- */
-function ataquesDaArma(arma: string, fab: Fabrial | undefined): { acao: AcaoUsavel; rotulo: string }[] {
-  const disparos = fab ? usosDoFabrial(fab).filter((u) => u.tipo === 'ataque') : []
-  if (disparos.length === 0) return [{ acao: golpearCom(arma), rotulo: 'Golpear' }]
-  return disparos.map((u) => ({ acao: { ...golpearCom(arma), nome: u.rotulo, cargas: { idFabrial: fab!.id, qtd: u.custo } }, rotulo: u.rotulo }))
+/** Os ataques de uma arma pela regra das mãos (regras/turno.ts → golpesDaArma); arma-fabrial dispara pela carga. */
+function ataquesDaArma(arma: Personagem['armas'][number], fab: Fabrial | undefined) {
+  const disparos = fab ? usosDoFabrial(fab).filter((u) => u.tipo === 'ataque').map((u) => ({ rotulo: u.rotulo, idFabrial: fab.id, custo: u.custo })) : []
+  return golpesDaArma(GOLPEAR, arma.nome, arma.tracos, disparos)
 }
 
 /** "−1 ◆ −2 ✦ −1 ⚡" — o que o uso desconta, já com o Focado aplicado. */
@@ -71,12 +66,13 @@ function textoCusto(acao: AcaoUsavel, ficha: Personagem): string {
   return partes.join(' ')
 }
 
-export default function Acoes({ ficha, escolhasTalento, turno }: Props) {
+export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: Props) {
   const { t, tx, nome } = useIdioma()
   const armasEquipadas = ficha.armas.filter((a) => a.equipada)
   // Acerto é TESTE (Exausto conta); dano não é (regras/condicoes.ts → UsoPericia).
   const [detalheAberto, setDetalheAberto] = useState<{ pericia: Pericia; uso: UsoPericia } | null>(null)
   const [pedindo, setPedindo] = useState<AcaoUsavel | null>(null)
+  const [cargasDe, setCargasDe] = useState<string | null>(null)
 
   function tocarUsar(acao: AcaoUsavel) {
     if (precisaDialogo(acao)) setPedindo(acao)
@@ -164,24 +160,22 @@ export default function Acoes({ ficha, escolhasTalento, turno }: Props) {
                     </ul>
                   )}
                   <div className="fab-botoes ataque-usar">
-                    {ataquesDaArma(a.nome, fab).map(({ acao, rotulo }) => (
-                      <BotaoUsar ctx={ctx} key={rotulo} acao={acao} rotulo={`${nome(rotulo)} ${SIMBOLO_ATIVACAO['1acao']}`} />
-                    ))}
-                    {/* "com a mão inábil, gasta 2 de foco" — mesmo Golpear, outro custo (arma-fabrial dispara pela carga) */}
-                    {!fab && (
+                    {/* uma vez pela mão principal e uma pela inábil (−2 foco, −1 com o traço Mão Inábil) */}
+                    {ataquesDaArma(a, fab).map(({ acao, rotulo, mao }) => (
                       <BotaoUsar
                         ctx={ctx}
-                        acao={{ ...golpearCom(a.nome), custo: { foco: 2 } }}
-                        rotulo={`${tx.acoes.maoInabil} ${SIMBOLO_ATIVACAO['1acao']}`}
+                        key={`${rotulo}-${mao}`}
+                        acao={acao}
+                        rotulo={`${mao === 'inabil' ? `${nome(rotulo)} · ${tx.acoes.maoInabil}` : nome(rotulo)} ${SIMBOLO_ATIVACAO['1acao']}`}
                       />
-                    )}
+                    ))}
                   </div>
                   {fab && (
                     <div className="fab-botoes ataque-fabrial">
-                      <span className="fab-cargas-botao">
+                      <button className="fab-cargas-botao" onClick={() => setCargasDe(fab.id)} aria-label={t(tx.fabriais.cargasDe, { nome: nome(fab.nome) })}>
                         {SIMBOLO_RECURSO.cargas} {fab.cargas.atual}
                         <small>/{fab.cargas.max}</small>
-                      </span>
+                      </button>
                       {/* carga "ao acertar" (Dorial): só depois de um ataque com esta arma, uma por ataque */}
                       {usosDoFabrial(fab)
                         .filter((u) => u.tipo === 'aoAcertar')
@@ -195,7 +189,7 @@ export default function Acoes({ ficha, escolhasTalento, turno }: Props) {
                               alvo: a.nome,
                               ativacao: 'especial',
                               cargas: { idFabrial: fab.id, qtd: u.custo },
-                              depoisDe: golpearCom(a.nome).chave,
+                              depoisDe: `arma:${a.nome}`,
                               repetivel: true,
                             }}
                             rotulo={nome(u.rotulo)}
@@ -292,6 +286,13 @@ export default function Acoes({ ficha, escolhasTalento, turno }: Props) {
           aoFechar={() => setDetalheAberto(null)}
         />
       )}
+      {cargasDe &&
+        (() => {
+          const fab = ficha.fabriais.find((x) => x.id === cargasDe)
+          return fab ? (
+            <ControleRecurso qual="cargas" de={nome(fab.nome)} recurso={fab.cargas} alterar={(delta) => alterarCargas(fab.id, delta)} aoFechar={() => setCargasDe(null)} />
+          ) : null
+        })()}
       {pedindo && (
         <DialogoUso
           acao={pedindo}

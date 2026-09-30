@@ -168,7 +168,7 @@ export default function App() {
         ) : secao === 'Talentos' ? (
           <Talentos ficha={ficha} escolhasTalento={escolhasTalento} definirEscolhaVaga={definirEscolhaVaga} />
         ) : secao === 'Ações' ? (
-          <Acoes ficha={ficha} escolhasTalento={escolhasTalento} turno={turno} />
+          <Acoes ficha={ficha} escolhasTalento={escolhasTalento} alterarCargas={alterarCargas} turno={turno} />
         ) : secao === 'Fabriais' ? (
           <Fabriais
             ficha={ficha}

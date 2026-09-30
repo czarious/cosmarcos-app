@@ -37,8 +37,11 @@ export type FichaParaTurno = {
   aplicarFicha: (parte: Pick<Personagem, 'recursos' | 'fabriais' | 'condicoes'>) => void
 }
 
-/** Foto de antes de confirmar — o que o "Desfazer" devolve. */
-type Foto = { estado: EstadoTurno | null } & Pick<Personagem, 'recursos' | 'fabriais' | 'condicoes'>
+/** Foto de antes de confirmar — o que o "Desfazer" devolve — e a marca de como a ficha ficou logo depois. */
+type Foto = { estado: EstadoTurno | null; depois: string } & Pick<Personagem, 'recursos' | 'fabriais' | 'condicoes'>
+
+/** Recursos, cargas e condições num texto só — pra saber se alguém mexeu na ficha depois de confirmar. */
+const marca = (f: Pick<Personagem, 'recursos' | 'fabriais' | 'condicoes'>) => JSON.stringify([f.recursos, f.fabriais, f.condicoes])
 
 function chaveSave(ficha: Personagem): string {
   return `cosmarcos:turno:${ficha.meta.nome}`
@@ -177,8 +180,8 @@ export function useTurno(ficha: Personagem | null, api: FichaParaTurno) {
 
   const confirmar = useCallback(() => {
     if (!ficha || !simulacao || plano.length === 0) return
-    setFoto({ estado, recursos: ficha.recursos, fabriais: ficha.fabriais, condicoes: ficha.condicoes })
     const { ficha: f, estado: e } = simulacao
+    setFoto({ estado, recursos: ficha.recursos, fabriais: ficha.fabriais, condicoes: ficha.condicoes, depois: marca(f) })
     api.aplicarFicha({ recursos: f.recursos, fabriais: f.fabriais, condicoes: f.condicoes })
     if (e !== estado) gravar(e)
     setPlano([])
@@ -196,7 +199,9 @@ export function useTurno(ficha: Personagem | null, api: FichaParaTurno) {
     plano,
     /** Turno e ficha como ficam se o plano for confirmado. */
     simulacao,
-    podeDesfazer: foto !== null,
+    // Mexeu na ficha por fora depois de confirmar (± de carga, Vida no topo)? O Desfazer
+    // apagaria esse ajuste — então ele some.
+    podeDesfazer: foto !== null && ficha !== null && marca(ficha) === foto.depois,
     iniciar,
     comecar,
     encerrar,

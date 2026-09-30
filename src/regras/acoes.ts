@@ -71,7 +71,7 @@ export const ACOES_PADRAO: EntradaAcao[] = [
   { nome: 'Falar', nomeEn: 'Speak', ativacao: 'livre', resumo: 'Fala livremente; algo mais elaborado exige Usar uma Perícia.' },
   { nome: 'Ganhar Vantagem', nomeEn: 'Gain Advantage', ativacao: '1acao', resumo: 'Teste de perícia vs. defesa — sucesso dá vantagem no PRÓXIMO teste, com perícia diferente.' },
   { nome: 'Golpe Reativo', nomeEn: 'Reactive Strike', ativacao: 'reacao', custo: { foco: 1 }, resumo: 'Gasta 1 foco pra atacar corpo a corpo quem sai voluntariamente do seu alcance. Não vale contra quem se move com Transporte ou instantaneamente.' },
-  { nome: 'Golpear', nomeEn: 'Strike', ativacao: '1acao', repetivel: true, resumo: 'Ataca com arma ou desarmado contra a defesa Física. Pode repetir no turno, cada ataque com uma mão diferente; com a mão inábil custa 2 de foco.' },
+  { nome: 'Golpear', nomeEn: 'Strike', ativacao: '1acao', resumo: 'Ataca com arma ou desarmado contra a defesa Física. Pode repetir no turno, cada ataque com uma mão diferente; com a mão inábil custa 2 de foco.' },
   { nome: 'Interagir', nomeEn: 'Interact', ativacao: '1acao', repetivel: true, resumo: 'Interage rápido com um objeto, sem teste — pode repetir no turno.' },
   { nome: 'Largar', nomeEn: 'Drop', ativacao: 'livre', resumo: 'Larga qualquer quantidade de itens das mãos. No turno de outro personagem, só com Preparar.' },
   { nome: 'Mover', nomeEn: 'Move', ativacao: '1acao', repetivel: true, resumo: 'Move até sua taxa de movimento; pode repetir no turno. Rastejar, escalar, nadar ou ser furtivo deixa Lento; saltar ou escalar pode pedir teste de Agilidade ou Atletismo.' },

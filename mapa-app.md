@@ -72,6 +72,7 @@
 | `src/regras/acoes.ts` | 17 ações padrão (Cap. 10) + ações de talento (Cap. 5, ex. Inspirar Luz) + Habilidades de Espreno — com custo, efeito, "pode repetir" e "uma vez por cena" |
 | `src/regras/turno.ts` | **Regra do turno** (Cap. 10): rápido/lento, reação, uma vez por turno, Preparar, Focado, Inconsciente, carga "ao acertar" — `avaliar`, `gastar`, e `simularPlano`/`aplicarUso` (a ficha depois do plano, pura) |
 | `src/regras/turno.test.ts` | Testes do turno com os casos do livro |
+| `src/regras/turno.cenarios.test.ts` | 20 turnos de jogador (10 lentos, 10 rápidos): a fala do jogador + o plano que ele montaria, conferidos contra o livro |
 | `src/regras/fluxos.ts` | Guia de uso dos fluxos (Cap. 6): escalonamento, CD e custo de Transformação e Transporte, notas gerais |
 | `src/estado/importarShards.ts` | **O TRADUTOR** — JSON do Shards → schema. **Grita** no que não reconhecer. Unidades pelos números do livro, inclusive com o Shards em métrico |
 | `src/estado/importarShards.test.ts` | Testes do tradutor com o `eccho.json`: valores prontos, as 18 perícias contra a conta refeita do JSON cru, ida e volta do export |

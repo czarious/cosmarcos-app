@@ -57,13 +57,13 @@ describe('gastar ações', () => {
     expect(motivo(padrao('Golpear'), e, f)).toMatchObject({ pode: false, motivo: 'faltam ▶ (1)' })
   })
 
-  it('ação nomeada: uma vez por turno — Golpear, Mover e Interagir podem repetir', () => {
+  it('ação nomeada: uma vez por turno — Mover e Interagir podem repetir', () => {
     const f = eccho_()
     let e = comecarTurno(iniciarCombate(f), f, 'lento')
     e = gastar(padrao('Desengajar'), e, f)
     expect(motivo(padrao('Desengajar'), e, f)).toMatchObject({ pode: false, motivo: 'já usou neste turno' })
-    e = gastar(padrao('Golpear'), e, f)
-    expect(avaliar(padrao('Golpear'), e, f).pode).toBe(true)
+    e = gastar(padrao('Mover'), e, f)
+    expect(avaliar(padrao('Mover'), e, f).pode).toBe(true)
   })
 
   it('reação: gasta a ↻ e o foco; sem ↻, não dá', () => {
@@ -144,7 +144,7 @@ describe('Aprimorar', () => {
 
 describe('plano do turno', () => {
   const projetil = (f: Personagem) => f.fabriais.find((x) => x.nome === 'PROJÉTIL')!
-  const disparar = (f: Personagem): AcaoUsavel => ({ ...padrao('Golpear'), chave: 'golpear:PROJÉTIL', nome: 'Disparar', cargas: { idFabrial: projetil(f).id, qtd: 1 } })
+  const disparar = (f: Personagem): AcaoUsavel => ({ ...padrao('Golpear'), repetivel: true, marca: 'arma:PROJÉTIL', nome: 'Disparar', cargas: { idFabrial: projetil(f).id, qtd: 1 } })
 
   it('planejar não gasta nada: a ficha e o turno de entrada ficam iguais', () => {
     const f = eccho_()
@@ -170,7 +170,7 @@ describe('plano do turno', () => {
   it('o plano não passa das ▶ do turno', () => {
     const f = eccho_()
     const e = comecarTurno(iniciarCombate(f), f, 'lento')
-    const sim = simularPlano([1, 2, 3, 4].map(() => ({ acao: padrao('Golpear') })), e, f)
+    const sim = simularPlano([1, 2, 3, 4].map(() => ({ acao: padrao('Mover') })), e, f)
     expect(sim.avaliacoes.map((a) => a.pode)).toEqual([true, true, true, false])
   })
 
@@ -185,7 +185,7 @@ describe('plano do turno', () => {
   it('carga "ao acertar": só depois de um ataque com a arma, uma por ataque', () => {
     const f = eccho_()
     const e = comecarTurno(iniciarCombate(f), f, 'lento')
-    const somar: AcaoUsavel = { chave: 'acerto:PROJÉTIL:x', nome: 'Somar dano', ativacao: 'especial', depoisDe: 'golpear:PROJÉTIL', repetivel: true, cargas: { idFabrial: projetil(f).id, qtd: 1 } }
+    const somar: AcaoUsavel = { chave: 'acerto:PROJÉTIL:x', nome: 'Somar dano', ativacao: 'especial', depoisDe: 'arma:PROJÉTIL', repetivel: true, cargas: { idFabrial: projetil(f).id, qtd: 1 } }
     expect(simularPlano([{ acao: somar }], e, f).avaliacoes[0].pode).toBe(false)
     const sim = simularPlano([{ acao: disparar(f) }, { acao: somar }, { acao: somar }], e, f)
     expect(sim.avaliacoes.map((a) => a.pode)).toEqual([true, true, false])

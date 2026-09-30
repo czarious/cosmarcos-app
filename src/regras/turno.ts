@@ -18,6 +18,8 @@ import type { Mensagem } from '../idioma/pt'
  *  - ação livre segue as regras de ação: só no seu turno (Largar: "no turno de outro, só com Preparar")
  *  - Preparar: 1 ▶ + as ▶ da ação escolhida, usada fora do turno até o início do próximo
  *  - Focado: habilidade que custa foco custa 1 a menos
+ *  - Golpear: repete, mas cada ataque com uma mão diferente → 1 pela mão principal
+ *    e 1 pela inábil (−2 foco; −1 se a arma tem o traço Mão Inábil) — 07-itens/04-armas.md
  *  - carga "ao acertar" (Dorial): só depois de um ataque com a arma, uma por ataque
  *
  * O PLANO DO TURNO: o jogador escolhe tudo antes e confirma de uma vez.
@@ -62,8 +64,38 @@ export type AcaoUsavel = {
   mesmoInconsciente?: boolean
   /** Complemento do nome na tela — a arma do Golpear ("Golpear · Maça"). */
   alvo?: string
-  /** Só depois desta ação (chave), uma vez por vez que ela foi feita — ex.: carga do Dorial "ao acertar". */
+  /** Marca extra que o uso deixa no turno — a arma do ataque ("arma:Maça"), pra contar os ataques dela. */
+  marca?: string
+  /** Só depois de um uso com esta marca, uma vez por uso — ex.: carga do Dorial "ao acertar". */
   depoisDe?: string
+}
+
+/** As duas mãos do Golpear — cada uma ataca uma vez por turno. */
+export const GOLPE_PRINCIPAL = 'golpear:principal'
+export const GOLPE_INABIL = 'golpear:inabil'
+
+/**
+ * Os ataques de uma arma, pela regra das mãos. `tracos` da arma: com Mão Inábil,
+ * o golpe da mão inábil custa 1 de foco em vez de 2. `cargas`: arma-fabrial cujo
+ * disparo gasta carga (Projétil) — sem carga, não dispara.
+ */
+export function golpesDaArma(
+  golpear: AcaoUsavel,
+  arma: string,
+  tracos: string[],
+  disparos: { rotulo: string; idFabrial: string; custo: number }[] = [],
+): { acao: AcaoUsavel; rotulo: string; mao: 'principal' | 'inabil' }[] {
+  const focoInabil = tracos.includes('Mão Inábil') ? 1 : 2
+  const base = { ...golpear, repetivel: false, alvo: arma, marca: `arma:${arma}` }
+  const variantes = disparos.length ? disparos : [{ rotulo: 'Golpear', idFabrial: '', custo: 0 }]
+  return variantes.flatMap((v) => {
+    const cargas = v.idFabrial ? { idFabrial: v.idFabrial, qtd: v.custo } : undefined
+    const nome = v.idFabrial ? v.rotulo : golpear.nome
+    return [
+      { acao: { ...base, chave: GOLPE_PRINCIPAL, nome, cargas }, rotulo: v.rotulo, mao: 'principal' as const },
+      { acao: { ...base, chave: GOLPE_INABIL, nome, cargas, custo: { foco: focoInabil } }, rotulo: v.rotulo, mao: 'inabil' as const },
+    ]
+  })
 }
 
 export const ACOES_POR_ATIVACAO: Partial<Record<Ativacao, number>> = { '1acao': 1, '2acoes': 2, '3acoes': 3 }
@@ -143,7 +175,7 @@ export function avaliar(acao: AcaoUsavel, e: EstadoTurno | null, ficha: Personag
   if (!e) return { pode: true }
 
   if (acao.depoisDe) {
-    const vezes = (chave: string) => e.usadas.filter((u) => u === chave).length
+    const vezes = (marca: string) => e.usadas.filter((u) => u === marca).length
     if (vezes(acao.depoisDe) <= vezes(acao.chave)) return { pode: false, motivo: { texto: (d) => d.regras.soDepoisDoAtaque } }
   }
   if (acao.umaVezPorCena && e.usadasNaCena.includes(acao.chave)) return { pode: false, motivo: { texto: (d) => d.regras.umaVezPorCena } }
@@ -184,7 +216,7 @@ export function gastar(acao: AcaoUsavel, e: EstadoTurno, ficha: Personagem, rese
   return {
     ...e,
     acoes: e.acoes - n - reservar,
-    usadas: eh || acao.depoisDe ? [...e.usadas, acao.chave] : e.usadas,
+    usadas: [...e.usadas, ...(eh || acao.depoisDe ? [acao.chave] : []), ...(acao.marca ? [acao.marca] : [])],
     usadasNaCena,
     preparada: acao.efeito === 'preparar' ? reservar : e.preparada,
   }
@@ -193,7 +225,8 @@ export function gastar(acao: AcaoUsavel, e: EstadoTurno, ficha: Personagem, rese
 /** Uma ação do catálogo (regras/acoes.ts) vira usável. `grupo` separa nomes iguais de origens diferentes. */
 export function usavelDe(grupo: string, a: EntradaAcao): AcaoUsavel {
   return {
-    chave: `${grupo}:${a.nome}`,
+    // Golpear sem arma escolhida (desarmado) é a mão principal — a regra das mãos vale igual
+    chave: a.nome === 'Golpear' ? GOLPE_PRINCIPAL : `${grupo}:${a.nome}`,
     nome: a.nome,
     ativacao: a.ativacao,
     custo: a.custo,
