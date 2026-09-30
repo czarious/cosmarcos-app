@@ -58,6 +58,7 @@ export default function App() {
     fazerDescansoCurto,
     fazerDescansoLongo,
     importarTexto,
+    desfazerImportacao,
     exportarJson,
     backupJson,
     salvou,
@@ -138,7 +139,21 @@ export default function App() {
           ficha={ficha}
           alterarRecurso={alterarRecurso}
           aoVerCondicoes={() => setSecao('Condições')}
-          menu={<MenuEngrenagem aoImportar={() => seletorArquivo.current?.click()} aoExportar={exportar} aoBaixarBackup={baixarBackup} salvou={salvou} />}
+          menu={
+            <MenuEngrenagem
+              aoImportar={() => seletorArquivo.current?.click()}
+              aoExportar={exportar}
+              aoBaixarBackup={baixarBackup}
+              aoDesfazerImportacao={
+                desfazerImportacao &&
+                (() => {
+                  desfazerImportacao()
+                  setAvisoRodape({ texto: (d) => d.menu.importacaoDesfeita })
+                })
+              }
+              salvou={salvou}
+            />
+          }
         />
         <SeletorSecao ativa={secao} aoTrocar={setSecao} />
         <PainelTurno ficha={ficha} turno={turno} naAbaAcoes={secao === 'Ações'} />

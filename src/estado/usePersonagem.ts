@@ -64,6 +64,8 @@ type Retorno = {
    * tem como adivinhar qual lado está certo.
    */
   importarTexto: (texto: string) => string | null
+  /** Volta a ficha de antes da última importação (a importação guarda uma cópia). `null` se não há cópia. */
+  desfazerImportacao: (() => void) | null
   /** JSON pro Shards importar (Files → Import JSON), ou `null` se ainda não há semente — ver exportarShards.ts. */
   exportarJson: () => string | null
   adicionarCondicao: (c: Omit<Condicao, 'uid'>) => void
@@ -194,6 +196,26 @@ export function usePersonagem(caminhoJson: string): Retorno {
     setSalvou(salvarFicha(id, ficha, escolhasTalento, semente))
   }, [id, ficha, escolhasTalento, semente])
 
+  // A rede de segurança da importação: antes de sobrescrever, guarda a ficha
+  // atual — importar um JSON velho sem querer deixa de ser perda sem volta.
+  const chaveAntes = `cosmarcos:antes-importar:${id}`
+  const [temAntes, setTemAntes] = useState(() => {
+    try {
+      return localStorage.getItem(chaveAntes) !== null
+    } catch {
+      return false
+    }
+  })
+  const guardarAntes = useCallback(() => {
+    if (!ficha) return
+    try {
+      localStorage.setItem(chaveAntes, JSON.stringify(montarPacote(ficha, escolhasTalento, semente)))
+      setTemAntes(true)
+    } catch {
+      // sem espaço: a importação segue, só sem a cópia (o aviso de backup continua valendo)
+    }
+  }, [ficha, escolhasTalento, semente, chaveAntes])
+
   const importarTexto = useCallback((texto: string): string | null => {
     let json: unknown
     try {
@@ -209,6 +231,7 @@ export function usePersonagem(caminhoJson: string): Retorno {
       return String(e instanceof Error ? e.message : e)
     }
     if (backup) {
+      guardarAntes()
       setFicha(backup.ficha)
       setEscolhasTalento(backup.escolhasTalento)
       setSemente(backup.semente)
@@ -222,13 +245,35 @@ export function usePersonagem(caminhoJson: string): Retorno {
     } catch (e) {
       return e instanceof ErroImportacao ? e.message : String(e)
     }
+    guardarAntes()
     setFicha(novaFicha)
     setEscolhasTalento(semearEscolhas(novaFicha))
     setSemente((json as { characters: Record<string, unknown>[] }).characters[0])
     setErro(null)
     podeSalvar.current = true
     return null
-  }, [])
+  }, [guardarAntes])
+
+  const desfazerImportacao = useCallback(() => {
+    let antes
+    try {
+      antes = lerBackup(JSON.parse(localStorage.getItem(chaveAntes) ?? 'null'))
+    } catch {
+      antes = null
+    }
+    if (antes) {
+      setFicha(antes.ficha)
+      setEscolhasTalento(antes.escolhasTalento)
+      setSemente(antes.semente)
+      podeSalvar.current = true
+    }
+    try {
+      localStorage.removeItem(chaveAntes)
+    } catch {
+      // nada a fazer
+    }
+    setTemAntes(false)
+  }, [chaveAntes])
 
   const exportarJson = useCallback(
     (): string | null => (ficha && semente ? exportarShards(ficha, semente) : null),
@@ -486,6 +531,7 @@ export function usePersonagem(caminhoJson: string): Retorno {
     fazerDescansoCurto,
     fazerDescansoLongo,
     importarTexto,
+    desfazerImportacao: temAntes ? desfazerImportacao : null,
     exportarJson,
     backupJson,
     salvou,

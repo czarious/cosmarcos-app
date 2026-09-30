@@ -125,6 +125,8 @@ export const EN: Dicionario = {
     confirmaImportar: 'This erases everything you changed in the app. There is no undo.',
     esteAparelho: 'This device',
     idioma: 'Language',
+    desfazerImportacao: 'Go back to the sheet from before the import',
+    importacaoDesfeita: 'Back to the sheet from before the import.',
     versao: 'cosmarcos v{v}',
   },
 

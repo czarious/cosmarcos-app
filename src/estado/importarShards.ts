@@ -26,9 +26,11 @@ import type {
   Especializacao,
   Anotacao,
   Condicao,
+  Lesao,
 } from '../tipos/personagem'
 import {
   ATRIBUTO,
+  GRAVIDADE_LESAO,
   PERICIA_NOME,
   PERICIA_NOME_POR_INGLES,
   TIPO_DANO,
@@ -55,6 +57,7 @@ import {
   CONDICAO_ID,
 } from './deparaShards'
 import { efeitoPorNome, ID_PROPRIO, CARACTERISTICAS_AVANCADAS } from '../regras/fabriais'
+import { EFEITOS_LESAO } from '../regras/condicoes'
 
 /** Erro com contexto — diz QUAL personagem e QUAL campo, pra caçar rápido. */
 export class ErroImportacao extends Error {
@@ -447,18 +450,47 @@ export const TITULO_NOTAS_SHARDS = 'Notas (do Shards)'
  * entre colchetes no próprio nome ("Exhausted [-2]"). Nome fora dos 14 GRITA:
  * a lista do Shards é fechada, então nome novo = formato mudou.
  */
+/**
+ * Condição do Shards: `{ id, name, detail }` (js/rules/conditionRules.js) ou o
+ * texto antigo "Exhausted [-2]". O `detail` guarda o valor: Exausto "-2",
+ * Aprimorado "+1 Strength", Afligido "1d4 vital".
+ */
 function traduzCondicao(x: unknown, i: number): Condicao {
-  const bruto = typeof x === 'string' ? x : ehObjeto(x) ? texto(x.name) : ''
+  const o = ehObjeto(x) ? x : {}
+  const bruto = typeof x === 'string' ? x : texto(o.name)
   const m = bruto.match(/^\s*([A-Za-z]+)\s*(?:\[(.*)\])?/)
   const id = m ? CONDICAO_ID[m[1]] : undefined
   if (!id) throw new ErroImportacao(`conditions[${i}]: condição desconhecida "${bruto}"`)
-  const colchete = m?.[2]?.trim()
-  const numero = colchete ? parseInt(colchete.replace(/[^0-9-]/g, ''), 10) : NaN
+  const detalhe = (texto(o.detail ?? o.notes ?? o.value) || m?.[2] || '').replace(/^\[|\]$/g, '').trim()
+  // só Exausto e Aprimorado têm número; o do Afligido é dado de dano ("1d4 vital"), não valor
+  const numero = id === 'exausto' || id === 'aprimorado' ? parseInt(detalhe.match(/[+-]?\d+/)?.[0] ?? '', 10) : NaN
+  const atributoEn = detalhe.match(/strength|speed|intellect|willpower|awareness|presence/i)?.[0].toLowerCase()
   return {
-    uid: crypto.randomUUID(),
+    uid: texto(o.id) || crypto.randomUUID(),
     id,
     valor: Number.isNaN(numero) ? undefined : Math.abs(numero),
-    dano: id === 'afligido' ? colchete : undefined,
+    atributo: id === 'aprimorado' && atributoEn ? ATRIBUTO[atributoEn] : undefined,
+    dano: id === 'afligido' ? detalhe || undefined : undefined,
+  }
+}
+
+/**
+ * Lesão do Shards: `{ id, type, duration, description }`. O efeito d8 não
+ * existe lá — o app o escreve no começo da descrição ("Lento — caí da ponte")
+ * e reconhece de volta aqui.
+ */
+function traduzLesao(x: unknown): Lesao {
+  const o = ehObjeto(x) ? x : {}
+  const desc = texto(o.description ?? o.name)
+  const efeito = EFEITOS_LESAO.find((e) => e.id !== 'outro' && (desc === e.nome || desc.startsWith(`${e.nome} — `)))
+  const descricao = efeito ? desc.slice(efeito.nome.length).replace(/^ — /, '') : desc
+  const dias = parseInt(texto(o.duration).replace(/[^0-9]/g, ''), 10)
+  return {
+    uid: texto(o.id) || crypto.randomUUID(),
+    gravidade: GRAVIDADE_LESAO[texto(o.type).toLowerCase()] ?? 'leve',
+    efeito: efeito?.id ?? 'outro',
+    descricao: descricao || undefined,
+    diasRestantes: Number.isNaN(dias) ? undefined : dias,
   }
 }
 
@@ -563,13 +595,7 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
     radiante: traduzRadiante(c.radiant),
     // estado vivo: começa do que o Shards mandou (pode ser sobrescrito ao reimportar — pergunta 7)
     condicoes: lista(c.conditions).map(traduzCondicao),
-    // O Shards não diz gravidade nem efeito d8 da lesão: entra como "outro",
-    // com o texto dele, e o jogador ajusta na aba Condições.
-    lesoes: lista(c.injuries).map((x) => {
-      const o = ehObjeto(x) ? x : {}
-      const permanente = texto(o.type).toLowerCase().startsWith('perman')
-      return { uid: crypto.randomUUID(), gravidade: permanente ? 'permanente' : 'leve', efeito: 'outro', descricao: texto(o.description ?? o.name) || undefined }
-    }),
+    lesoes: lista(c.injuries).map(traduzLesao),
     anotacoes: anotacoesDoShards(c),
   }
 }

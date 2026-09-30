@@ -14,11 +14,13 @@
  * equipadas · itens (adicionados/removidos) · fabriais (cargas, qualidade,
  * aprimoramentos, revezes, novos/removidos) · anotações (→ campo NOTES) ·
  * objetivos (marcos, concluído, novos/removidos) · ideais (marcos, jurado, texto) ·
- * equipamento em texto livre (→ campo EQUIPMENT).
+ * equipamento em texto livre (→ campo EQUIPMENT) · condições (valor no `detail`) ·
+ * lesões (tipo, dias; o efeito d8 no começo da descrição).
  */
 
 import type { Personagem, Fabrial, Ideal } from '../tipos/personagem'
-import { APRIMORAMENTO_ID, REVES_ID, QUALIDADE_FABRIAL, FABRIAL_PADRAO_ID } from './deparaShards'
+import { APRIMORAMENTO_ID, REVES_ID, QUALIDADE_FABRIAL, FABRIAL_PADRAO_ID, CONDICAO_ID, GRAVIDADE_LESAO, ATRIBUTO } from './deparaShards'
+import { EFEITOS_LESAO } from '../regras/condicoes'
 import { ID_NOTAS_SHARDS } from './importarShards'
 import { ID_PROPRIO, CARACTERISTICAS_AVANCADAS, efeitoUnico, APRIMORAMENTOS_GERAIS, REVEZES_GERAIS } from '../regras/fabriais'
 
@@ -33,6 +35,25 @@ const APRIMORAMENTO_EN = inverte(APRIMORAMENTO_ID)
 const REVES_EN = inverte(REVES_ID)
 const QUALIDADE_EN = inverte(QUALIDADE_FABRIAL)
 const FABRIAL_PADRAO_EN = inverte(FABRIAL_PADRAO_ID)
+
+const CONDICAO_EN = inverte(CONDICAO_ID)
+const GRAVIDADE_EN = inverte(GRAVIDADE_LESAO)
+const ATRIBUTO_EN = inverte(ATRIBUTO)
+
+/** Condição no formato do Shards — o valor vai no `detail`, que ele lê ("+1 Strength", "-2"). */
+function condicaoShards(c: Personagem['condicoes'][number]): Obj {
+  const detail =
+    c.id === 'exausto' && c.valor ? `-${c.valor}` : c.id === 'aprimorado' && c.valor && c.atributo ? `+${c.valor} ${ATRIBUTO_EN[c.atributo][0].toUpperCase()}${ATRIBUTO_EN[c.atributo].slice(1)}` : c.id === 'afligido' ? (c.dano ?? '') : ''
+  return { id: c.uid, name: CONDICAO_EN[c.id], detail }
+}
+
+/** Lesão no formato do Shards — o efeito d8 (que ele não tem) no começo da descrição. */
+function lesaoShards(l: Personagem['lesoes'][number]): Obj {
+  const efeito = EFEITOS_LESAO.find((e) => e.id === l.efeito && e.id !== 'outro')
+  const description = [efeito?.nome, l.descricao].filter(Boolean).join(' — ')
+  const duration = l.diasRestantes !== undefined ? `${l.diasRestantes} days` : l.gravidade === 'superficial' ? 'Long rest' : ''
+  return { id: l.uid, type: GRAVIDADE_EN[l.gravidade], duration, description }
+}
 
 function lista(v: unknown): Obj[] {
   return Array.isArray(v) ? (v as Obj[]) : []
@@ -214,6 +235,9 @@ export function exportarShards(ficha: Personagem, semente: Obj): string {
 
   c.notes = notasShards(ficha)
   c.equipment = ficha.equipamentoTexto
+  c.conditions = ficha.condicoes.map(condicaoShards)
+  c.injuries = ficha.lesoes.map(lesaoShards)
+  c.injuriesCount = ficha.lesoes.length
   c.updatedAt = new Date().toISOString()
 
   return JSON.stringify({ format: 'cosmere-v3', version: 1, characters: [c] }, null, 2)

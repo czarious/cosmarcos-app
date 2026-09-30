@@ -47,7 +47,7 @@
 
 | # | Funcionalidade | Critério de pronto |
 |---|---|---|
-| 3.1 | ✅ **UI de importar** · 🔶 **exportar pro Shards** — o JSON sai certo (ida e volta idêntica), mas o **download pelo botão não foi confirmado na tela** (27/Set/2026) | Baixo o export no celular, toco em "Importar", escolho o arquivo, a ficha atualiza. "Exportar pro Shards" baixa o JSON que o Shards importa, com o que mudei no app |
+| 3.1 | ✅ **UI de importar** · 🔶 **exportar pro Shards** — o JSON sai certo (ida e volta idêntica), mas o **download pelo botão não foi confirmado na tela** (27/Set/2026) | Baixo o export no celular, toco em "Importar", escolho o arquivo, a ficha atualiza. "Exportar pro Shards" baixa o JSON que o Shards importa, com o que mudei no app — inclusive condições (valor no `detail`) e lesões (tipo, dias, efeito d8 na descrição). Importar guarda a ficha de antes: ⚙ → "Voltar à ficha de antes da importação" |
 | 3.2 | ✅ **Fabriais com cargas** | Aba Fabriais: gasto e recupero carga (± , Investidura, grantormenta); monto fabrial único com as opções do livro; o PROJÉTIL gasta carga em Ações |
 | 3.3 | 🔶 **Lesões com contagem de dias** | Temporária conta dias; permanente não some sozinha. Rolagem guiada (d20 + deflexão − 5 por lesão → gravidade), efeito d8 vira condição. Junto: **descanso** curto e longo |
 | 3.4 | 🔶 **Personagem e Radiante** | Aba Personagem: objetivos com 3 marcos + concluir/adicionar/apagar, identidade, propósito, obstáculo, personalidade, conexões. Aba Radiante: vínculo, Ideais com marcos e "Dizer as Palavras", fluxos com total. Os dois voltam no "Exportar pro Shards" | Marco um marco em "Achar Assassino de Kavel", fecho e reabro: continua marcado. No 2º Ideal, marco os 3 e aparece "Dizer as Palavras" |

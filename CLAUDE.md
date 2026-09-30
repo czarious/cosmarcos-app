@@ -100,13 +100,18 @@ Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não 
 
 ## Estado atual — 30/Set/2026
 
-Publicado (v0.9.0): **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
+Publicado (v0.9.2): **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
 
-**Onde paramos (30/Set/2026):**
-0. ✅ **Plano do turno** (v0.9.0): "Usar" planeja, Confirmar grava, Desfazer volta; Projétil só dispara pela carga (sem carga, não dispara); Dorial "ao acertar" só depois de um ataque, uma vez por ataque; a aba Fabriais não gasta mais carga solta. Falta ele conferir no celular.
-1. ✅ **Atualização conferida no celular dele** (30/Set/2026): 0.8.2 → 0.8.3 pela faixa "Atualizar", sem reinstalar.
-2. **Teste de iPhone (`gh workflow run iphone.yml`, Mac do GitHub):** 1ª rodada — Safari tem tudo que o app usa (SW, storage.persist, PluralRules, :has, dvh), abre e desenha certo, aba Perícias ok. **Consertar o roteiro** (`.github/iphone/teste-iphone.mjs`): `.ss-item` com `hasText` pega mais de um item ("Ações") e o menu fica aberto travando o resto — casar o nome exato; e o passo do **simulador da Apple falhou** (ver log do run 36746128698). As recusas de CSP no log são da foto do Playwright, não do app.
-3. **Depois, na ordem que ele pediu:** compatibilidade do JSON — **armadura não é lida** (o Shards grava como item `armor` com `deflect`, e item vestido pode ter `modifiers` somando em atributo/perícia/defesa/recurso: `js/rules/itemRules.js → collectItemEffects` do Shards) → mapeamento do Shards mais fundo → funcionalidades da checklist → 2ª etapa do idioma (descrições de regra).
-4. Save antigo guarda nomes em inglês ("Human · Scholar") e tipos velhos: reimportar resolve — lembrar a mesa de importar uma vez após atualizar.
+**Pedidos do César, em ordem — nenhum se apaga, só muda de estado (ele pediu, 30/Set/2026):**
+1. ✅ Plano do turno, Desfazer e travas de carga (v0.9.0).
+2. ✅ 20 turnos de jogador testados + regra das mãos no Golpear (v0.9.1).
+3. ✅ Ligações entre abas conferidas na tela (equipar ↔ ataques, recarga com Investidura ↔ cargas e topo, ação ↔ Foco, Aprimorar ↔ Principal/Perícias/Condições, descanso ↔ topo, fluxo Radiante ↔ Ações, vaga de talento ↔ perícia) (v0.9.2).
+4. ✅ Salvar/exportar/importar: condições e lesões vão e voltam pro Shards; "Voltar à ficha de antes da importação" na ⚙ (v0.9.2). Falta ele conferir no celular.
+5. ⏳ Teste de iPhone (`gh workflow run iphone.yml`): consertar o roteiro (troca de abas com nome exato) e o passo do simulador (run 36746128698). As recusas de CSP no log são da foto do Playwright.
+6. ⏳ Armadura no JSON — o Shards grava como item `armor` com `deflect`, e item vestido pode ter `modifiers` (`js/rules/itemRules.js → collectItemEffects`).
+7. ⏳ Mapeamento do Shards mais fundo.
+8. ⏳ Funcionalidades que faltam, pela [checklist](escopo/checklist-shards.md).
+9. ⏳ 2ª etapa do idioma (descrições de regra).
+10. 📌 Lembrar a mesa de importar a ficha uma vez depois de atualizar (save antigo guarda nomes em inglês e tipos velhos).
 
 Detalhe e critério de pronto: [roadmap.md](escopo/roadmap.md).

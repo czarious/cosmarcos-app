@@ -76,3 +76,39 @@ describe('exportar pro Shards', () => {
     expect(resto).toEqual(original)
   })
 })
+
+describe('condições e lesões: app → Shards → app', () => {
+  it('o que foi mudado no app volta igual depois de exportar e importar de novo', () => {
+    const f = importarShards(structuredClone(eccho))[0]
+    f.condicoes = [
+      { uid: 'c1', id: 'exausto', valor: 2 },
+      { uid: 'c2', id: 'aprimorado', valor: 1, atributo: 'velocidade' },
+      { uid: 'c3', id: 'afligido', dano: '1d4 vital' },
+      { uid: 'c4', id: 'surpreendido' },
+    ]
+    f.lesoes = [
+      { uid: 'l1', gravidade: 'grave', efeito: 'lento', descricao: 'caí da ponte', diasRestantes: 12 },
+      { uid: 'l2', gravidade: 'superficial', efeito: 'outro', descricao: 'arranhão' },
+      { uid: 'l3', gravidade: 'permanente', efeito: 'uma-mao' },
+    ]
+    const cru = (eccho as { characters: unknown[] }).characters[0]
+    const exportado = JSON.parse(exportarShards(f, structuredClone(cru) as Record<string, unknown>))
+    const volta = importarShards(exportado)[0]
+    expect(volta.condicoes).toEqual(f.condicoes.map((c) => ({ ...c, valor: c.valor, atributo: c.atributo, dano: c.dano })))
+    expect(volta.lesoes).toEqual(f.lesoes.map((l) => ({ ...l, descricao: l.descricao, diasRestantes: l.diasRestantes })))
+  })
+
+  it('no formato que o Shards lê: "+1 Speed", "-2", tipo vicious', () => {
+    const f = importarShards(structuredClone(eccho))[0]
+    f.condicoes = [{ uid: 'c1', id: 'aprimorado', valor: 1, atributo: 'velocidade' }, { uid: 'c2', id: 'exausto', valor: 2 }]
+    f.lesoes = [{ uid: 'l1', gravidade: 'grave', efeito: 'outro', diasRestantes: 7 }]
+    const cru = (eccho as { characters: unknown[] }).characters[0]
+    const c = JSON.parse(exportarShards(f, structuredClone(cru) as Record<string, unknown>)).characters[0]
+    expect(c.conditions).toEqual([
+      { id: 'c1', name: 'Enhanced', detail: '+1 Speed' },
+      { id: 'c2', name: 'Exhausted', detail: '-2' },
+    ])
+    expect(c.injuries).toEqual([{ id: 'l1', type: 'vicious', duration: '7 days', description: '' }])
+    expect(c.injuriesCount).toBe(1)
+  })
+})

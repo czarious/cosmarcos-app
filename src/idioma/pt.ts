@@ -137,6 +137,8 @@ export const PT = {
     confirmaImportar: 'Isso apaga tudo que você mudou no app. Não tem desfazer.',
     esteAparelho: 'Este aparelho',
     idioma: 'Idioma',
+    desfazerImportacao: 'Voltar à ficha de antes da importação',
+    importacaoDesfeita: 'Voltou a ficha de antes da importação.',
     versao: 'cosmarcos v{v}',
   },
 

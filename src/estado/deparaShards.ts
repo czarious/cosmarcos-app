@@ -10,7 +10,7 @@
  * mudar uma chave.
  */
 
-import type { NomeAtributo, TipoEspecializacao, QualidadeFabrial, IdCondicao } from '../tipos/personagem'
+import type { NomeAtributo, TipoEspecializacao, QualidadeFabrial, IdCondicao, GravidadeLesao } from '../tipos/personagem'
 
 export const ATRIBUTO: Record<string, NomeAtributo> = {
   strength: 'forca',
@@ -413,6 +413,17 @@ export const ESPECIALIDADE_CULTURAL: Record<string, string> = {
  * em regras/condicoes.ts. Os 14 batem com o dicionário. Atenção ao par que
  * confunde: Enhanced = Aprimorado (atributo); Empowered = Potencializado (Ideal).
  */
+/**
+ * Tipo de lesão do Shards (js/rules/injuryRules.js) → gravidade do livro.
+ * vicious = 6d6 dias (Grave); shallow = 1d6 dias (Leve); flesh = até o descanso longo (Superficial).
+ */
+export const GRAVIDADE_LESAO: Record<string, GravidadeLesao> = {
+  permanent: 'permanente',
+  vicious: 'grave',
+  shallow: 'leve',
+  flesh: 'superficial',
+}
+
 export const CONDICAO_ID: Record<string, IdCondicao> = {
   Afflicted: 'afligido',
   Enhanced: 'aprimorado',

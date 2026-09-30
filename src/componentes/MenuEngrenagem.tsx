@@ -12,11 +12,13 @@ type Props = {
   aoImportar: () => void
   aoExportar: () => void
   aoBaixarBackup: () => void
+  /** Presente só quando há cópia de antes da última importação. */
+  aoDesfazerImportacao: (() => void) | null
   /** A última gravação falhou → o backup vira a ação urgente. */
   salvou: boolean
 }
 
-export default function MenuEngrenagem({ aoImportar, aoExportar, aoBaixarBackup, salvou }: Props) {
+export default function MenuEngrenagem({ aoImportar, aoExportar, aoBaixarBackup, aoDesfazerImportacao, salvou }: Props) {
   const { t, tx, idioma, definirIdioma } = useIdioma()
   const [aberto, setAberto] = useState(false)
   const [confirmandoImportar, setConfirmandoImportar] = useState(false)
@@ -61,6 +63,11 @@ export default function MenuEngrenagem({ aoImportar, aoExportar, aoBaixarBackup,
             ) : (
               <button className="menu-item" onClick={() => setConfirmandoImportar(true)}>
                 {tx.geral.importarJson}
+              </button>
+            )}
+            {aoDesfazerImportacao && (
+              <button className="menu-item" onClick={e(aoDesfazerImportacao)}>
+                ↶ {tx.menu.desfazerImportacao}
               </button>
             )}
             <button className="menu-item" onClick={e(aoExportar)}>
