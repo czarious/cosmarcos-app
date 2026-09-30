@@ -2315,3 +2315,40 @@ label.linha-item input[type='checkbox'] {
   font-size: 0.72rem;
   color: var(--cor-texto-suave);
 }
+
+/* plano do turno — o que foi escolhido e ainda não gastou nada */
+.turno-pip-plano {
+  opacity: 0.5;
+  text-decoration: underline dotted;
+}
+
+.turno-plano {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px dashed var(--cor-borda);
+}
+
+.turno-plano-lista {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.turno-plano-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.turno-plano-x {
+  background: none;
+  border: none;
+  color: var(--cor-destaque);
+  font-size: 0.8rem;
+  min-width: 28px;
+  min-height: 28px;
+  cursor: pointer;
+}

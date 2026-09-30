@@ -8,7 +8,6 @@ import {
   efeitoUnico,
   descreverOpcao,
   avisosFabrial,
-  usosDoFabrial,
 } from '../../regras/fabriais'
 import { SIMBOLO_RECURSO } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
@@ -125,11 +124,8 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
           )}
 
           <div className="fab-botoes">
-            {usosDoFabrial(f).map((u) => (
-              <button key={u.rotulo} className="cr-btn cr-menos" disabled={f.cargas.atual < u.custo} onClick={() => props.alterarCargas(f.id, -u.custo)}>
-                {nome(u.rotulo)} (−{u.custo} {SIMBOLO_RECURSO.cargas})
-              </button>
-            ))}
+            {/* usar o fabrial (disparar, atordoar, curar) é pelo plano da aba Ações — com trava e desfazer;
+                aqui fica só o ajuste manual das cargas (±) e a recarga */}
             {!ilimitado && (
               <button
                 className="cr-btn cr-mais"

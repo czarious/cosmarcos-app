@@ -174,6 +174,12 @@ export const EN: Dicionario = {
     encerrarManterAprimorado: 'End and keep Enhanced',
     encerrarAprimoradoAcaba: 'End (Enhanced ends)',
     encerrarTurno: 'End turn',
+    plano: 'Plan',
+    confirmar: 'Confirm',
+    limpar: 'Clear',
+    desfazer: 'Undo',
+    removerDoPlano: 'Remove {nome} from the plan',
+    planoPendente: 'Confirm or clear the plan before ending the turn.',
   },
 
   // ── DialogoUso — o dado rolado antes de usar a ação ─────────────
@@ -451,6 +457,7 @@ export const EN: Dicionario = {
     foraDoTurno: 'not your turn',
     jaUsouNoTurno: 'already used this turn',
     faltamAcoes: 'not enough ▶ ({n})',
+    soDepoisDoAtaque: 'only after an attack with the weapon',
     atordoadoMenos2: 'Stunned −2 ▶',
     surpreendidoMenos1: 'Surprised −1 ▶, no fast turn',
     fimTurnoSofra: 'End of your turn: take {dano}.',

@@ -1,6 +1,6 @@
 /* arquivo: Acoes.tsx */
 import { useState } from 'react'
-import type { Personagem, Pericia, Fluxo } from '../../tipos/personagem'
+import type { Personagem, Pericia, Fluxo, Fabrial } from '../../tipos/personagem'
 import { CATALOGO_TALENTOS, type EscolhaVaga } from '../../regras/talentos'
 import { SIMBOLO_ATIVACAO, SIMBOLO_RECURSO } from '../../variaveis'
 import {
@@ -42,12 +42,24 @@ import { useIdioma } from '../../idioma/IdiomaContexto'
 type Props = {
   ficha: Personagem
   escolhasTalento: Record<string, EscolhaVaga>
-  /** Arma que é fabrial (ex.: PROJÉTIL) gasta carga daqui — ver regras/fabriais.ts → fabrialDaArma. */
-  alterarCargas: (idFabrial: string, delta: number) => void
   turno: Turno
 }
 
 const GOLPEAR = usavelDe('padrao', ACOES_PADRAO.find((a) => a.nome === 'Golpear')!)
+
+/** O Golpear com uma arma: chave própria, pra carga "ao acertar" contar os ataques dela. */
+const golpearCom = (arma: string): AcaoUsavel => ({ ...GOLPEAR, chave: `golpear:${arma}`, alvo: arma })
+
+/**
+ * Os ataques de uma arma. Arma-fabrial cujo disparo gasta carga (Projétil) só
+ * ataca pela carga — "Disparar", e "Ataque duplo" com o aprimoramento próprio;
+ * sem carga, não dispara. Arma comum: o Golpear.
+ */
+function ataquesDaArma(arma: string, fab: Fabrial | undefined): { acao: AcaoUsavel; rotulo: string }[] {
+  const disparos = fab ? usosDoFabrial(fab).filter((u) => u.tipo === 'ataque') : []
+  if (disparos.length === 0) return [{ acao: golpearCom(arma), rotulo: 'Golpear' }]
+  return disparos.map((u) => ({ acao: { ...golpearCom(arma), nome: u.rotulo, cargas: { idFabrial: fab!.id, qtd: u.custo } }, rotulo: u.rotulo }))
+}
 
 /** "−1 ◆ −2 ✦ −1 ⚡" — o que o uso desconta, já com o Focado aplicado. */
 function textoCusto(acao: AcaoUsavel, ficha: Personagem): string {
@@ -59,7 +71,7 @@ function textoCusto(acao: AcaoUsavel, ficha: Personagem): string {
   return partes.join(' ')
 }
 
-export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: Props) {
+export default function Acoes({ ficha, escolhasTalento, turno }: Props) {
   const { t, tx, nome } = useIdioma()
   const armasEquipadas = ficha.armas.filter((a) => a.equipada)
   // Acerto é TESTE (Exausto conta); dano não é (regras/condicoes.ts → UsoPericia).
@@ -68,7 +80,7 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
 
   function tocarUsar(acao: AcaoUsavel) {
     if (precisaDialogo(acao)) setPedindo(acao)
-    else turno.usar(acao)
+    else turno.adicionar(acao)
   }
   const ctx: Ctx = { ficha, turno, escolhasTalento, tocarUsar, abrirDetalhe: (p) => setDetalheAberto({ pericia: p, uso: 'teste' }) }
 
@@ -152,9 +164,17 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
                     </ul>
                   )}
                   <div className="fab-botoes ataque-usar">
-                    <BotaoUsar ctx={ctx} acao={GOLPEAR} rotulo={`${nome('Golpear')} ${SIMBOLO_ATIVACAO['1acao']}`} />
-                    {/* "com a mão inábil, gasta 2 de foco" — mesmo Golpear, outro custo */}
-                    <BotaoUsar ctx={ctx} acao={{ ...GOLPEAR, custo: { foco: 2 } }} rotulo={`${tx.acoes.maoInabil} ${SIMBOLO_ATIVACAO['1acao']}`} />
+                    {ataquesDaArma(a.nome, fab).map(({ acao, rotulo }) => (
+                      <BotaoUsar ctx={ctx} key={rotulo} acao={acao} rotulo={`${nome(rotulo)} ${SIMBOLO_ATIVACAO['1acao']}`} />
+                    ))}
+                    {/* "com a mão inábil, gasta 2 de foco" — mesmo Golpear, outro custo (arma-fabrial dispara pela carga) */}
+                    {!fab && (
+                      <BotaoUsar
+                        ctx={ctx}
+                        acao={{ ...golpearCom(a.nome), custo: { foco: 2 } }}
+                        rotulo={`${tx.acoes.maoInabil} ${SIMBOLO_ATIVACAO['1acao']}`}
+                      />
+                    )}
                   </div>
                   {fab && (
                     <div className="fab-botoes ataque-fabrial">
@@ -162,11 +182,25 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
                         {SIMBOLO_RECURSO.cargas} {fab.cargas.atual}
                         <small>/{fab.cargas.max}</small>
                       </span>
-                      {usosDoFabrial(fab).map((u) => (
-                        <button key={u.rotulo} className="cr-btn cr-menos" disabled={fab.cargas.atual < u.custo} onClick={() => alterarCargas(fab.id, -u.custo)}>
-                          {nome(u.rotulo)} (−{u.custo})
-                        </button>
-                      ))}
+                      {/* carga "ao acertar" (Dorial): só depois de um ataque com esta arma, uma por ataque */}
+                      {usosDoFabrial(fab)
+                        .filter((u) => u.tipo === 'aoAcertar')
+                        .map((u) => (
+                          <BotaoUsar
+                            ctx={ctx}
+                            key={u.rotulo}
+                            acao={{
+                              chave: `acerto:${a.nome}:${u.rotulo}`,
+                              nome: u.rotulo,
+                              alvo: a.nome,
+                              ativacao: 'especial',
+                              cargas: { idFabrial: fab.id, qtd: u.custo },
+                              depoisDe: golpearCom(a.nome).chave,
+                              repetivel: true,
+                            }}
+                            rotulo={nome(u.rotulo)}
+                          />
+                        ))}
                     </div>
                   )}
                 </div>
@@ -224,7 +258,7 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
             {fabriaisDeCombate.map((f) => {
               const usavel: AcaoUsavel = { chave: `fabrial:${f.id}`, nome: f.nome, ativacao: ativacaoDoFabrial(f)!, cargas: { idFabrial: f.id, qtd: 1 } }
               return (
-                <li className={avaliar(usavel, turno.estado, ficha).pode ? 'acao-padrao' : 'acao-padrao acao-apagada'} key={f.id}>
+                <li className={avaliar(usavel, turno.simulacao?.estado ?? null, turno.simulacao?.ficha ?? ficha).pode ? 'acao-padrao' : 'acao-padrao acao-apagada'} key={f.id}>
                   <span className="acao-padrao-simbolo">{SIMBOLO_ATIVACAO[usavel.ativacao]}</span>
                   <div className="acao-corpo">
                     <span className="acao-padrao-nome">{nome(f.nome)}</span>
@@ -265,7 +299,7 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
           estado={turno.estado}
           aoFechar={() => setPedindo(null)}
           aoUsar={(extra) => {
-            turno.usar(pedindo, extra)
+            turno.adicionar(pedindo, extra)
             setPedindo(null)
           }}
         />
@@ -287,7 +321,7 @@ type Ctx = {
 function BotaoUsar({ ctx, acao, rotulo }: { ctx: Ctx; acao: AcaoUsavel; rotulo?: string }) {
   const { ficha, turno, tocarUsar } = ctx
   const { t, tx, msg } = useIdioma()
-  const av = avaliar(acao, turno.estado, ficha)
+  const av = avaliar(acao, turno.simulacao?.estado ?? null, turno.simulacao?.ficha ?? ficha)
   const custo = textoCusto(acao, ficha)
   return (
     <span className="usar">
@@ -305,7 +339,7 @@ function LinhaAcao({ ctx, acao, grupo, extra }: { ctx: Ctx; acao: EntradaAcao; g
   const { ficha, turno } = ctx
   const { t, tx, nome } = useIdioma()
   const usavel = usavelDe(grupo, acao)
-  const apagada = !avaliar(usavel, turno.estado, ficha).pode
+  const apagada = !avaliar(usavel, turno.simulacao?.estado ?? null, turno.simulacao?.ficha ?? ficha).pode
   return (
     <li className={apagada ? 'acao-padrao acao-apagada' : 'acao-padrao'}>
       <span className="acao-padrao-simbolo">{SIMBOLO_ATIVACAO[acao.ativacao]}</span>
@@ -325,14 +359,13 @@ function LinhaAcao({ ctx, acao, grupo, extra }: { ctx: Ctx; acao: EntradaAcao; g
 }
 
 function CartaoFluxo({ ctx, fluxo: f }: { ctx: Ctx; fluxo: Fluxo }) {
-  const { ficha, turno, escolhasTalento, abrirDetalhe } = ctx
+  const { ficha, escolhasTalento, abrirDetalhe } = ctx
   const { t, tx, nome, msg } = useIdioma()
   const [aberto, setAberto] = useState(false)
   const guia = GUIAS_FLUXO[f.id]
   const d = detalhePericia(fluxoComoPericia(f), ficha, escolhasTalento)
   const esc = ESCALONAMENTO_FLUXO[Math.max(1, Math.min(5, f.graduacao))]
   const usavel: AcaoUsavel = { chave: `fluxo:${f.id}`, nome: f.nome, ativacao: f.ativacao, custo: guia?.custoAoUsar }
-  const inv = ficha.recursos.investidura.atual
   return (
     <li className="ataque">
       <div className="ataque-cabeca">
@@ -350,9 +383,12 @@ function CartaoFluxo({ ctx, fluxo: f }: { ctx: Ctx; fluxo: Fluxo }) {
       <div className="fab-botoes">
         <BotaoUsar ctx={ctx} acao={usavel} />
         {guia?.pagamentos(f.graduacao).map((p) => (
-          <button key={p.investidura} className="usar-botao" disabled={inv < p.investidura} onClick={() => turno.pagar(p.investidura)}>
-            {msg(p.rotulo)} {SIMBOLO_RECURSO.investidura}
-          </button>
+          <BotaoUsar
+            ctx={ctx}
+            key={p.investidura}
+            acao={{ chave: `pagar:${f.id}:${p.investidura}`, nome: f.nome, ativacao: 'especial', custo: { investidura: p.investidura }, repetivel: true }}
+            rotulo={msg(p.rotulo)}
+          />
         ))}
       </div>
       <button className="fluxo-guia-botao" onClick={() => setAberto(!aberto)} aria-expanded={aberto}>

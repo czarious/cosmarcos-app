@@ -1,52 +1,44 @@
 /* arquivo: useTurno.ts */
-import { useCallback, useEffect, useState } from 'react'
-import type { Condicao, Personagem } from '../tipos/personagem'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { Personagem } from '../tipos/personagem'
 import type { NomeRecurso } from './usePersonagem'
 import {
+  NOTA_APRIMORAR,
   aprimorarVenceAgora,
-  avaliar,
   comecarTurno,
-  custoEfetivo,
   encerrarTurno,
-  gastar,
   iniciarCombate,
+  simularPlano,
   type AcaoUsavel,
   type EstadoTurno,
+  type ExtraUso,
+  type ItemPlano,
   type TipoTurno,
 } from '../regras/turno'
 import { condicoesEfetivas } from '../regras/condicoes'
-import { patamarPorNivel } from '../regras/pericias'
 
-// O rastreador de turno LIGADO À FICHA: a conta das ▶/↻ é de regras/turno.ts;
-// aqui ela vira gasto de Foco/Investidura/carga, condição aplicada e cura.
+// O rastreador de turno LIGADO À FICHA. A conta é de regras/turno.ts; aqui
+// ela vira estado e é gravada na ficha.
+//
+// PLANO → CONFIRMAR → DESFAZER (pedido do César, 30/Set/2026): "Usar" só põe
+// a ação no plano; nada é gasto até "Confirmar", que grava de uma vez o que
+// `simularPlano` calculou. "Desfazer" volta a última confirmação inteira
+// (recursos, cargas, condições e ações), enquanto o turno não acabar.
 //
 // O estado do combate NÃO entra no save da ficha: é passageiro (acaba com o
 // combate) e não vai pro Shards. Mora numa chave própria do localStorage só
-// pra sobreviver a tela apagando ou F5 no meio da luta.
-
-/** Marca as condições que o Aprimorar pôs — é por ela que o fim do efeito as acha. */
-export const NOTA_APRIMORAR = 'Aprimorar (Luz das Tempestades)'
+// pra sobreviver a tela apagando ou F5 no meio da luta. O plano não é salvo.
 
 /** O que a API da ficha (usePersonagem) precisa oferecer pro turno mexer nela. */
 export type FichaParaTurno = {
   alterarRecurso: (qual: NomeRecurso, delta: number) => void
   definirRecurso: (qual: NomeRecurso, valor: number) => void
-  adicionarCondicao: (c: Omit<Condicao, 'uid'>) => void
   removerCondicao: (uid: string) => void
-  alterarCargas: (idFabrial: string, delta: number) => void
-  fazerDescansoCurto: (vida: number, foco: number) => void
+  aplicarFicha: (parte: Pick<Personagem, 'recursos' | 'fabriais' | 'condicoes'>) => void
 }
 
-/** O que o jogador informa quando a ação depende do dado rolado na mão. */
-export type ExtraUso = {
-  /** Restaurar: o 1d6 rolado (o patamar o app soma). */
-  d6?: number
-  /** Recuperar: como dividiu o dado de recuperação. */
-  vida?: number
-  foco?: number
-  /** Preparar: ▶ da ação que ficou preparada. */
-  reservar?: number
-}
+/** Foto de antes de confirmar — o que o "Desfazer" devolve. */
+type Foto = { estado: EstadoTurno | null } & Pick<Personagem, 'recursos' | 'fabriais' | 'condicoes'>
 
 function chaveSave(ficha: Personagem): string {
   return `cosmarcos:turno:${ficha.meta.nome}`
@@ -64,11 +56,15 @@ function ler(ficha: Personagem | null): EstadoTurno | null {
 
 export function useTurno(ficha: Personagem | null, api: FichaParaTurno) {
   const [estado, setEstado] = useState<EstadoTurno | null>(null)
+  const [plano, setPlano] = useState<ItemPlano[]>([])
+  const [foto, setFoto] = useState<Foto | null>(null)
   const nome = ficha?.meta.nome
 
   // Carrega quando a ficha chega (ou troca de personagem).
   useEffect(() => {
     setEstado(ler(ficha))
+    setPlano([])
+    setFoto(null)
     // só a identidade da ficha importa aqui, não cada mudança de Vida
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nome])
@@ -87,12 +83,25 @@ export function useTurno(ficha: Personagem | null, api: FichaParaTurno) {
     [ficha],
   )
 
+  /** Como turno e ficha ficam se o plano for confirmado — a tela avalia os botões por aqui. */
+  const simulacao = useMemo(() => (ficha ? simularPlano(plano, estado, ficha) : null), [plano, estado, ficha])
+
   const tirarAprimorar = useCallback(() => {
     if (!ficha) return
     for (const c of ficha.condicoes) if (c.id === 'aprimorado' && c.nota === NOTA_APRIMORAR) api.removerCondicao(c.uid)
   }, [ficha, api])
 
-  const iniciar = useCallback(() => ficha && gravar(iniciarCombate(ficha)), [ficha, gravar])
+  /** Troca de turno fecha a janela do "Desfazer" e descarta plano não confirmado. */
+  const virarPagina = useCallback(() => {
+    setPlano([])
+    setFoto(null)
+  }, [])
+
+  const iniciar = useCallback(() => {
+    if (!ficha) return
+    virarPagina()
+    gravar(iniciarCombate(ficha))
+  }, [ficha, gravar, virarPagina])
 
   const comecar = useCallback(
     (tipo: TipoTurno) => {
@@ -101,15 +110,16 @@ export function useTurno(ficha: Personagem | null, api: FichaParaTurno) {
       if (condicoesEfetivas(ficha).some((c) => c.id === 'potencializado')) {
         api.definirRecurso('investidura', ficha.recursos.investidura.max)
       }
+      virarPagina()
       gravar(comecarTurno(estado, ficha, tipo))
     },
-    [ficha, estado, api, gravar],
+    [ficha, estado, api, gravar, virarPagina],
   )
 
   /** `manterAprimorar`: só conta quando o Aprimorado vence neste turno (aprimorarVenceAgora). */
   const encerrar = useCallback(
     (manterAprimorar = false) => {
-      if (!ficha || !estado) return
+      if (!ficha || !estado || plano.length > 0) return
       let aprimorarAte = estado.aprimorarAte
       if (aprimorarVenceAgora(estado)) {
         if (manterAprimorar && ficha.recursos.investidura.atual >= 1) {
@@ -123,53 +133,81 @@ export function useTurno(ficha: Personagem | null, api: FichaParaTurno) {
       // Surpreendido: "removida após seu próximo turno" — só a marcada à mão;
       // a que vem de lesão fica enquanto a lesão durar.
       for (const c of ficha.condicoes) if (c.id === 'surpreendido') api.removerCondicao(c.uid)
+      virarPagina()
       gravar({ ...encerrarTurno(estado), aprimorarAte })
     },
-    [ficha, estado, api, gravar, tirarAprimorar],
+    [ficha, estado, plano, api, gravar, tirarAprimorar, virarPagina],
   )
 
   const encerrarCombate = useCallback(() => {
     // O Aprimorar se mede em turnos; sem turno, ele acaba junto.
     if (estado?.aprimorarAte !== null && estado?.aprimorarAte !== undefined) tirarAprimorar()
+    virarPagina()
     gravar(null)
-  }, [estado, gravar, tirarAprimorar])
+  }, [estado, gravar, tirarAprimorar, virarPagina])
 
-  const usar = useCallback(
+  /** Põe no plano — se couber, contando o que já está no plano. Nada é gasto aqui. */
+  const adicionar = useCallback(
     (acao: AcaoUsavel, extra: ExtraUso = {}) => {
-      if (!ficha || !avaliar(acao, estado, ficha).pode) return
-      const custo = custoEfetivo(acao, ficha)
-      if (custo.foco) api.alterarRecurso('foco', -custo.foco)
-      if (custo.investidura) api.alterarRecurso('investidura', -custo.investidura)
-      if (acao.cargas) api.alterarCargas(acao.cargas.idFabrial, -acao.cargas.qtd)
-
-      let novo = estado ? gastar(acao, estado, ficha, extra.reservar ?? 0) : null
-      switch (acao.efeito) {
-        case 'inspirar':
-          api.definirRecurso('investidura', ficha.recursos.investidura.max)
-          break
-        case 'aprimorar':
-          tirarAprimorar() // renovar não empilha: continua +1, só estica o prazo
-          api.adicionarCondicao({ id: 'aprimorado', valor: 1, atributo: 'forca', nota: NOTA_APRIMORAR })
-          api.adicionarCondicao({ id: 'aprimorado', valor: 1, atributo: 'velocidade', nota: NOTA_APRIMORAR })
-          // "até o final do PRÓXIMO turno" — fora de combate não há turno pra contar
-          if (novo && novo.tipo !== null) novo = { ...novo, aprimorarAte: novo.rodada + 1 }
-          break
-        case 'restaurar':
-          api.alterarRecurso('vida', (extra.d6 ?? 0) + patamarPorNivel(ficha.meta.nivel))
-          break
-        case 'recuperar':
-          api.fazerDescansoCurto(extra.vida ?? 0, extra.foco ?? 0)
-          break
-      }
-      if (novo) gravar(novo)
+      if (!ficha) return
+      const teste = simularPlano([...plano, { acao, extra }], estado, ficha)
+      if (!teste.avaliacoes.at(-1)?.pode) return
+      setPlano([...plano, { acao, extra }])
     },
-    [ficha, estado, api, gravar, tirarAprimorar],
+    [ficha, plano, estado],
   )
 
-  /** Gasto de Investidura que depende do resultado (fluxo: tamanho do alvo, efeito extra). */
-  const pagar = useCallback((investidura: number) => api.alterarRecurso('investidura', -investidura), [api])
+  /** Tira um item e, junto, o que dependia dele e deixou de caber (ex.: a carga "ao acertar" do ataque tirado). */
+  const remover = useCallback(
+    (indice: number) => {
+      if (!ficha) return
+      let novo = plano.filter((_, i) => i !== indice)
+      for (;;) {
+        const av = simularPlano(novo, estado, ficha).avaliacoes
+        const quebrado = av.findIndex((a) => !a.pode)
+        if (quebrado < 0) break
+        novo = novo.filter((_, i) => i !== quebrado)
+      }
+      setPlano(novo)
+    },
+    [ficha, plano, estado],
+  )
 
-  return { estado, iniciar, comecar, encerrar, encerrarCombate, usar, pagar }
+  const limpar = useCallback(() => setPlano([]), [])
+
+  const confirmar = useCallback(() => {
+    if (!ficha || !simulacao || plano.length === 0) return
+    setFoto({ estado, recursos: ficha.recursos, fabriais: ficha.fabriais, condicoes: ficha.condicoes })
+    const { ficha: f, estado: e } = simulacao
+    api.aplicarFicha({ recursos: f.recursos, fabriais: f.fabriais, condicoes: f.condicoes })
+    if (e !== estado) gravar(e)
+    setPlano([])
+  }, [ficha, simulacao, plano, estado, api, gravar])
+
+  const desfazer = useCallback(() => {
+    if (!foto) return
+    api.aplicarFicha({ recursos: foto.recursos, fabriais: foto.fabriais, condicoes: foto.condicoes })
+    gravar(foto.estado)
+    setFoto(null)
+  }, [foto, api, gravar])
+
+  return {
+    estado,
+    plano,
+    /** Turno e ficha como ficam se o plano for confirmado. */
+    simulacao,
+    podeDesfazer: foto !== null,
+    iniciar,
+    comecar,
+    encerrar,
+    encerrarCombate,
+    adicionar,
+    remover,
+    limpar,
+    confirmar,
+    desfazer,
+  }
 }
 
 export type Turno = ReturnType<typeof useTurno>
+export type { ExtraUso }

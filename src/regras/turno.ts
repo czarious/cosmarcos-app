@@ -1,7 +1,9 @@
 /* arquivo: turno.ts */
-import type { Ativacao, Personagem } from '../tipos/personagem'
+import type { Ativacao, Condicao, Personagem } from '../tipos/personagem'
 import type { Custo, EfeitoAcao, EntradaAcao } from './acoes'
 import { acoesNoTurno, condicoesEfetivas } from './condicoes'
+import { descansoCurto } from './descanso'
+import { patamarPorNivel } from './pericias'
 import type { Mensagem } from '../idioma/pt'
 
 /**
@@ -16,6 +18,11 @@ import type { Mensagem } from '../idioma/pt'
  *  - ação livre segue as regras de ação: só no seu turno (Largar: "no turno de outro, só com Preparar")
  *  - Preparar: 1 ▶ + as ▶ da ação escolhida, usada fora do turno até o início do próximo
  *  - Focado: habilidade que custa foco custa 1 a menos
+ *  - carga "ao acertar" (Dorial): só depois de um ataque com a arma, uma por ataque
+ *
+ * O PLANO DO TURNO: o jogador escolhe tudo antes e confirma de uma vez.
+ * `simularPlano` diz como a ficha e o turno ficariam — e é exatamente isso
+ * que "Confirmar" grava. Nada é gasto enquanto é só plano.
  */
 
 export type TipoTurno = 'rapido' | 'lento'
@@ -53,6 +60,10 @@ export type AcaoUsavel = {
   efeito?: EfeitoAcao
   umaVezPorCena?: boolean
   mesmoInconsciente?: boolean
+  /** Complemento do nome na tela — a arma do Golpear ("Golpear · Maça"). */
+  alvo?: string
+  /** Só depois desta ação (chave), uma vez por vez que ela foi feita — ex.: carga do Dorial "ao acertar". */
+  depoisDe?: string
 }
 
 export const ACOES_POR_ATIVACAO: Partial<Record<Ativacao, number>> = { '1acao': 1, '2acoes': 2, '3acoes': 3 }
@@ -131,6 +142,10 @@ export function avaliar(acao: AcaoUsavel, e: EstadoTurno | null, ficha: Personag
   }
   if (!e) return { pode: true }
 
+  if (acao.depoisDe) {
+    const vezes = (chave: string) => e.usadas.filter((u) => u === chave).length
+    if (vezes(acao.depoisDe) <= vezes(acao.chave)) return { pode: false, motivo: { texto: (d) => d.regras.soDepoisDoAtaque } }
+  }
   if (acao.umaVezPorCena && e.usadasNaCena.includes(acao.chave)) return { pode: false, motivo: { texto: (d) => d.regras.umaVezPorCena } }
   const inconsciente = condicoesEfetivas(ficha).some((c) => c.id === 'inconsciente')
   if (inconsciente && !acao.mesmoInconsciente) return { pode: false, motivo: { texto: (d) => d.regras.inconsciente } }
@@ -169,7 +184,7 @@ export function gastar(acao: AcaoUsavel, e: EstadoTurno, ficha: Personagem, rese
   return {
     ...e,
     acoes: e.acoes - n - reservar,
-    usadas: eh ? [...e.usadas, acao.chave] : e.usadas,
+    usadas: eh || acao.depoisDe ? [...e.usadas, acao.chave] : e.usadas,
     usadasNaCena,
     preparada: acao.efeito === 'preparar' ? reservar : e.preparada,
   }
@@ -187,4 +202,83 @@ export function usavelDe(grupo: string, a: EntradaAcao): AcaoUsavel {
     umaVezPorCena: a.umaVezPorCena,
     mesmoInconsciente: a.mesmoInconsciente,
   }
+}
+
+// ── o plano do turno ─────────────────────────────────────────────────
+
+/** Marca as condições que o Aprimorar pôs — é por ela que o fim do efeito as acha. */
+export const NOTA_APRIMORAR = 'Aprimorar (Luz das Tempestades)'
+
+/** O que o jogador informa quando a ação depende do dado rolado na mão. */
+export type ExtraUso = {
+  /** Restaurar: o 1d6 rolado (o patamar a regra soma). */
+  d6?: number
+  /** Recuperar: como dividiu o dado de recuperação. */
+  vida?: number
+  foco?: number
+  /** Preparar: ▶ da ação que ficou preparada. */
+  reservar?: number
+}
+
+export type ItemPlano = { acao: AcaoUsavel; extra?: ExtraUso }
+
+const trava = (v: number, max: number) => Math.max(0, Math.min(max, v))
+
+/** A ficha depois de UM uso: custo pago (Focado já aplicado) e efeito aplicado. Pura. */
+export function aplicarUso(f: Personagem, acao: AcaoUsavel, extra: ExtraUso = {}): Personagem {
+  const custo = custoEfetivo(acao, f)
+  const r = f.recursos
+  let recursos = {
+    ...r,
+    foco: { ...r.foco, atual: trava(r.foco.atual - (custo.foco ?? 0), r.foco.max) },
+    investidura: { ...r.investidura, atual: trava(r.investidura.atual - (custo.investidura ?? 0), r.investidura.max) },
+  }
+  const fabriais = acao.cargas
+    ? f.fabriais.map((fab) =>
+        fab.id === acao.cargas!.idFabrial ? { ...fab, cargas: { ...fab.cargas, atual: trava(fab.cargas.atual - acao.cargas!.qtd, fab.cargas.max) } } : fab,
+      )
+    : f.fabriais
+  let condicoes = f.condicoes
+  switch (acao.efeito) {
+    case 'inspirar':
+      recursos = { ...recursos, investidura: { ...recursos.investidura, atual: recursos.investidura.max } }
+      break
+    case 'aprimorar': {
+      // renovar não empilha: continua +1, só estica o prazo
+      const aprimorado = (atributo: Condicao['atributo']): Condicao => ({ uid: crypto.randomUUID(), id: 'aprimorado', valor: 1, atributo, nota: NOTA_APRIMORAR })
+      condicoes = [...condicoes.filter((c) => !(c.id === 'aprimorado' && c.nota === NOTA_APRIMORAR)), aprimorado('forca'), aprimorado('velocidade')]
+      break
+    }
+    case 'restaurar':
+      recursos = { ...recursos, vida: { ...recursos.vida, atual: trava(recursos.vida.atual + (extra.d6 ?? 0) + patamarPorNivel(f.meta.nivel), recursos.vida.max) } }
+      break
+    case 'recuperar':
+      recursos = descansoCurto({ ...f, recursos }, extra.vida ?? 0, extra.foco ?? 0).recursos
+      break
+  }
+  return { ...f, recursos, fabriais, condicoes }
+}
+
+/**
+ * Como turno e ficha ficariam com o plano inteiro, na ordem — e se cada item
+ * cabe. Item que não cabe é pulado (e marcado), os outros seguem. Planejar
+ * Inspirar antes libera Aprimorar no mesmo plano, porque a simulação já encheu
+ * a Investidura.
+ */
+export function simularPlano(itens: ItemPlano[], e0: EstadoTurno | null, f0: Personagem) {
+  let e = e0
+  let f = f0
+  const avaliacoes: Avaliacao[] = []
+  for (const it of itens) {
+    const av = avaliar(it.acao, e, f)
+    avaliacoes.push(av)
+    if (!av.pode) continue
+    if (e) {
+      e = gastar(it.acao, e, f, it.extra?.reservar ?? 0)
+      // Aprimorar: "até o final do PRÓXIMO turno"
+      if (it.acao.efeito === 'aprimorar' && e.tipo !== null) e = { ...e, aprimorarAte: e.rodada + 1 }
+    }
+    f = aplicarUso(f, it.acao, it.extra)
+  }
+  return { estado: e, ficha: f, avaliacoes }
 }

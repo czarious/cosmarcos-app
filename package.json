@@ -2,7 +2,7 @@
   "_arquivo": "package.json",
   "name": "cosmarcos-app",
   "private": true,
-  "version": "0.8.3",
+  "version": "0.9.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -68,6 +68,8 @@ type Retorno = {
   exportarJson: () => string | null
   adicionarCondicao: (c: Omit<Condicao, 'uid'>) => void
   removerCondicao: (uid: string) => void
+  /** Grava de uma vez recursos, fabriais e condições — o "Confirmar" e o "Desfazer" do plano do turno. */
+  aplicarFicha: (parte: Pick<Personagem, 'recursos' | 'fabriais' | 'condicoes'>) => void
   /** Cria ou substitui (mesmo `uid`) uma lesão. */
   salvarLesao: (l: Lesao) => void
   removerLesao: (uid: string) => void
@@ -421,6 +423,10 @@ export function usePersonagem(caminhoJson: string): Retorno {
     setFicha((atual) => (atual ? { ...atual, condicoes: atual.condicoes.filter((c) => c.uid !== uid) } : atual))
   }, [])
 
+  const aplicarFicha = useCallback((parte: Pick<Personagem, 'recursos' | 'fabriais' | 'condicoes'>) => {
+    setFicha((atual) => (atual ? { ...atual, recursos: parte.recursos, fabriais: parte.fabriais, condicoes: parte.condicoes } : atual))
+  }, [])
+
   const salvarLesao = useCallback((l: Lesao) => {
     setFicha((atual) => {
       if (!atual) return atual
@@ -474,6 +480,7 @@ export function usePersonagem(caminhoJson: string): Retorno {
     removerFabrial,
     adicionarCondicao,
     removerCondicao,
+    aplicarFicha,
     salvarLesao,
     removerLesao,
     fazerDescansoCurto,

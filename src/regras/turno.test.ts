@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest'
 import type { Personagem, Condicao } from '../tipos/personagem'
 import { importarShards } from '../estado/importarShards'
 import { ACOES_PADRAO, ACOES_CONCEDIDAS, ACOES_ESPRENO } from './acoes'
-import { avaliar, comecarTurno, custoEfetivo, encerrarTurno, gastar, iniciarCombate, aprimorarVenceAgora, usavelDe, type AcaoUsavel } from './turno'
+import { simularPlano, avaliar, comecarTurno, custoEfetivo, encerrarTurno, gastar, iniciarCombate, aprimorarVenceAgora, usavelDe, type AcaoUsavel } from './turno'
 import eccho from '../../public/personagens/eccho.json'
 import { mensagem } from '../idioma/idioma'
 
@@ -139,5 +139,55 @@ describe('Aprimorar', () => {
     expect(aprimorarVenceAgora(e)).toBe(false)
     e = comecarTurno(encerrarTurno(e), f, 'lento')
     expect(aprimorarVenceAgora(e)).toBe(true)
+  })
+})
+
+describe('plano do turno', () => {
+  const projetil = (f: Personagem) => f.fabriais.find((x) => x.nome === 'PROJÉTIL')!
+  const disparar = (f: Personagem): AcaoUsavel => ({ ...padrao('Golpear'), chave: 'golpear:PROJÉTIL', nome: 'Disparar', cargas: { idFabrial: projetil(f).id, qtd: 1 } })
+
+  it('planejar não gasta nada: a ficha e o turno de entrada ficam iguais', () => {
+    const f = eccho_()
+    const e = comecarTurno(iniciarCombate(f), f, 'lento')
+    const antes = JSON.stringify({ f, e })
+    const sim = simularPlano([{ acao: padrao('Esquivar') }, { acao: disparar(f) }], e, f)
+    expect(JSON.stringify({ f, e })).toBe(antes)
+    expect(sim.ficha.recursos.foco.atual).toBe(f.recursos.foco.atual - 1)
+    expect(sim.estado!.acoes).toBe(2)
+  })
+
+  it('Inspirar no plano libera o Aprimorar logo depois, no mesmo turno', () => {
+    const f = eccho_()
+    f.recursos.investidura.atual = 0
+    const e = comecarTurno(iniciarCombate(f), f, 'lento')
+    const sim = simularPlano([{ acao: luz('Inspirar Luz das Tempestades') }, { acao: luz('Aprimorar') }], e, f)
+    expect(sim.avaliacoes.map((a) => a.pode)).toEqual([true, true])
+    expect(sim.ficha.recursos.investidura.atual).toBe(f.recursos.investidura.max - 1)
+    expect(sim.ficha.condicoes.filter((c) => c.id === 'aprimorado')).toHaveLength(2)
+    expect(sim.estado!.aprimorarAte).toBe(e.rodada + 1)
+  })
+
+  it('o plano não passa das ▶ do turno', () => {
+    const f = eccho_()
+    const e = comecarTurno(iniciarCombate(f), f, 'lento')
+    const sim = simularPlano([1, 2, 3, 4].map(() => ({ acao: padrao('Golpear') })), e, f)
+    expect(sim.avaliacoes.map((a) => a.pode)).toEqual([true, true, true, false])
+  })
+
+  it('Projétil: cada disparo gasta 1 carga; sem carga, não dispara', () => {
+    const f = eccho_()
+    expect(projetil(f).cargas.atual).toBe(5)
+    const sim = simularPlano([1, 2, 3, 4, 5, 6].map(() => ({ acao: disparar(f) })), null, f)
+    expect(sim.avaliacoes.map((a) => a.pode)).toEqual([true, true, true, true, true, false])
+    expect(projetil(sim.ficha).cargas.atual).toBe(0)
+  })
+
+  it('carga "ao acertar": só depois de um ataque com a arma, uma por ataque', () => {
+    const f = eccho_()
+    const e = comecarTurno(iniciarCombate(f), f, 'lento')
+    const somar: AcaoUsavel = { chave: 'acerto:PROJÉTIL:x', nome: 'Somar dano', ativacao: 'especial', depoisDe: 'golpear:PROJÉTIL', repetivel: true, cargas: { idFabrial: projetil(f).id, qtd: 1 } }
+    expect(simularPlano([{ acao: somar }], e, f).avaliacoes[0].pode).toBe(false)
+    const sim = simularPlano([{ acao: disparar(f) }, { acao: somar }, { acao: somar }], e, f)
+    expect(sim.avaliacoes.map((a) => a.pode)).toEqual([true, true, false])
   })
 })

@@ -72,7 +72,19 @@ export const CARACTERISTICA_EN: Record<Caracteristica, string> = {
 }
 
 /** Botão de gasto de carga que o efeito oferece em Ações (ex.: disparar o Projétil). */
-export type UsoCarga = { rotulo: string; rotuloEn: string; custo: number; /** só aparece com o aprimoramento próprio do efeito */ exigeProprio?: boolean }
+/**
+ * Um jeito de gastar carga. `ataque`: o próprio ataque gasta (Projétil — sem
+ * carga, não dispara); `aoAcertar`: depois de acertar um ataque com a arma,
+ * uma vez por ataque (Dorial); `uso`: a ação do fabrial (Iluminial, Vidarial).
+ */
+export type UsoCarga = {
+  rotulo: string
+  rotuloEn: string
+  custo: number
+  tipo: 'ataque' | 'aoAcertar' | 'uso'
+  /** só aparece com o aprimoramento próprio do efeito */
+  exigeProprio?: boolean
+}
 
 export type EfeitoUnico = {
   id: string
@@ -120,22 +132,25 @@ export const EFEITOS_UNICOS: EfeitoUnico[] = [
   { id: 'dorial', nome: 'Dorial (amplificador/entorpecente)', nomeEn: 'Painrial (Amplifying/Numbing)', patamar: 2, cargas: 3, tem: ['cargas', 'ataque', 'teste', 'dano'],
     resumo: 'Arma corpo a corpo de Armamento Leve, 1d6 vital. Ao acertar, gaste 1 carga para somar o modificador de perícia ao dano mais uma vez.',
     reves: 'O Mestre pode gastar uma C do ataque: o fabrial perde 1 carga e causa 1d6 vital em você.', aprimoramento: 'Antes de sofrer dano de inimigo, com o fabrial não cheio, reduza o dano em 1d6 e recupere 1 carga.',
-    usos: [{ rotulo: 'Somar dano', rotuloEn: 'Add damage', custo: 1 }] },
+    usos: [{ rotulo: 'Somar dano', rotuloEn: 'Add damage', custo: 1, tipo: 'aoAcertar' }] },
   { id: 'drenador', nome: 'Drenador', nomeEn: 'Drainer', patamar: 2, cargas: 5, acao: '▶', tem: ['cargas'],
     resumo: 'Toque num alvo infundido ou Investido: com o fabrial não cheio, o alvo perde 1 carga/Investidura e o fabrial ganha 1. Cheio, esvazia com diapasão, Radiante ou em 5 dias.',
     reves: 'Carregando-o, uma C em teste envolvendo algo Investido deixa o Mestre drenar 1 de Investidura dele.', aprimoramento: 'Drena 2 de Investidura em vez de 1.' },
   { id: 'iluminial', nome: 'Iluminial', nomeEn: 'Lightrial', patamar: 2, cargas: 3, acao: '▶', tem: ['cargas', 'ataque', 'teste', 'distancia'],
     resumo: 'Dissimulação contra a defesa Cognitiva de um alvo a até 9 m. Acertando, gaste 1 carga: ele perde 3 de foco; errando, gaste 1 carga: perde 1. Chegando a 0 de foco, fica Desorientado até o fim do seu próximo turno.',
     reves: 'O Mestre pode gastar uma C do uso para deixar você Desorientado até o fim do seu próximo turno.', aprimoramento: 'Gaste uma O do uso para também causar 1d6 vital.',
-    usos: [{ rotulo: 'Atordoar', rotuloEn: 'Stun', custo: 1 }] },
+    usos: [{ rotulo: 'Atordoar', rotuloEn: 'Stun', custo: 1, tipo: 'uso' }] },
   { id: 'projetil', nome: 'Projétil', nomeEn: 'Projectile', patamar: 2, cargas: 5, tem: ['cargas', 'ataque', 'teste', 'distancia', 'dano'],
     resumo: 'Gaste 1 carga: arma à distância [9/36] de Armamento Leve, traço Mão Inábil, 1d10 impactante.',
     reves: 'Ganha o traço Carregada [1].', aprimoramento: 'Gaste 1 carga a mais para atacar dois alvos em vez de um.',
-    usos: [{ rotulo: 'Disparar', rotuloEn: 'Fire', custo: 1 }, { rotulo: 'Ataque duplo', rotuloEn: 'Double Attack', custo: 2, exigeProprio: true }] },
+    usos: [
+      { rotulo: 'Disparar', rotuloEn: 'Fire', custo: 1, tipo: 'ataque' },
+      { rotulo: 'Ataque duplo', rotuloEn: 'Double Attack', custo: 2, tipo: 'ataque', exigeProprio: true },
+    ] },
   { id: 'vidarial', nome: 'Vidarial', nomeEn: 'Liferial', patamar: 2, cargas: 3, acao: '▶', tem: ['cargas', 'dano', 'distancia'],
     resumo: 'Gaste 1 carga: você ou um alvo no alcance recupera 1d6 de vida.',
     reves: 'Custa ▶▶ em vez de ▶.', aprimoramento: 'Gaste 1 carga para remover uma lesão do alvo (junto com a cura ou no lugar dela).',
-    usos: [{ rotulo: 'Curar', rotuloEn: 'Heal', custo: 1 }] },
+    usos: [{ rotulo: 'Curar', rotuloEn: 'Heal', custo: 1, tipo: 'uso' }] },
   { id: 'disruptor', nome: 'Disruptor', nomeEn: 'Disruptor', patamar: 3, cargas: 4, acao: '▶', tem: ['cargas', 'teste'],
     resumo: 'Gaste 1 carga tocando um objeto Pequeno (0,75 m): desapossado, é destruído; segurado, Agilidade contra a defesa Física do portador. Não afeta objeto infundido ou Investido.',
     reves: 'Só afeta objetos desapossados.', aprimoramento: 'Contra personagens: gaste 2 cargas, ataque de Disciplina contra a defesa Espiritual, 2d6 espiritual.' },

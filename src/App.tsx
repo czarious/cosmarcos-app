@@ -52,6 +52,7 @@ export default function App() {
     removerFabrial,
     adicionarCondicao,
     removerCondicao,
+    aplicarFicha,
     salvarLesao,
     removerLesao,
     fazerDescansoCurto,
@@ -66,8 +67,8 @@ export default function App() {
   } = usePersonagem('./personagens/eccho.json')
   // O turno mexe na ficha pelas mesmas portas da tela (recurso, condição, carga, descanso).
   const apiTurno = useMemo(
-    () => ({ alterarRecurso, definirRecurso, adicionarCondicao, removerCondicao, alterarCargas, fazerDescansoCurto }),
-    [alterarRecurso, definirRecurso, adicionarCondicao, removerCondicao, alterarCargas, fazerDescansoCurto],
+    () => ({ alterarRecurso, definirRecurso, removerCondicao, aplicarFicha }),
+    [alterarRecurso, definirRecurso, removerCondicao, aplicarFicha],
   )
   const turno = useTurno(ficha, apiTurno)
   const [secao, setSecao] = useState<Secao>('Principal')
@@ -167,7 +168,7 @@ export default function App() {
         ) : secao === 'Talentos' ? (
           <Talentos ficha={ficha} escolhasTalento={escolhasTalento} definirEscolhaVaga={definirEscolhaVaga} />
         ) : secao === 'Ações' ? (
-          <Acoes ficha={ficha} escolhasTalento={escolhasTalento} alterarCargas={alterarCargas} turno={turno} />
+          <Acoes ficha={ficha} escolhasTalento={escolhasTalento} turno={turno} />
         ) : secao === 'Fabriais' ? (
           <Fabriais
             ficha={ficha}

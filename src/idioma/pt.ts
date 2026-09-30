@@ -186,6 +186,12 @@ export const PT = {
     encerrarManterAprimorado: 'Encerrar e manter Aprimorado',
     encerrarAprimoradoAcaba: 'Encerrar (Aprimorado acaba)',
     encerrarTurno: 'Encerrar turno',
+    plano: 'Plano',
+    confirmar: 'Confirmar',
+    limpar: 'Limpar',
+    desfazer: 'Desfazer',
+    removerDoPlano: 'Tirar {nome} do plano',
+    planoPendente: 'Confirme ou limpe o plano antes de encerrar o turno.',
   },
 
   // ── DialogoUso — o dado rolado antes de usar a ação ─────────────
@@ -468,6 +474,7 @@ export const PT = {
     foraDoTurno: 'fora do seu turno',
     jaUsouNoTurno: 'já usou neste turno',
     faltamAcoes: 'faltam ▶ ({n})',
+    soDepoisDoAtaque: 'só depois de um ataque com a arma',
     atordoadoMenos2: 'Atordoado −2 ▶',
     surpreendidoMenos1: 'Surpreendido −1 ▶, sem turno rápido',
     fimTurnoSofra: 'Fim do seu turno: sofra {dano}.',

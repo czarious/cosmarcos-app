@@ -35,13 +35,13 @@
 | `src/main.tsx` | Ponto de entrada — monta o React no `#raiz`, dentro do `ProvedorIdioma` |
 | `src/App.tsx` | Compõe a ficha: cabeçalho fixo (com a engrenagem) + painel de turno + abas + conteúdo + rodapé (estado do save). Liga o `useTurno` ao `usePersonagem` |
 | `src/estado/usePersonagem.ts` | **Estado VIVO** — recursos, escolhas de vaga, `alternarEquipada`, `definirMarcos`, `adicionarItem`/`removerItem`, fabriais, `importarTexto`/`exportarJson`. Carrega do save; o JSON é semente e base da exportação |
-| `src/estado/useTurno.ts` | **Estado do combate** ligado à ficha: conta ▶/↻ por `regras/turno.ts` e paga Foco/Investidura/carga, aplica Inspirar/Aprimorar/Restaurar/Recuperar, tira Surpreendido no fim do turno. Chave própria no localStorage, fora do save |
+| `src/estado/useTurno.ts` | **Estado do combate** ligado à ficha: o **plano do turno** ("Usar" só planeja), **Confirmar** grava o que `simularPlano` calculou, **Desfazer** volta a última confirmação. Tira Surpreendido no fim do turno. Chave própria no localStorage, fora do save |
 | `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre → **quarentena** (cópia guardada) + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
 | `src/estado/armazenamento.test.ts` | Testes do save: migração sem buraco, quarentena, gravação que falha, backup ida e volta |
 | `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo enxuto: identidade + engrenagem + Vida/Foco/Investidura com barra + faixa de condições. **O recurso é BOTÃO** — abre o `ControleRecurso` |
 | `src/componentes/AvisoAtualizacao.tsx` | Registra o service worker, procura versão nova ao voltar pra tela e mostra "Atualizar" — o jogador escolhe a hora |
 | `src/componentes/MenuEngrenagem.tsx` | A ⚙ do topo: importar (com confirmação), exportar pro Shards, baixar backup, idioma PT/EN |
-| `src/componentes/PainelTurno.tsx` | Faixa do turno no topo fixo: rodada, ▶ restantes, ↻, preparada; turno rápido/lento, encerrar (e manter Aprimorado), fim do combate |
+| `src/componentes/PainelTurno.tsx` | Faixa do turno no topo fixo: rodada, ▶ (restantes, planejadas, gastas), ↻, preparada; o **plano** com ✕, custo, Confirmar/Limpar/Desfazer; turno rápido/lento, encerrar, fim do combate |
 | `src/componentes/DialogoUso.tsx` | Pergunta o dado rolado antes de usar Restaurar (1d6), Recuperar (dado de recuperação) e quantas ▶ o Preparar reserva |
 | `src/componentes/ControleRecurso.tsx` | **Popover de ±**: botões − e + de ±1 + entrada numérica. Serve a qualquer contador atual/máximo — os 3 recursos e as cargas de fabrial |
 | `src/componentes/FormularioFabrial.tsx` | Montador de fabrial (novo/editar): padrão ou único, efeito, qualidade, aprimoramentos, revezes e características do livro, com avisos que não bloqueiam |
@@ -53,7 +53,7 @@
 | `src/componentes/secoes/Talentos.tsx` | Aba Talentos — cruza talento (dado) × `regras/talentos.ts` (regra) × escolha do jogador (vivo). Talento com `vagas` ganha dropdown editável; sem vagas, fallback só-leitura |
 | `src/componentes/secoes/Acoes.tsx` | Aba Ações — tudo que o personagem pode fazer, cada item com "Usar" ligado ao turno: ataques (Golpear, mão inábil), fluxos (total, pagar Investidura, guia "Como usar"), Luz, as 17 padrão, fabriais de combate, espreno |
 | `src/componentes/secoes/Condicoes.tsx` | Aba Condições — "Agora" (ações/reação/movimento/lembretes), as 14 com checkbox e valor entre colchetes, lesões (rolagem guiada, dias, curar) e descanso curto/longo. Exporta `rotuloCondicao` pro cabeçalho |
-| `src/componentes/secoes/Fabriais.tsx` | Aba Fabriais — cartão por fabrial: cargas (±), usos que gastam carga, recarga com Investidura e grantormenta, efeito/aprimoramentos/revezes e avisos da regra |
+| `src/componentes/secoes/Fabriais.tsx` | Aba Fabriais — cartão por fabrial: cargas (± de ajuste), recarga com Investidura e grantormenta, efeito/aprimoramentos/revezes e avisos. **Usar** o fabrial é pelo plano da aba Ações |
 | `src/componentes/secoes/Personagem.tsx` | Aba Personagem — objetivos (marcos, concluir, adicionar, apagar), identidade e o texto de interpretação do Shards |
 | `src/componentes/secoes/Radiante.tsx` | Aba Radiante — vínculo, Ideais (marcos, Palavras, jurar) e fluxos com total via `detalhePericia` |
 | `src/componentes/secoes/Inventario.tsx` | Aba Inventário — peso carregado/máximo, marcos editável, armas (equipar), itens por categoria, "Gerenciar Inventário" (add/remover), Pertences (texto livre do Shards) |
@@ -70,7 +70,7 @@
 | `src/regras/descanso.ts` | **Descanso** curto (soma o dado de recuperação distribuído) e longo (Vida/Foco cheios, Exausto −1, superficial cura) |
 | `src/regras/fabriais.ts` | **Regras de fabrial** (Cap. 7): 13 padrão, 15 efeitos únicos, aprimoramentos/revezes gerais com requisito, características avançadas, qualidade, patamar, recarga — e as contas (cargas pela regra, avisos, fabrial de uma arma) |
 | `src/regras/acoes.ts` | 17 ações padrão (Cap. 10) + ações de talento (Cap. 5, ex. Inspirar Luz) + Habilidades de Espreno — com custo, efeito, "pode repetir" e "uma vez por cena" |
-| `src/regras/turno.ts` | **Regra do turno** (Cap. 10): rápido/lento, reação, uma vez por turno, Preparar, Focado no custo, Inconsciente — `avaliar` diz se dá e por quê, `gastar` desconta |
+| `src/regras/turno.ts` | **Regra do turno** (Cap. 10): rápido/lento, reação, uma vez por turno, Preparar, Focado, Inconsciente, carga "ao acertar" — `avaliar`, `gastar`, e `simularPlano`/`aplicarUso` (a ficha depois do plano, pura) |
 | `src/regras/turno.test.ts` | Testes do turno com os casos do livro |
 | `src/regras/fluxos.ts` | Guia de uso dos fluxos (Cap. 6): escalonamento, CD e custo de Transformação e Transporte, notas gerais |
 | `src/estado/importarShards.ts` | **O TRADUTOR** — JSON do Shards → schema. **Grita** no que não reconhecer. Unidades pelos números do livro, inclusive com o Shards em métrico |
