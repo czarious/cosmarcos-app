@@ -2,7 +2,7 @@
   "_arquivo": "package.json",
   "name": "cosmarcos-app",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.8.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -21,6 +21,6 @@
     "typescript": "^5.7.0",
     "vite": "^6.3.5",
     "vite-plugin-pwa": "^1.3.0",
-    "vitest": "^3.2.7"
+    "vitest": "^5.0.3"
   }
 }

@@ -4,6 +4,7 @@ import { usePersonagem } from './estado/usePersonagem'
 import { useTurno } from './estado/useTurno'
 import PainelTurno from './componentes/PainelTurno'
 import MenuEngrenagem from './componentes/MenuEngrenagem'
+import AvisoAtualizacao from './componentes/AvisoAtualizacao'
 import CabecalhoFixo from './componentes/CabecalhoFixo'
 import SeletorSecao, { type Secao } from './componentes/SeletorSecao'
 import Principal from './componentes/secoes/Principal'
@@ -140,6 +141,7 @@ export default function App() {
         />
         <SeletorSecao ativa={secao} aoTrocar={setSecao} />
         <PainelTurno ficha={ficha} turno={turno} naAbaAcoes={secao === 'Ações'} />
+        <AvisoAtualizacao />
       </div>
       <main className="conteudo">
         {alertaSave && (

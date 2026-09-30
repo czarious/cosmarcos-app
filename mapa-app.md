@@ -27,7 +27,7 @@
 | `mapa-app.md` | Este arquivo |
 | `package.json` | Nome, **versão do app** (fonte única) e dependências |
 | `tsconfig.json` | TypeScript `strict` — o contrato ficha × tela |
-| `vite.config.ts` | Config do Vite. `base: './'` pro GitHub Pages · `vite-plugin-pwa` (manifest, service worker, pré-cache incluindo `personagens/*.json`) |
+| `vite.config.ts` | Config do Vite. `base: './'` pro GitHub Pages · `vite-plugin-pwa` em modo `prompt` (manifest, service worker, pré-cache incluindo `personagens/*.json`) |
 | `index.html` | Casca do Vite (não é a ficha). `<div id="raiz">` · theme-color · apple-touch-icon |
 | `public/icone.svg` | Fonte do ícone do PWA (✦ creme sobre vinho) |
 | `public/icones/*.png` | Ícones 192, 512, maskable 512 e apple-touch 180 — gerados de `icone.svg` por `.claude/gerar-icones.mjs` |
@@ -38,6 +38,7 @@
 | `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre → **quarentena** (cópia guardada) + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
 | `src/estado/armazenamento.test.ts` | Testes do save: migração sem buraco, quarentena, gravação que falha, backup ida e volta |
 | `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo enxuto: identidade + engrenagem + Vida/Foco/Investidura com barra + faixa de condições. **O recurso é BOTÃO** — abre o `ControleRecurso` |
+| `src/componentes/AvisoAtualizacao.tsx` | Registra o service worker, procura versão nova ao voltar pra tela e mostra "Atualizar" — o jogador escolhe a hora |
 | `src/componentes/MenuEngrenagem.tsx` | A ⚙ do topo: importar (com confirmação), exportar pro Shards, baixar backup, idioma PT/EN |
 | `src/componentes/PainelTurno.tsx` | Faixa do turno no topo fixo: rodada, ▶ restantes, ↻, preparada; turno rápido/lento, encerrar (e manter Aprimorado), fim do combate |
 | `src/componentes/DialogoUso.tsx` | Pergunta o dado rolado antes de usar Restaurar (1d6), Recuperar (dado de recuperação) e quantas ▶ o Preparar reserva |

@@ -15,7 +15,7 @@
 
 | O quê | Shards | App (save deste PC) | Situação |
 |---|---|---|---|
-| Vontade do Eccho | 2 | 3 | ❓ **Perguntar ao César** — a ficha foi mexida no Shards depois do último export? Isso muda Foco máx. (4 × 5) e Defesa Cognitiva (16 × 17). Reimportar resolve, mas apaga o que foi mudado no app |
+| Vontade do Eccho | 2 | 3 | ✅ **Resolvido:** o save deste PC era antigo; a semente do app e o Shards dizem 2 (Foco 4). Reimportar atualiza |
 | Movimento | "30 m/action" na Sheet · "30 ft" na Play | 9 m | Defeito do Shards em métrico (converte rótulo sem converter número). O app segue o livro |
 | Tamanho de fluxo Pequeno | 2,5 m | 0,75 m | O app segue o livro (transcrição, "Escalonamento de Fluxo") |
 

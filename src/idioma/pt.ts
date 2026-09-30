@@ -104,6 +104,11 @@ export const PT = {
   },
 
   // ── App.tsx — carregando, erro, aba em construção ───────────────
+  /** AvisoAtualizacao — versão nova do app pronta pra entrar. */
+  atualizacao: {
+    disponivel: 'Versão nova do app disponível.',
+    atualizar: 'Atualizar',
+  },
   app: {
     algoQuebrou: 'algo quebrou',
     carregandoFicha: 'carregando a ficha…',

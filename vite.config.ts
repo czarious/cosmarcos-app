@@ -44,9 +44,13 @@ export default defineConfig({
     react(),
     segurancaNoBuild(),
     VitePWA({
-      // autoUpdate: o service worker novo assume sozinho; o registro é injetado no build
-      // (sem mexer no App.tsx). Cores: --cor-destaque (tema) e --cor-fundo-pagina, de base.css
-      registerType: 'autoUpdate',
+      // prompt: a versão nova baixa sozinha, mas só entra quando o jogador toca em
+      // "Atualizar" (AvisoAtualizacao.tsx) — nunca troca no meio do combate. Com
+      // autoUpdate ela ficava esperando o app fechar de verdade, o que o Android
+      // quase nunca faz (30/Set/2026: só apareceu reinstalando).
+      // Cores: --cor-destaque (tema) e --cor-fundo-pagina, de base.css
+      registerType: 'prompt',
+      injectRegister: false, // quem registra é o AvisoAtualizacao
       includeAssets: ['icone.svg', 'icones/apple-touch-icon.png'],
       manifest: {
         name: 'cosmarcos — Ficha Cosmere',

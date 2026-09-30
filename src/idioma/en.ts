@@ -93,6 +93,10 @@ export const EN: Dicionario = {
   },
 
   // ── App.tsx — carregando, erro, aba em construção ───────────────
+  atualizacao: {
+    disponivel: 'A new version of the app is available.',
+    atualizar: 'Update',
+  },
   app: {
     algoQuebrou: 'something broke',
     carregandoFicha: 'loading the sheet…',
