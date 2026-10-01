@@ -138,7 +138,7 @@ export default function App() {
   function desenharSecao(s: Secao) {
     if (!ficha) return null
     return s === 'Principal' ? (
-      <Principal ficha={ficha} escolhasTalento={escolhasTalento} />
+      <Principal ficha={ficha} />
     ) : s === 'Perícias' ? (
       <Pericias ficha={ficha} escolhasTalento={escolhasTalento} />
     ) : s === 'Talentos' ? (

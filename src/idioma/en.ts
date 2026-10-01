@@ -370,8 +370,6 @@ export const EN: Dicionario = {
 
   // ── aba Principal ───────────────────────────────────────────────
   principal: {
-    testesRapidos: 'Quick tests',
-    testesRapidosLegenda: 'Your 5 highest skill totals. All of them are in the Skills tab.',
     atributosDefesas: 'Attributes and Defenses',
     grupoNome: '{nome} group',
     defesa: 'Defense',
