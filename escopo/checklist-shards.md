@@ -62,7 +62,7 @@
 | Recursos ± | ✅ | Topo fixo |
 | Resumo de combate (defesas, movimento, deflexão, recuperação) | ✅ | Aba Principal |
 | Status: condições e lesões | ✅ | Faixa no topo + aba Condições |
-| Testes rápidos (as perícias mais altas) e "todos os testes" | 🔶 | O app mostra os totais; não tem atalho das mais altas |
+| Testes rápidos (as perícias mais altas) e "todos os testes" | ✅ | Aba Principal abre com as 5 perícias de total mais alto (v0.12.0); todas na aba Perícias |
 | Rolar teste de atributo, perícia, ataque, fluxo | ➖ | O dado é rolado na mão — [premissas](premissas.md) → "O dado é rolado na mão"; rolador é o 4.0 do [roadmap](roadmap.md) |
 | Lista de talentos | ✅ | Aba Talentos |
 | Referência da sessão: especialidades, objetivos ativos, equipamento à mão | 🔶 | Tudo existe, espalhado em abas; não há um resumo único |
