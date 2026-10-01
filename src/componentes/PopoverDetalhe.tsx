@@ -10,9 +10,11 @@ import { useIdioma } from '../idioma/IdiomaContexto'
 type Props = {
   detalhe: DetalhePericia
   aoFechar: () => void
+  /** Como usar o número — um parágrafo embaixo do total (a deflexão usa). */
+  nota?: string
 }
 
-export default function PopoverDetalhe({ detalhe, aoFechar }: Props) {
+export default function PopoverDetalhe({ detalhe, aoFechar, nota }: Props) {
   const { tx, nome, rot } = useIdioma()
   return (
     <div className="cr-overlay" onClick={aoFechar}>
@@ -43,6 +45,7 @@ export default function PopoverDetalhe({ detalhe, aoFechar }: Props) {
             {detalhe.total}
           </span>
         </div>
+        {nota && <p className="detalhe-nota">{nota}</p>}
       </div>
     </div>
   )

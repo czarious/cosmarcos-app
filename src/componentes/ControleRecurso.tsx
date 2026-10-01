@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { Recurso } from '../tipos/personagem'
 import { ICONE, SIMBOLO_RECURSO, VERBOS_RECURSO } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
+import { danoAposDeflexao } from '../regras/armadura'
 
 // Popover que abre ao tocar num recurso do cabeçalho. Duas formas de mexer:
 //   − e + grandes  → ±1 (o caso comum: 1 de foco, 1 de investidura)
@@ -22,17 +23,23 @@ type Props = {
   recurso: Recurso
   alterar: (delta: number) => void
   aoFechar: () => void
+  /** Só na Vida: a deflexão total, descontada do dano quando o tipo deixa (marcado de saída). */
+  deflexao?: number
 }
 
-export default function ControleRecurso({ qual, de, recurso, alterar, aoFechar }: Props) {
+export default function ControleRecurso({ qual, de, recurso, alterar, aoFechar, deflexao = 0 }: Props) {
   const { t, tx } = useIdioma()
   const [diminuir, aumentar] = VERBOS_RECURSO[qual]
   const [valor, setValor] = useState('')
+  const [deflete, setDeflete] = useState(true)
 
   const n = Math.abs(parseInt(valor, 10)) || 0
+  const descontar = deflexao > 0 && deflete
+  const dano = descontar ? danoAposDeflexao(n, deflexao) : n
 
   function aplicar(sinal: -1 | 1) {
-    if (n > 0) alterar(sinal * n)
+    const quanto = sinal < 0 ? dano : n
+    if (quanto > 0) alterar(sinal * quanto)
     setValor('')
   }
 
@@ -85,9 +92,20 @@ export default function ControleRecurso({ qual, de, recurso, alterar, aoFechar }
           onChange={(e) => setValor(e.target.value)}
           autoFocus
         />
+        {/* Deflexão: afiado, energético e impactante descontam; espiritual e vital passam inteiros */}
+        {deflexao > 0 && (
+          <label className="cr-deflexao">
+            <input type="checkbox" checked={deflete} onChange={(e) => setDeflete(e.target.checked)} />
+            <span>
+              {t(tx.recurso.descontarDeflexao, { n: deflexao })}
+              <small>{t(tx.recurso.deflexaoVale)}</small>
+            </span>
+          </label>
+        )}
         <div className="cr-aplicar">
           <button className="cr-btn cr-menos" onClick={() => aplicar(-1)} disabled={n === 0}>
             − {tx.recursos[diminuir]}
+            {descontar && n > 0 && ` ${dano}`}
           </button>
           <button className="cr-btn cr-mais" onClick={() => aplicar(+1)} disabled={n === 0}>
             + {tx.recursos[aumentar]}

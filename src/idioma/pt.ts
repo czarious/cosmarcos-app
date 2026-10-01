@@ -94,6 +94,7 @@ export const PT = {
     graduacao: 'Graduação',
     outrosMisc: 'Outros (misc)',
     deflexao: 'Deflexão',
+    deflexaoComoUsa: 'Desconte de todo dano afiado, energético ou impactante; espiritual e vital passam inteiros. Ex.: deflexão 2 e 5 de dano → −3 de Vida. No editor da Vida o app já desconta (dá pra desmarcar).',
     nenhuma: '— Nenhuma —',
     adicionar: '+ Adicionar',
     editarNome: 'Editar {nome}',
@@ -122,6 +123,37 @@ export const PT = {
     nvN: 'nv {n}',
     nomeAtualMaxAlterar: '{nome} {atual} de {max}. Alterar',
     verCondicoesAtivas: 'Ver condições ativas',
+    descansar: 'Descansar',
+  },
+
+  // ── FotoPersonagem — o rosto no cabeçalho, com recorte ─────────
+  foto: {
+    porFoto: 'Pôr foto do personagem',
+    trocarFoto: 'Trocar foto do personagem',
+    escolherOutra: 'Escolher outra',
+    tirar: 'Tirar a foto',
+    recortar: 'Recortar a foto',
+    comoRecortar: 'Arraste pra posicionar. Dois dedos ou a barra dão zoom.',
+    zoom: 'Zoom',
+    usar: 'Usar',
+    naoAbriu: 'Não consegui abrir essa imagem — tente outra.',
+  },
+
+  // ── Fogueira — o descanso, no cabeçalho ─────────────────────────
+  descanso: {
+    titulo: 'Descanso',
+    curto: 'Descanso curto',
+    curtoDuracao: '1 hora ou mais',
+    curtoComo: 'Role o dado de recuperação ({dado}) e divida o resultado entre Vida e Foco.',
+    longo: 'Descanso longo',
+    longoDuracao: '8 horas ou mais',
+    vidaCheia: 'Vida cheia ({n})',
+    focoCheio: 'Foco cheio ({n})',
+    exaustoMenos1: 'Exausto −1',
+    superficialCura: 'Lesão superficial cura',
+    descansar: 'Descansar',
+    confirmarDescansoLongo: 'Sim, descansar',
+    lesaoLeveGraveConta: 'Lesão leve/grave conta dias, não descansos — use o −1 dia de cada uma.',
   },
 
   // ── SeletorSecao — o menu das abas ──────────────────────────────
@@ -158,6 +190,8 @@ export const PT = {
     menos: 'Menos um',
     mais: 'Mais um',
     quantidade: 'quantidade',
+    descontarDeflexao: 'Descontar deflexão (−{n})',
+    deflexaoVale: 'Só dano afiado, energético ou impactante — espiritual e vital passam inteiros.',
   },
 
   // ── PopoverDetalhe — de onde vem um número ──────────────────────
@@ -172,6 +206,8 @@ export const PT = {
   turno: {
     foraCombateUsarAcao: 'Fora de combate — usar ação só desconta o custo.',
     iniciarCombate: 'Iniciar combate',
+    minimizarTurno: 'Minimizar o turno',
+    abrirTurno: 'Abrir o turno',
     inicio: 'Início',
     rodadaN: 'Rodada {n}',
     nTotalAcoes: '{n} de {total} ações',
@@ -265,7 +301,7 @@ export const PT = {
     nenhumaAnotacaoAindaToque: 'Nenhuma anotação ainda — toque em "+ Nova Anotação" pra criar uma.',
   },
 
-  // ── aba Condições — condições, lesões e descanso ────────────────
+  // ── aba Condições — condições e lesões ──────────────────────────
   condicoes: {
     agora: 'Agora',
     turnoRapido: 'Turno rápido',
@@ -302,14 +338,6 @@ export const PT = {
     efeitoVoceEscolheOu: 'Efeito (você escolhe, ou rola 1d8)',
     oFoiOpcional: 'O que foi (opcional)',
     registrar: 'Registrar',
-    descanso: 'Descanso',
-    curto1HRole: 'Curto (1 h): role {dado} e divida entre Vida e Foco.',
-    vidaMais: 'Vida +',
-    focoMais: 'Foco +',
-    longo8HVida: 'Longo (8 h): Vida {vida} e Foco {foco}, Exausto −1, lesão superficial cura.',
-    confirmarDescansoLongo: 'Confirmar descanso longo',
-    descansoLongo: 'Descanso longo',
-    lesaoLeveGraveConta: 'Lesão leve/grave conta dias, não descansos — use o −1 dia de cada uma.',
   },
 
   // ── aba Perícias ────────────────────────────────────────────────
@@ -354,7 +382,7 @@ export const PT = {
     grupoNome: 'Grupo {nome}',
     defesa: 'Defesa',
     deslocamentoSentidos: 'Deslocamento e Sentidos',
-    verDeflexao: 'Deflexão {n}. Ver de onde vem',
+    verDeflexao: 'Deflexão {n}. Ver a conta e como usar',
     duasArmaduras: 'Duas armaduras vestidas: só vale uma — a de maior deflexão.',
     movimento: 'Movimento',
     alcanceSentidos: 'Alcance dos sentidos',

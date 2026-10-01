@@ -102,14 +102,13 @@ export default function Anotacoes({ ficha, adicionarAnotacao, editarAnotacao, re
             const recolhida = recolhidas.has(a.id)
             return (
               <li className={`anotacao${recolhida ? ' anotacao-recolhida' : ''}`} key={a.id}>
-                <button className="anotacao-cabeca" onClick={() => alternarRecolhida(a.id)}>
-                  <span className="anotacao-seta">{recolhida ? '▸' : '▾'}</span>
-                  <span className="anotacao-titulo">{a.titulo}</span>
-                  <span
-                    className="anotacao-acoes"
-                    onClick={(e) => e.stopPropagation()}
-                    role="presentation"
-                  >
+                {/* título (recolhe/expande) e ações lado a lado — botão dentro de botão o HTML não aceita */}
+                <div className="anotacao-cabeca">
+                  <button className="anotacao-alternar" onClick={() => alternarRecolhida(a.id)} aria-expanded={!recolhida}>
+                    <span className="anotacao-seta">{recolhida ? '▸' : '▾'}</span>
+                    <span className="anotacao-titulo">{a.titulo}</span>
+                  </button>
+                  <span className="anotacao-acoes">
                     <button
                       className="anotacao-botao"
                       onClick={() => setEditandoId(a.id)}
@@ -125,7 +124,7 @@ export default function Anotacoes({ ficha, adicionarAnotacao, editarAnotacao, re
                       🗑
                     </button>
                   </span>
-                </button>
+                </div>
                 {!recolhida && a.conteudo && <p className="anotacao-conteudo">{a.conteudo}</p>}
               </li>
             )

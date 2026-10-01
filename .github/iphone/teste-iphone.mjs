@@ -1,8 +1,8 @@
 /* arquivo: teste-iphone.mjs */
 
 /**
- * O app publicado num iPhone simulado — roda no Mac do GitHub
- * (.github/workflows/iphone.yml), porque no Windows o WebKit não abre.
+ * O app publicado num iPhone simulado — roda no Linux do GitHub depois de cada
+ * publicação (.github/workflows/iphone.yml), porque no Windows o WebKit não abre.
  *
  * Motor WebKit (o do Safari) com tela, toque e navegador de iPhone. Passa pelo
  * que a mesa usa e grava foto de cada tela + um relatório. O que NÃO dá pra
@@ -12,7 +12,7 @@
  */
 
 import { webkit, devices } from 'playwright'
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync, appendFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const URL_APP = process.argv[2] ?? 'https://czarious.github.io/cosmarcos-app/'
@@ -76,6 +76,12 @@ try {
     }
   }
 
+  // Cabeçalho: a fogueira abre o descanso (antes do turno, que ainda trava no WebKit)
+  await p.locator('.cf-fogueira').click()
+  passo('fogueira abre o descanso', await p.locator('.cr-overlay .desc-painel').isVisible(), '')
+  await foto('12-fogueira')
+  await p.locator('.cr-overlay .cr-fechar').click()
+
   // Turno: iniciar, lento, golpear
   await abrirAba('Ações')
   await p.getByRole('button', { name: 'Iniciar combate' }).click()
@@ -120,7 +126,7 @@ try {
 
   // Importar a ficha de outro jogador e ver se ela fica depois de reabrir
   const semente = await (await p.request.get(new URL('personagens/eccho.json', URL_APP).href)).json()
-  semente.characters[0].name = 'Jogador iPhone'
+  semente.characters[0].meta.name = 'Jogador iPhone' // o nome que o app lê é o do meta
   semente.characters[0].id = 'teste-iphone'
   const arq = join(SAIDA, 'jogador-iphone.json')
   writeFileSync(arq, JSON.stringify(semente))
@@ -135,16 +141,28 @@ try {
   passo('outra ficha continua depois de reabrir', depois.includes('Jogador iPhone'), depois.replace(/\n/g, ' ').slice(0, 60))
   await foto('15-outra-ficha')
 } catch (e) {
-  rel.erros.push(`roteiro parou: ${String(e).slice(0, 400)}`)
+  // 1500: o motivo do clique ("intercepta", "instável") vem no fim do call log
+  rel.erros.push(`roteiro parou: ${String(e).slice(0, 1500)}`)
   await foto('99-onde-parou').catch(() => {})
 }
 
 await nav.close()
 writeFileSync(join(SAIDA, 'relatorio.json'), JSON.stringify(rel, null, 2))
-const falhas = rel.passos.filter((x) => !x.ok).length
+const falhas = rel.passos.filter((x) => !x.ok)
 const parou = rel.erros.some((x) => x.startsWith('roteiro parou'))
-console.log(`${rel.passos.length} passos, ${falhas} falha(s), ${rel.erros.length} erro(s) de página`)
-console.log(readFileSync(join(SAIDA, 'relatorio.json'), 'utf8'))
+// Erro de console da CSP é a foto do Playwright injetando estilo — ruído, fica só no relatório
+const errosReais = rel.erros.filter((x) => !x.includes('Content Security Policy'))
+// Saída curta de propósito: o resumo e só o que deu errado (o relatório inteiro vai no artefato)
+const resumo = `${rel.passos.length} passos, ${falhas.length} falha(s), ${errosReais.length} erro(s) de página`
+console.log(resumo)
+for (const f of falhas) console.log(`FALHOU ${f.nome}: ${f.detalhe}`)
+for (const e of errosReais) console.log(`ERRO ${e}`)
+// O quadro da rodada no GitHub (Actions → a rodada → Summary)
+if (process.env.GITHUB_STEP_SUMMARY) {
+  const linhas = rel.passos.map((x) => `| ${x.ok ? '✅' : '❌'} | ${x.nome} | ${String(x.detalhe ?? '').replace(/\|/g, '/').slice(0, 80)} |`)
+  const erros = errosReais.map((e) => `\n> ${e.slice(0, 300)}`)
+  appendFileSync(process.env.GITHUB_STEP_SUMMARY, [`### iPhone — ${resumo}`, '', '| | Passo | Detalhe |', '|---|---|---|', ...linhas, ...erros, ''].join('\n'))
+}
 // Rodada verde com 10 abas falhando já passou despercebida: falha de passo deixa a rodada vermelha.
 // Erro de console (CSP da foto do Playwright) não conta.
-if (falhas || parou) process.exitCode = 1
+if (falhas.length || parou) process.exitCode = 1

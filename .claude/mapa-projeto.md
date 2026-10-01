@@ -59,7 +59,7 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | [`.claude/mapa-shards.md`](mapa-shards.md) | **Onde, no site do Shards:** telas, catálogos, banco do navegador, defeitos conhecidos e como exportar |
 | `.claude/gerar-icones.mjs` | Gera os PNG do PWA a partir de `public/icone.svg`. Usa `sharp`, instalado na hora (`--no-save`) — não é dependência do projeto |
 | `.github/workflows/deploy.yml` | Push em main → testes → build → GitHub Pages (Fase 2.4) |
-| `.github/workflows/iphone.yml` · `.github/iphone/teste-iphone.mjs` | O app publicado num iPhone: roteiro no motor do Safari + foto do Safari real no simulador da Apple, num Mac do GitHub. Só roda quando mandado (`gh workflow run iphone.yml`) — no Windows o WebKit é barrado pelo Controle Inteligente de Aplicativos |
+| `.github/workflows/iphone.yml` · `.github/iphone/teste-iphone.mjs` | O app publicado num iPhone: roteiro no motor do Safari em Linux, sozinho depois de cada publicação; foto do Safari real no simulador da Apple só quando mandado (`gh workflow run iphone.yml -f mac=true`). Como conferir barato: topo do `iphone.yml` |
 | `apk/twa-manifest.json` | Receita do APK (TWA/Bubblewrap). O resto de `apk/` é gerado e fica fora do Git |
 | [`.claude/apk.md`](apk.md) | Como gerar o APK, onde mora a chave de assinatura (fora do repo), conferência de segurança |
 | `.claude/verificar.mjs` | A revisão de organização executável: `node .claude/verificar.mjs`. Links, mapas × disco, versão copiada |

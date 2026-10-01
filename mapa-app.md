@@ -38,12 +38,15 @@
 | `src/estado/useTurno.ts` | **Estado do combate** ligado à ficha: o **plano do turno** ("Usar" só planeja), **Confirmar** grava o que `simularPlano` calculou, **Desfazer** volta a última confirmação. Tira Surpreendido no fim do turno. Chave própria no localStorage, fora do save |
 | `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre → **quarentena** (cópia guardada) + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
 | `src/estado/armazenamento.test.ts` | Testes do save: migração sem buraco, quarentena, gravação que falha, backup ida e volta |
-| `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo enxuto: identidade + engrenagem + Vida/Foco/Investidura com barra + faixa de condições. **O recurso é BOTÃO** — abre o `ControleRecurso` |
+| `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo: foto e fogueira à esquerda; nome, identidade + engrenagem no alto; Vida/Foco/Investidura em linhas (10 quadradinhos na cor do recurso, escudinho da deflexão na Vida, ▲▼ de 1 em 1, o número abre o `ControleRecurso`); faixa de condições embaixo |
+| `src/componentes/PopoverDeflexao.tsx` | A deflexão aberta (de onde vem + como usar no dano) — escudinho do cabeçalho e aba Principal |
+| `src/componentes/FotoPersonagem.tsx` | A foto quadrada do cabeçalho: escolher, recortar (react-easy-crop, hachura fora da janela, zoom) e gravar JPEG 256 px na ficha; trocar/tirar |
+| `src/componentes/Fogueira.tsx` | O botão de descanso embaixo da foto (desenho próprio): painel com descanso curto e longo — o único lugar que descansa |
 | `src/componentes/AvisoAtualizacao.tsx` | Registra o service worker, procura versão nova ao voltar pra tela e mostra "Atualizar" — o jogador escolhe a hora |
 | `src/componentes/MenuEngrenagem.tsx` | A ⚙ do topo: importar (com confirmação), exportar pro Shards, baixar backup, idioma PT/EN |
-| `src/componentes/PainelTurno.tsx` | Faixa do turno no topo fixo: rodada, ▶ (restantes, planejadas, gastas), ↻, preparada; o **plano** com ✕, custo, Confirmar/Limpar/Desfazer; turno rápido/lento, encerrar, fim do combate. Exporta `IniciarCombate`, que fica no alto da aba Ações (fora de combate) |
+| `src/componentes/PainelTurno.tsx` | Faixa do turno no topo fixo, minimizável (▴ ou toque no fundo encolhe, tocar abre; lembrado no aparelho): rodada, ▶ (restantes, planejadas, gastas), ↻, preparada; o **plano** com ✕, custo, Confirmar/Limpar/Desfazer; turno rápido/lento, encerrar, fim do combate. Exporta `IniciarCombate`, que fica no alto da aba Ações (fora de combate) |
 | `src/componentes/DialogoUso.tsx` | Pergunta o dado rolado antes de usar Restaurar (1d6), Recuperar (dado de recuperação) e quantas ▶ o Preparar reserva |
-| `src/componentes/ControleRecurso.tsx` | **Popover de ±**: botões − e + de ±1 + entrada numérica. Serve a qualquer contador atual/máximo — os 3 recursos e as cargas de fabrial |
+| `src/componentes/ControleRecurso.tsx` | **Popover de ±**: botões − e + de ±1 + entrada numérica. Serve a qualquer contador atual/máximo — os 3 recursos e as cargas de fabrial. Na Vida, desconta a deflexão do dano (marcado de saída) |
 | `src/componentes/FormularioFabrial.tsx` | Montador de fabrial (novo/editar): padrão ou único, efeito, qualidade, aprimoramentos, revezes e características do livro, com avisos que não bloqueiam |
 | `src/componentes/ControleMarcos.tsx` | As 3 caixas de marco de história + concluir. Serve a Objetivos e Ideais |
 | `src/componentes/PopoverDetalhe.tsx` | Popover só-leitura — toca num número calculado e vê de onde vem cada parcela. Reaproveita o visual do `ControleRecurso` |
@@ -54,7 +57,7 @@
 | `src/componentes/secoes/Pericias.tsx` | Aba Perícias — as 18 agrupadas por atributo, bolinha de graduação (◎ = de talento, isenta do teto) e o total calculado, grande. Toque no total abre o `PopoverDetalhe` |
 | `src/componentes/secoes/Talentos.tsx` | Aba Talentos — cruza talento (dado) × `regras/talentos.ts` (regra) × escolha do jogador (vivo). Talento com `vagas` ganha dropdown editável; sem vagas, fallback só-leitura |
 | `src/componentes/secoes/Acoes.tsx` | Aba Ações — tudo que o personagem pode fazer, cada item com "Usar" ligado ao turno: ataques (Golpear, mão inábil), fluxos (total, pagar Investidura, guia "Como usar"), Luz, as 17 padrão, fabriais de combate, espreno |
-| `src/componentes/secoes/Condicoes.tsx` | Aba Condições — "Agora" (ações/reação/movimento/lembretes), as 14 com checkbox e valor entre colchetes, lesões (rolagem guiada, dias, curar) e descanso curto/longo. Exporta `rotuloCondicao` pro cabeçalho |
+| `src/componentes/secoes/Condicoes.tsx` | Aba Condições — "Agora" (ações/reação/movimento/lembretes), as 14 com checkbox e valor entre colchetes, lesões (rolagem guiada, dias, curar). Exporta `rotuloCondicao` pro cabeçalho |
 | `src/componentes/secoes/Fabriais.tsx` | Aba Fabriais — cartão por fabrial: cargas (± de ajuste), recarga com Investidura e grantormenta, efeito/aprimoramentos/revezes e avisos. **Usar** o fabrial é pelo plano da aba Ações |
 | `src/componentes/secoes/Personagem.tsx` | Aba Personagem — objetivos (marcos, concluir, adicionar, apagar), identidade e o texto de interpretação do Shards |
 | `src/componentes/secoes/Radiante.tsx` | Aba Radiante — vínculo, Ideais (marcos, Palavras, jurar) e fluxos com total via `detalhePericia` |

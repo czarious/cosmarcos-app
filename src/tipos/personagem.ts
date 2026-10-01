@@ -214,6 +214,9 @@ export type Personagem = {
     trilhaRadiante?: string  // "Alternauta" (radiant.order) — nem todo PC é Radiante
   }
 
+  /** O rosto, no cabeçalho: JPEG quadrado (data URL). Só do app — o Shards não tem; reimportar o mesmo personagem mantém. */
+  foto?: string
+
   /** Base + mod separados, como o Shards manda. A tela mostra o EFETIVO (base+mod) — pergunta 6. */
   atributos: Atributos
   atributosMod: Atributos

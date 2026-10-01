@@ -1,49 +1,90 @@
 # arquivo: iphone.yml
-# O app publicado num iPhone — roda num Mac do GitHub (grátis em repo público),
-# porque no Windows do César o WebKit é barrado pelo Controle Inteligente de
-# Aplicativos. Só roda quando alguém manda (Actions → iPhone → Run workflow,
-# ou `gh workflow run iphone.yml`). Não mexe no app nem no site.
+# O app publicado num iPhone. Duas provas:
+#  (1) roteiro com o motor do Safari em tela de iPhone (.github/iphone/teste-iphone.mjs)
+#      — em LINUX, sozinho depois de cada publicação (Deploy verde): o WebKit do
+#      Playwright é o mesmo do Mac, e o Linux sai em 1–2 min, sem fila de Mac;
+#  (2) foto do Safari DE VERDADE no simulador da Apple — só no Mac, só quando
+#      mandado: `gh workflow run iphone.yml -f mac=true` (antes de versão grande).
+# Antes de publicar: num ramo de teste, `gh workflow run iphone.yml --ref <ramo> -f alvo=ramo`
+# monta o app do ramo ali mesmo e roda o roteiro nele — nenhum jogador vê.
+# No Windows do César o WebKit é barrado pelo Controle Inteligente de Aplicativos.
+# Não mexe no app nem no site. Repo público: tudo grátis.
 #
-# Duas provas: (1) roteiro com o motor do Safari em tela de iPhone
-# (.github/iphone/teste-iphone.mjs); (2) foto do Safari DE VERDADE no
-# simulador oficial da Apple. As fotos e o relatório saem como artefato.
+# Pra conferir gastando pouco: `gh run list --workflow iphone.yml -L 1` dá o
+# verde/vermelho; vermelho → `gh run view <id> --log-failed | grep -A15 "passos,"`
+# traz só o que falhou. As fotos só sobem como artefato quando algo falha.
 name: iPhone
 
 on:
+  workflow_run:
+    workflows: [Deploy]
+    types: [completed]
   workflow_dispatch:
     inputs:
       url:
         description: Endereço do app
         default: https://czarious.github.io/cosmarcos-app/
+      alvo:
+        description: publicado = o site no ar · ramo = monta o app deste ramo e testa ele
+        type: choice
+        options: [publicado, ramo]
+        default: publicado
+      mac:
+        description: Também a foto do Safari real no simulador (Mac, mais lento)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+env:
+  URL_APP: ${{ inputs.url || 'https://czarious.github.io/cosmarcos-app/' }}
+
 jobs:
-  iphone:
-    runs-on: macos-latest
-    timeout-minutes: 30
-    env:
-      URL_APP: ${{ inputs.url || 'https://czarious.github.io/cosmarcos-app/' }}
+  webkit:
+    # depois do Deploy, só se ele publicou
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 24
 
+      # alvo=ramo: o app deste ramo, montado igual ao publicado (com a política de segurança), servido aqui
+      - name: Monta e serve o app do ramo
+        if: ${{ inputs.alvo == 'ramo' }}
+        run: |
+          npm ci > /dev/null
+          npm run build > /dev/null
+          (npx vite preview --port 4173 --strictPort > /dev/null 2>&1 &)
+          for i in $(seq 1 30); do curl -sf http://localhost:4173/ > /dev/null && break; sleep 1; done
+          echo "URL_RAMO=http://localhost:4173/" >> "$GITHUB_ENV"
+
       - name: Roteiro no motor do Safari (Playwright WebKit, iPhone 15)
         working-directory: .github/iphone
         run: |
           npm init -y > /dev/null
-          npm install playwright@latest
-          npx playwright install webkit
-          node teste-iphone.mjs "$URL_APP" saida
+          npm install playwright@latest > /dev/null
+          npx playwright install --with-deps webkit > /dev/null
+          node teste-iphone.mjs "${URL_RAMO:-$URL_APP}" saida
 
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: iphone-webkit
+          path: .github/iphone/saida
+
+  safari-real:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mac && inputs.alvo != 'ramo' }}
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
       - name: Safari de verdade no simulador da Apple
-        if: ${{ !cancelled() }}
         run: |
           set -e
-          mkdir -p .github/iphone/saida
+          mkdir -p saida
           ID=$(xcrun simctl list devices available -j | node -e "const d=JSON.parse(require('fs').readFileSync(0)).devices; const c=Object.entries(d).filter(([k])=>k.includes('iOS')).flatMap(([,v])=>v).filter(x=>/^iPhone/.test(x.name)); console.log(c.at(-1).udid)")
           xcrun simctl list devices available | grep "$ID"
           xcrun simctl boot "$ID"
@@ -53,10 +94,10 @@ jobs:
           sleep 30
           for i in 1 2 3; do xcrun simctl openurl "$ID" "$URL_APP" && break; sleep 20; done
           sleep 40
-          xcrun simctl io "$ID" screenshot .github/iphone/saida/safari-real.png
+          xcrun simctl io "$ID" screenshot saida/safari-real.png
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: iphone
-          path: .github/iphone/saida
+          name: iphone-safari-real
+          path: saida

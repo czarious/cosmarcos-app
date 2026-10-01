@@ -24,6 +24,11 @@
   --cor-destaque: #a03b2e;     /* vinho — aba ativa, ação primária  */
   --cor-ok: #3f7d4e;           /* verde — check, graduação marcada  */
   --cor-azul-claro: #dde3ee;   /* tom claro do --cor-titulo — cabeçalho de anotação */
+  --cor-vida: #a03b2e;         /* vinho, o mesmo do destaque — quadradinhos do cabeçalho */
+  --cor-foco: #3d5d8f;         /* azul-ardósia, parente do --cor-titulo */
+  --cor-investidura: #9c7322;  /* âmbar de gema, escuro o bastante pro creme */
+  --cor-hachura-escura: rgba(20, 16, 12, 0.72); /* o que sai do recorte da foto */
+  --cor-hachura-clara: rgba(20, 16, 12, 0.42);
 
   /* ── tipografia ────────────────────────────────── */
   /* Serifada do sistema: sem webfont — offline primeiro (princípio 3) */
@@ -109,12 +114,15 @@ body {
   padding: 0.45rem 0.6rem 0.55rem;
 }
 
-.cf-identidade {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.4rem;
+/* identidade no alto; embaixo foto + fogueira à esquerda, os 3 recursos à direita.
+   Linhas de 2.2rem (não 44px): com 44 o topo dobrava de altura e o César quis a do antigo.
+   2.2 é o que dá à fogueira altura pro desenho e a palavra embaixo da foto */
+.cf-grade {
+  --cf-linha-recurso: 2.2rem;
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr; /* a fogueira fica com o que sobra da altura da direita */
+  gap: 0.2rem 0.5rem;
 }
 
 .cf-nome {
@@ -127,6 +135,14 @@ body {
   white-space: nowrap;
 }
 
+.cf-identidade {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
 .cf-linha {
   margin-left: auto; /* encosta na engrenagem */
   color: var(--cor-texto-suave);
@@ -135,30 +151,157 @@ body {
   line-height: 1.2;
 }
 
-/* os 3 recursos lado a lado — Vida · Foco · Investidura, cada um um botão */
-.cf-recursos {
+/* a foto: quadrada, toque põe ou troca */
+.cf-foto {
+  grid-column: 1;
+  grid-row: 2;
+  width: 100%;
+  aspect-ratio: 1;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.4rem;
+  place-items: center;
+  padding: 0;
+  overflow: hidden;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.cf-recurso {
+.cf-foto img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cf-foto svg {
+  width: 70%;
+  height: 70%;
+}
+
+.silhueta {
+  fill: var(--cor-borda);
+}
+
+/* a fogueira embaixo da foto — abre o descanso (Fogueira.tsx) */
+.cf-fogueira {
+  grid-column: 1;
+  grid-row: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.1rem;
-  min-height: var(--alvo-toque);
+  padding: 0;
   font-family: var(--fonte);
+  font-size: 0.6rem;
+  font-variant: small-caps;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  color: var(--cor-titulo);
   background: var(--cor-campo);
   border: 1px solid var(--cor-borda);
   border-radius: 6px;
-  padding: 0.25rem 0.3rem 0.35rem;
   cursor: pointer;
-  transition: background 0.12s;
 }
 
-.cf-recurso:active {
+.cf-fogueira:active {
   background: var(--cor-fundo-pagina);
+}
+
+.cf-fogueira svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.fogueira-lenha {
+  stroke: var(--cor-borda-forte);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.fogueira-chama {
+  fill: var(--cor-destaque);
+}
+
+.fogueira-gema {
+  fill: var(--cor-painel);
+}
+
+/* Vida · Foco · Investidura empilhados, uma linha cada: rótulo · barra · número */
+.cf-recursos {
+  grid-column: 2;
+  grid-row: 2 / span 2;
+  display: grid;
+  grid-template-rows: repeat(3, var(--cf-linha-recurso));
+  gap: 0.2rem;
+}
+
+/* rótulo · quadradinhos (ocupam a sobra) · ▲ · ▼ · número */
+.cf-recurso {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr) 1.45rem 1.4rem 1.4rem 2.5rem;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0 0.4rem 0 0.45rem;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+}
+
+/* o escudinho da deflexão, só na linha da Vida — toque abre a conta (PopoverDeflexao) */
+.cf-escudo {
+  height: 1.45rem;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.cf-escudo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.escudo-forma {
+  fill: var(--cor-borda-forte);
+}
+
+.escudo-filete {
+  fill: none;
+  stroke: var(--cor-painel);
+  stroke-opacity: 0.45;
+  stroke-width: 0.7;
+}
+
+.escudo-numero {
+  fill: var(--cor-painel);
+  font-family: var(--fonte);
+  font-size: 8.5px;
+  font-weight: bold;
+}
+
+/* ▲ ▼ logo depois dos quadradinhos — de 1 em 1, na cor do recurso; discretas */
+.cf-seta {
+  height: 1.4rem;
+  padding: 0;
+  font-size: 0.6rem;
+  line-height: 1;
+  color: var(--cor-recurso);
+  background: var(--cor-painel);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cf-seta:active {
+  background: var(--cor-fundo-pagina);
+}
+
+.cf-seta:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .cf-recurso.cf-vazio {
@@ -170,17 +313,38 @@ body {
   font-size: 0.6rem;
   letter-spacing: 0.05em;
   line-height: 1.1;
+  white-space: nowrap;
+}
+
+.cf-recurso-vida {
+  --cor-recurso: var(--cor-vida);
+}
+
+.cf-recurso-foco {
+  --cor-recurso: var(--cor-foco);
+}
+
+.cf-recurso-investidura {
+  --cor-recurso: var(--cor-investidura);
 }
 
 .cf-simbolo {
-  color: var(--cor-destaque);
+  color: var(--cor-recurso, var(--cor-destaque));
 }
 
 .cf-valor {
+  align-self: stretch;
+  padding: 0;
+  font-family: var(--fonte);
   color: var(--cor-texto);
   font-weight: bold;
-  font-size: 1.25rem;
-  line-height: 1.1;
+  font-size: 1rem;
+  line-height: 1;
+  text-align: right;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .cf-max {
@@ -189,21 +353,32 @@ body {
   font-size: 0.8rem;
 }
 
-/* barrinha de atual/máx embaixo do número (a do "Hit Points" do DDB) */
-.cf-barra {
-  display: block;
-  width: 100%;
-  height: 4px;
-  background: var(--cor-painel);
-  border-radius: 2px;
-  overflow: hidden;
+/* [■■■■■■■□□□] no meio da linha: 10 quadradinhos de 10%, na cor do recurso */
+.cf-quadros {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
-.cf-barra span {
-  display: block;
-  height: 100%;
-  background: var(--cor-destaque);
-  transition: width 0.2s;
+.cf-colchete {
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.cf-quadro {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 0.75rem;
+  aspect-ratio: 1;
+  border: 1px solid var(--cor-recurso);
+  border-radius: 1px;
+  background: var(--cor-painel);
+  transition: background 0.15s;
+}
+
+.cf-quadro.cf-cheio {
+  background: var(--cor-recurso);
 }
 
 /* Faixa de condições ativas — só aparece se houver; toque leva pra aba */
@@ -701,23 +876,13 @@ body {
   min-height: var(--alvo-toque);
 }
 
+/* cor, borda e letra: "Botão de ação" (perto do .turno-primario) */
 .botao-gerenciar {
   display: block;
   width: 100%;
-  font-family: var(--fonte);
   font-size: 0.9rem;
-  font-weight: bold;
-  color: var(--cor-destaque);
-  background: transparent;
-  border: 1px solid var(--cor-destaque);
-  border-radius: 8px;
   padding: 0.6rem;
   min-height: var(--alvo-toque);
-  cursor: pointer;
-}
-
-.botao-gerenciar:active {
-  background: var(--cor-campo);
 }
 
 /* itens gerais, agrupados por categoria */
@@ -862,6 +1027,20 @@ label.linha-item input[type='checkbox'] {
   border-bottom: 1px solid var(--cor-borda);
 }
 
+.anotacao-alternar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0;
+  font-family: var(--fonte);
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 .anotacao-seta {
   color: var(--cor-texto-suave);
   font-size: 0.7rem;
@@ -882,6 +1061,8 @@ label.linha-item input[type='checkbox'] {
 }
 
 .anotacao-botao {
+  font-family: var(--fonte);
+  color: var(--cor-texto-suave);
   background: transparent;
   border: none;
   font-size: 0.95rem;
@@ -1039,6 +1220,12 @@ label.linha-item input[type='checkbox'] {
 }
 
 /* linhas do detalhamento dentro do PopoverDetalhe (reaproveita .cr-painel/.cr-cabeca) */
+.detalhe-nota {
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+}
+
 .detalhe-linhas {
   list-style: none;
   display: flex;
@@ -1083,11 +1270,10 @@ label.linha-item input[type='checkbox'] {
   border-bottom: 1px solid var(--cor-borda);
 }
 
-.acao-padrao-simbolo {
-  color: var(--cor-destaque);
-  font-weight: bold;
-  flex-shrink: 0;
-  width: 1.6rem;
+/* o botão de ação embaixo da descrição, alinhado à esquerda (Acoes.tsx → LinhaAcao) */
+.acao-corpo .usar {
+  align-items: flex-start;
+  margin-top: 0.3rem;
 }
 
 .acao-padrao-nome {
@@ -1402,6 +1588,10 @@ label.linha-item input[type='checkbox'] {
 .cr-painel {
   width: 100%;
   max-width: 320px;
+  /* nunca maior que a tela: a janela rola por dentro e o ✕ não sai pra cima */
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--cor-painel);
   border: 2px solid var(--cor-borda-forte);
   border-radius: 10px;
@@ -1410,10 +1600,16 @@ label.linha-item input[type='checkbox'] {
 }
 
 .cr-cabeca {
+  /* grudado no alto enquanto a janela rola — o ✕ fica sempre à mão */
+  position: sticky;
+  top: -1rem; /* o padding do painel: encosta na borda de cima */
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
+  margin: -1rem -1rem 0.75rem;
+  padding: 1rem 1rem 0.4rem;
+  background: var(--cor-painel);
 }
 
 .cr-titulo {
@@ -1675,11 +1871,7 @@ label.linha-item input[type='checkbox'] {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.4rem;
-  margin: 0.4rem 0 0 1.8rem;
-}
-
-.lesao-acoes {
-  margin-left: 0;
+  margin-top: 0.4rem;
 }
 
 /* .cr-input nasceu pro número grande do ControleRecurso — aqui fica compacto */
@@ -1694,16 +1886,197 @@ label.linha-item input[type='checkbox'] {
   width: 4.2rem;
 }
 
-/* O botão do rodapé é miúdo de propósito; aqui é jogada no meio da mesa — alvo de dedo */
-.condicoes .rodape-botao {
+/* O botão do rodapé é miúdo de propósito; aqui é jogada no meio da mesa — alvo de dedo.
+   .painel-mesa: os painéis da foto do cabeçalho, que usam o mesmo botão */
+.condicoes .rodape-botao,
+.painel-mesa .rodape-botao {
   min-height: var(--alvo-toque);
   font-size: 0.85rem;
   padding: 0.4rem 0.8rem;
 }
 
-.cond-descanso p + p,
-.cond-descanso .lesao-acoes + p {
-  margin-top: 0.7rem;
+/* ── a janela da fogueira (Fogueira.tsx): um cartão por descanso ── */
+.desc-painel {
+  max-width: 360px;
+}
+
+.desc-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.desc-titulo svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.desc-cartao {
+  margin-bottom: 0.6rem;
+  padding: 0.7rem 0.8rem;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.desc-nome {
+  margin: 0 0 0.35rem;
+  color: var(--cor-titulo);
+  font-size: 0.98rem;
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+}
+
+.desc-nome small {
+  margin-left: 0.3rem;
+  color: var(--cor-texto-suave);
+  font-size: 0.72rem;
+  font-variant: normal;
+  font-weight: normal;
+  letter-spacing: 0;
+}
+
+.desc-texto {
+  margin-bottom: 0.55rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.desc-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.desc-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+  color: var(--cor-texto-suave);
+}
+
+.desc-campo input {
+  width: 100%;
+  min-height: var(--alvo-toque);
+  padding: 0.3rem;
+  font-family: var(--fonte);
+  font-size: 1.15rem;
+  font-weight: bold;
+  text-align: center;
+  color: var(--cor-texto);
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+}
+
+.desc-simbolo {
+  font-style: normal;
+}
+
+.desc-vida .desc-simbolo {
+  color: var(--cor-vida);
+}
+
+.desc-foco .desc-simbolo {
+  color: var(--cor-foco);
+}
+
+.desc-efeitos {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.88rem;
+}
+
+/* os efeitos sem recurso levam um ponto no lugar do símbolo, pra alinhar */
+.desc-efeitos li:not(.desc-vida):not(.desc-foco)::before {
+  content: '•';
+  display: inline-block;
+  width: 1em;
+  color: var(--cor-texto-suave);
+}
+
+.desc-efeitos .desc-simbolo {
+  display: inline-block;
+  width: 1em;
+}
+
+.desc-confirma {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.desc-confirma .botao-gerenciar {
+  flex: 1;
+}
+
+.desc-nota {
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--cor-texto-suave);
+}
+
+/* ── recorte da foto (FotoPersonagem.tsx) ── */
+.rf-painel {
+  max-width: 380px;
+}
+
+.rf-palco {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--cor-texto);
+  border-radius: 4px;
+}
+
+/* 10%/90% = a janela de 80% (JANELA em FotoPersonagem.tsx). A hachura é uma
+   peça só, com o miolo recortado pelo clip-path — casas separadas emendavam o traço. */
+.rf-hachura,
+.rf-janela {
+  position: absolute;
+  pointer-events: none;
+}
+
+.rf-hachura {
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--cor-hachura-escura) 0 5px,
+    var(--cor-hachura-clara) 5px 10px
+  );
+  /* contorno por fora no sentido horário, o miolo no anti-horário = buraco */
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 10%, 10% 10%, 10% 90%, 90% 90%, 90% 10%, 0 10%);
+}
+
+.rf-janela {
+  inset: 10%;
+  outline: 2px solid var(--cor-painel);
+}
+
+/* a sombra da biblioteca sai: quem escurece o lado de fora é a hachura */
+.rf-janela-lib {
+  color: transparent;
+  border: none;
+}
+
+.rf-dica {
+  margin: 0.5rem 0 0.2rem;
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+}
+
+.rf-zoom {
+  width: 100%;
+  min-height: var(--alvo-toque);
+  accent-color: var(--cor-destaque);
 }
 
 .lesao-item {
@@ -2074,7 +2447,7 @@ label.linha-item input[type='checkbox'] {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.45rem;
 }
 
 .turno-rodada {
@@ -2116,7 +2489,8 @@ label.linha-item input[type='checkbox'] {
 .turno-botoes {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 0.3rem;
   margin-left: auto;
 }
 
@@ -2132,15 +2506,148 @@ label.linha-item input[type='checkbox'] {
   cursor: pointer;
 }
 
-.turno-primario {
-  border-color: var(--cor-destaque);
-  color: var(--cor-destaque);
+/* Botão de ação — o mesmo visual em todo o app (turno, Usar, Gerenciar):
+   creme, borda fina, texto azul em versalete como o "Descansar" do topo;
+   só o símbolo (▶ ↻) leva o vinho. Vinho no texto inteiro é só "perigo" (.rodape-perigo). */
+.turno-primario,
+.usar-botao,
+.botao-gerenciar {
+  font-family: var(--fonte);
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
   font-weight: bold;
+  color: var(--cor-titulo);
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.turno-primario:active:not(:disabled),
+.usar-botao:active:not(:disabled),
+.botao-gerenciar:active {
+  background: var(--cor-fundo-pagina);
+}
+
+.botao-gerenciar:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.botao-simbolo,
+.usar-botao small {
+  color: var(--cor-destaque);
+}
+
+/* Botão de ação: [▶ ◆0 ♥0 ✦0 │ Nome] — o bloco de custo tem largura fixa pra
+   botões empilhados alinharem; cada recurso na cor do cabeçalho, zero apagado */
+.usar-botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.usar-custo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding-right: 0.4rem;
+  border-right: 1px solid var(--cor-borda);
+  font-variant: normal;
+  letter-spacing: 0;
+}
+
+/* colado nos recursos: botões empilhados costumam ter o mesmo tipo (os golpes são todos ▶), e aí alinham igual */
+.custo-ativacao {
+  margin-right: 0.1rem;
+  font-size: 1.05em;
+  text-align: left;
+  color: var(--cor-destaque);
+}
+
+.custo-recurso {
+  min-width: 1.85em; /* vaga fixa: na Georgia o 1 é mais estreito que o 0 e desalinhava o traço */
+  font-size: 1.05em;
+  white-space: nowrap;
+}
+
+.custo-foco {
+  color: var(--cor-foco);
+}
+
+.custo-vida {
+  color: var(--cor-vida);
+}
+
+.custo-investidura {
+  color: var(--cor-investidura);
+}
+
+.custo-zero {
+  opacity: 0.35;
+}
+
+/* Início do turno: Rápido e Lento lado a lado, metade cada */
+.turno-escolha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+/* Fim do combate: raro — texto pequeno, sem caixa */
+.turno-discreto {
+  min-height: 36px;
+  padding: 0 0.2rem;
+  font-family: var(--fonte);
+  font-size: 0.72rem;
+  color: var(--cor-texto-suave);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .turno-botao:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+/* aberta, o fundo da faixa também minimiza (PainelTurno) */
+.turno-aberto {
+  cursor: pointer;
+}
+
+/* ▴ minimiza / ▾ abre a faixa do turno */
+.turno-alternar {
+  min-width: 26px;
+  min-height: 36px;
+  padding: 0;
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* minimizada: uma linha só (rodada, ▶, ↻), a faixa inteira abre de novo */
+.turno-mini {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-family: var(--fonte);
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid var(--cor-borda);
+  cursor: pointer;
+}
+
+.turno-mini .turno-alternar {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
 }
 
 .turno-nota {
@@ -2162,17 +2669,11 @@ label.linha-item input[type='checkbox'] {
   gap: 0.1rem;
 }
 
+/* cor, borda e letra: "Botão de ação" (perto do .turno-primario) */
 .usar-botao {
-  font-family: var(--fonte);
   font-size: 0.8rem;
-  font-weight: bold;
   min-height: 36px;
   padding: 0.25rem 0.6rem;
-  background: var(--cor-campo);
-  border: 1px solid var(--cor-destaque);
-  border-radius: 6px;
-  color: var(--cor-destaque);
-  cursor: pointer;
   white-space: nowrap;
 }
 
@@ -2194,8 +2695,7 @@ label.linha-item input[type='checkbox'] {
 
 /* não dá pra usar agora: continua legível, só recua */
 .acao-apagada .acao-padrao-nome,
-.acao-apagada .acao-padrao-resumo,
-.acao-apagada .acao-padrao-simbolo {
+.acao-apagada .acao-padrao-resumo {
   opacity: 0.55;
 }
 
@@ -2411,5 +2911,26 @@ label.linha-item input[type='checkbox'] {
 }
 
 .inv-deflexao {
+  color: var(--cor-texto-suave);
+}
+
+/* Vida: a deflexão descontada do dano (ControleRecurso) */
+.cr-deflexao {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0.2rem 0 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.cr-deflexao input {
+  margin-top: 0.2rem;
+  accent-color: var(--cor-destaque);
+}
+
+.cr-deflexao small {
+  display: block;
+  font-size: 0.72rem;
   color: var(--cor-texto-suave);
 }

@@ -16,10 +16,10 @@ import {
 import { ORDEM_ATRIBUTOS } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
 
-// Aba Condições (itens 1.5 e 3.3) — condições, lesões e descanso juntos,
-// porque se amarram: efeito de lesão É condição, e o descanso longo reduz
-// Exausto e cura lesão superficial. Toda regra mora em regras/condicoes.ts e
-// regras/descanso.ts; aqui só se desenha e se pergunta.
+// Aba Condições (itens 1.5 e 3.3) — condições e lesões juntas, porque se
+// amarram: efeito de lesão É condição. O descanso (que reduz Exausto e cura
+// lesão superficial) mora na fogueira do cabeçalho (Fogueira.tsx). Toda regra
+// mora em regras/condicoes.ts; aqui só se desenha e se pergunta.
 //
 // Lista das 14 com CHECKBOX (pedido do César na transcrição): pode haver mais
 // de uma ao mesmo tempo. Condição com colchetes pede o valor antes de aplicar.
@@ -43,8 +43,6 @@ type Props = {
   removerCondicao: (uid: string) => void
   salvarLesao: (l: Lesao) => void
   removerLesao: (uid: string) => void
-  fazerDescansoCurto: (vida: number, foco: number) => void
-  fazerDescansoLongo: () => void
 }
 
 export default function Condicoes(props: Props) {
@@ -55,7 +53,6 @@ export default function Condicoes(props: Props) {
       {efetivas.length > 0 && <Agora ficha={ficha} />}
       <ListaCondicoes {...props} efetivas={efetivas} />
       <Lesoes {...props} />
-      <Descanso {...props} />
     </div>
   )
 }
@@ -330,49 +327,6 @@ function NovaLesao({ ficha, salvar, cancelar }: { ficha: Personagem; salvar: (l:
         </button>
         <button type="button" className="rodape-botao" onClick={cancelar}>{tx.geral.cancelar}</button>
       </div>
-    </div>
-  )
-}
-
-function Descanso({ ficha, fazerDescansoCurto, fazerDescansoLongo }: Props) {
-  const idioma = useIdioma()
-  const { t, tx } = idioma
-  const [vida, setVida] = useState('')
-  const [foco, setFoco] = useState('')
-  const [confirmandoLongo, setConfirmandoLongo] = useState(false)
-  const { recursos, derivados } = ficha
-  return (
-    <div className="cond-descanso">
-      <h2 className="titulo-secao">{t(tx.condicoes.descanso)}</h2>
-      <p>{t(tx.condicoes.curto1HRole, { dado: derivados.dadoRecuperacao })}</p>
-      <div className="lesao-acoes">
-        <label>{tx.condicoes.vidaMais} <input className="cr-input cond-numero" type="number" min={0} value={vida} onChange={(e) => setVida(e.target.value)} /></label>
-        <label>{tx.condicoes.focoMais} <input className="cr-input cond-numero" type="number" min={0} value={foco} onChange={(e) => setFoco(e.target.value)} /></label>
-        <button
-          type="button"
-          className="rodape-botao"
-          disabled={!vida && !foco}
-          onClick={() => {
-            fazerDescansoCurto(Number(vida) || 0, Number(foco) || 0)
-            setVida('')
-            setFoco('')
-          }}
-        >
-          {tx.geral.aplicar}
-        </button>
-      </div>
-      <p>{t(tx.condicoes.longo8HVida, { vida: recursos.vida.max, foco: recursos.foco.max })}</p>
-      {confirmandoLongo ? (
-        <div className="lesao-acoes">
-          <button type="button" className="rodape-botao rodape-perigo" onClick={() => { fazerDescansoLongo(); setConfirmandoLongo(false) }}>
-            {t(tx.condicoes.confirmarDescansoLongo)}
-          </button>
-          <button type="button" className="rodape-botao" onClick={() => setConfirmandoLongo(false)}>{tx.geral.cancelar}</button>
-        </div>
-      ) : (
-        <button type="button" className="rodape-botao" onClick={() => setConfirmandoLongo(true)}>{t(tx.condicoes.descansoLongo)}</button>
-      )}
-      <p className="proximo">{t(tx.condicoes.lesaoLeveGraveConta)}</p>
     </div>
   )
 }

@@ -83,6 +83,7 @@ export const EN: Dicionario = {
     graduacao: 'Rank',
     outrosMisc: 'Other (misc)',
     deflexao: 'Deflect',
+    deflexaoComoUsa: 'Subtract it from every keen, energy or impact damage; spirit and vital go through in full. E.g.: deflect 2 and 5 damage → −3 Health. In the Health editor the app already subtracts it (you can uncheck).',
     nenhuma: '— None —',
     adicionar: '+ Add',
     editarNome: 'Edit {nome}',
@@ -110,6 +111,37 @@ export const EN: Dicionario = {
     nvN: 'lvl {n}',
     nomeAtualMaxAlterar: '{nome} {atual} of {max}. Change',
     verCondicoesAtivas: 'See active conditions',
+    descansar: 'Rest',
+  },
+
+  // ── FotoPersonagem — o rosto no cabeçalho, com recorte ─────────
+  foto: {
+    porFoto: 'Add character photo',
+    trocarFoto: 'Change character photo',
+    escolherOutra: 'Choose another',
+    tirar: 'Remove photo',
+    recortar: 'Crop the photo',
+    comoRecortar: 'Drag to position. Two fingers or the slider zoom.',
+    zoom: 'Zoom',
+    usar: 'Use',
+    naoAbriu: 'Couldn’t open this image — try another.',
+  },
+
+  // ── Fogueira — o descanso, no cabeçalho ─────────────────────────
+  descanso: {
+    titulo: 'Rest',
+    curto: 'Short rest',
+    curtoDuracao: '1 hour or more',
+    curtoComo: 'Roll your recovery die ({dado}) and split the result between Health and Focus.',
+    longo: 'Long rest',
+    longoDuracao: '8 hours or more',
+    vidaCheia: 'Full Health ({n})',
+    focoCheio: 'Full Focus ({n})',
+    exaustoMenos1: 'Exhausted −1',
+    superficialCura: 'Shallow injuries heal',
+    descansar: 'Rest',
+    confirmarDescansoLongo: 'Yes, rest',
+    lesaoLeveGraveConta: 'Minor/serious injuries count days, not rests — use each one’s −1 day.',
   },
 
   // ── SeletorSecao — o menu das abas ──────────────────────────────
@@ -146,6 +178,8 @@ export const EN: Dicionario = {
     menos: 'Minus one',
     mais: 'Plus one',
     quantidade: 'amount',
+    descontarDeflexao: 'Subtract deflect (−{n})',
+    deflexaoVale: 'Keen, energy or impact damage only — spirit and vital damage go through in full.',
   },
 
   // ── PopoverDetalhe — de onde vem um número ──────────────────────
@@ -160,6 +194,8 @@ export const EN: Dicionario = {
   turno: {
     foraCombateUsarAcao: 'Out of combat — using an action only pays its cost.',
     iniciarCombate: 'Start combat',
+    minimizarTurno: 'Minimize the turn',
+    abrirTurno: 'Open the turn',
     inicio: 'Start',
     rodadaN: 'Round {n}',
     nTotalAcoes: '{n} of {total} actions',
@@ -253,7 +289,7 @@ export const EN: Dicionario = {
     nenhumaAnotacaoAindaToque: 'No notes yet — tap "+ New Note" to create one.',
   },
 
-  // ── aba Condições — condições, lesões e descanso ────────────────
+  // ── aba Condições — condições e lesões ──────────────────────────
   condicoes: {
     agora: 'Now',
     turnoRapido: 'Fast turn',
@@ -290,14 +326,6 @@ export const EN: Dicionario = {
     efeitoVoceEscolheOu: 'Effect (you choose, or roll 1d8)',
     oFoiOpcional: 'What happened (optional)',
     registrar: 'Record',
-    descanso: 'Rest',
-    curto1HRole: 'Short (1 h): roll {dado} and split it between Health and Focus.',
-    vidaMais: 'Health +',
-    focoMais: 'Focus +',
-    longo8HVida: 'Long (8 h): Health {vida} and Focus {foco}, Exhausted −1, shallow injuries heal.',
-    confirmarDescansoLongo: 'Confirm long rest',
-    descansoLongo: 'Long rest',
-    lesaoLeveGraveConta: 'Minor/serious injuries count days, not rests — use each one’s −1 day.',
   },
 
   // ── aba Perícias ────────────────────────────────────────────────
@@ -342,7 +370,7 @@ export const EN: Dicionario = {
     grupoNome: '{nome} group',
     defesa: 'Defense',
     deslocamentoSentidos: 'Movement and Senses',
-    verDeflexao: 'Deflect {n}. See where it comes from',
+    verDeflexao: 'Deflect {n}. See the math and how to use it',
     duasArmaduras: 'Two armors worn: only one counts — the highest deflect.',
     movimento: 'Movement',
     alcanceSentidos: 'Senses range',

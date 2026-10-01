@@ -70,6 +70,7 @@ Importa o JSON do Shards **uma vez** e a partir daí **o app manda**: o César a
 - **Importar é um botão só** — o mesmo pro primeiro JSON e pra cada atualização: escolhe o arquivo exportado pelo Shards.
 - **Exportar devolve pro Shards** (27/Set/2026): o app guarda o JSON cru da importação e exporta ele com as mudanças do app aplicadas por cima; o Shards substitui a ficha de mesmo id. Campo que o app não edita volta idêntico — é o que deixa construir no Shards (nível, talento) e jogar no app sem perder nenhum dos dois. A mesma regra vale na volta: **importar no Shards sobrescreve lá**.
 - ⚠️ **Importar sobrescreve tudo. Não existe fusão** da ficha do app com o JSON novo, e não vai existir: a ficha não tem como adivinhar qual lado está certo. **Trazer um JSON desatualizado é perda de dado, e a responsabilidade é de quem importa.**
+- 📌 **A exceção é a foto** (30/Set/2026, decisão do César): o Shards não tem foto, então não há lado a adivinhar — reimportar o **mesmo** personagem (mesmo `id`) mantém a foto; outro personagem vem sem. A foto vai no backup do app, nunca pro Shards.
 - ⚠️ Por isso se salva a **ficha inteira**, não só vida/foco: se salvasse só o estado vivo, todo ajuste de ficha morreria no próximo F5.
 - 📌 **O que mudou aqui:** a versão anterior desta premissa dizia *"o app nunca edita a ficha-base — toda ideia que pedir isso está pedindo pra virar Shards, recusar"*. **Não vale mais.** O app edita. O Shards continua útil pra **construir** (subir nível, escolher talento) e gerar a semente — por conveniência, não por proibição.
 
@@ -130,9 +131,13 @@ Vida, Foco e Investidura ficam visíveis em qualquer seção **e em qualquer rol
 - ⚠️ O cabeçalho come altura de tela permanentemente, no aparelho onde a tela é o recurso escasso.
 - 📌 **Se apertar, a saída é encolher** — faixa fina com os três números — **nunca sumir**.
 - 📌 **No topo fica só o que muda na mesa:** os três recursos e as condições ativas. Atributos, defesas e derivados moram na aba Principal — o César pediu o topo enxuto, como o do DDB.
+- 📌 **Exceção pedida pelo César (30/Set/2026):** a foto do personagem, a fogueira do descanso e a deflexão (escudinho na Vida) também moram no topo. O descanso vive **só** ali, não na aba Condições.
 
 ### Arrastar entre abas: Embla
 Arrastar o dedo troca de aba com as abas coladas lado a lado. O arrasto é do **Embla Carousel** (`embla-carousel-react`): MIT, ~7 KB, sem dependência de terceiros, entra no próprio app (nada de CDN). Escolhido em 30/Set/2026 porque o arrasto feito à mão travava — falta física (inércia, trava de direção). Custa: uma dependência a mais pra manter atualizada.
+
+### Recorte da foto: react-easy-crop
+O recorte quadrado da foto (arrastar, zoom com dois dedos) é do **react-easy-crop**: MIT, uma dependência só (`normalize-wheel`), mantido (6.2.3, Set/2026), entra no próprio app. O `<style>` que ele injeta é desligado (a política de segurança barra) e o CSS dele vem pelo bundle. Custa: mais uma dependência pra manter atualizada.
 
 ### O dado é rolado na mão
 *"Jogar RPG é rolar dados na mão e fazer acontecer ali."* O rolador desceu pra Fase 4; o MVP é a **ficha viva**. Isso **não** muda a tese do app — ele continua sendo ficha viva na mesa **e** ficha correta antes da sessão. O que mudou é só quem rola o dado.

@@ -14,7 +14,7 @@
 | # | Funcionalidade | O que faz | Critério de pronto |
 |---|---|---|---|
 | **1.0** | ✅ **Ler a ficha do JSON** | Carrega `public/personagens/*.json` via tradutor ([premissas](premissas.md) → "Schema próprio em português + tradutor na entrada") + validação | ✅ O Eccho aparece: nome, nível, atributos, defesas 14/17/13, Vida 21/21 |
-| 1.1 | 🔶 **Cabeçalho fixo + aba Principal** | Topo enxuto: identidade + os 3 recursos + condições ([premissas](premissas.md) → "Os vitais grudam no topo"). Atributos, defesas e derivados em métrico descem pra aba Principal. Abas num menu (os 9 quadradinhos) | Troco de aba pelo menu e rolo até o fim: os 3 recursos grudados no topo; a Principal mostra os 6 atributos e as 3 defesas |
+| 1.1 | 🔶 **Cabeçalho fixo + aba Principal** | Topo enxuto: identidade + foto + os 3 recursos + fogueira (descanso) + condições ([premissas](premissas.md) → "Os vitais grudam no topo"). Atributos, defesas e derivados em métrico descem pra aba Principal. Abas num menu (os 9 quadradinhos) | Troco de aba pelo menu e rolo até o fim: os 3 recursos grudados no topo; a Principal mostra os 6 atributos e as 3 defesas |
 | 1.2 | ✅ **Dano e cura** | ▲/▼ na Vida + toque no número pra entrada numérica. Spec: [interface.md](interface.md) → "Recursos" | ✅ Toco na Vida, abre o controle, digito 7 e "− Dano", Vida cai de 21 → 14. Trava em 0 e no máx |
 | 1.3 | ✅ **Foco e Investidura** | **O mesmo componente da 1.2** (`ControleRecurso`), usado nos 3 recursos | ✅ Toco no Foco, ▼: 4 → 3. Labels viram "Gastar/Recuperar" |
 | **1.4** | ✅ **Lista de Perícias** | 18 perícias agrupadas por atributo, com a bolinha de graduação e o total **CALCULADO** (`regras/calculos.ts`) | ✅ Dedução com ◎ e **+7 calculado**, batendo com o Shards; as 18 conferidas contra a fórmula |
@@ -49,7 +49,7 @@
 |---|---|---|
 | 3.1 | ✅ **UI de importar** · 🔶 **exportar pro Shards** — o JSON sai certo (ida e volta idêntica), mas o **download pelo botão não foi confirmado na tela** (27/Set/2026) | Baixo o export no celular, toco em "Importar", escolho o arquivo, a ficha atualiza. "Exportar pro Shards" baixa o JSON que o Shards importa, com o que mudei no app — inclusive condições (valor no `detail`) e lesões (tipo, dias, efeito d8 na descrição). Importar guarda a ficha de antes: ⚙ → "Voltar à ficha de antes da importação" |
 | 3.2 | ✅ **Fabriais com cargas** | Aba Fabriais: gasto e recupero carga (± , Investidura, grantormenta); monto fabrial único com as opções do livro; o PROJÉTIL gasta carga em Ações |
-| 3.3 | 🔶 **Lesões com contagem de dias** | Temporária conta dias; permanente não some sozinha. Rolagem guiada (d20 + deflexão − 5 por lesão → gravidade), efeito d8 vira condição. Junto: **descanso** curto e longo |
+| 3.3 | 🔶 **Lesões com contagem de dias** | Temporária conta dias; permanente não some sozinha. Rolagem guiada (d20 + deflexão − 5 por lesão → gravidade), efeito d8 vira condição. Junto: **descanso** curto e longo (hoje na fogueira do cabeçalho) |
 | 3.4 | 🔶 **Personagem e Radiante** | Aba Personagem: objetivos com 3 marcos + concluir/adicionar/apagar, identidade, propósito, obstáculo, personalidade, conexões. Aba Radiante: vínculo, Ideais com marcos e "Dizer as Palavras", fluxos com total. Os dois voltam no "Exportar pro Shards" | Marco um marco em "Achar Assassino de Kavel", fecho e reabro: continua marcado. No 2º Ideal, marco os 3 e aparece "Dizer as Palavras" |
 | 3.5 | 🔶 **Pertences em texto livre** | Inventário → Pertences: o "Equipment notes" do Shards, editável, volta no "Exportar pro Shards" | Vejo "Amuleto de Sorte" e a telepena; edito, exporto, e o Shards mostra o texto novo |
 
@@ -172,7 +172,7 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 | Ideia | Nota |
 |---|---|
 | **Base de regras Cosmere própria** | Evolução natural da [premissas](premissas.md) → "Ler primeiro, calcular depois": conforme o livro for transcrito, PROVISÓRIO vira FIXO calculado. **Não é pré-requisito de nada** — o Shards já entrega as contas prontas |
-| Descanso e dado de recuperação | 🔶 Entrou junto com o 3.3 (aba Condições). Pelo livro o descanso recupera **Vida e Foco**, não Investidura — Investidura volta por Inspirar Luz das Tempestades |
+| Descanso e dado de recuperação | 🔶 Entrou junto com o 3.3; mora na fogueira do cabeçalho (30/Set/2026). Pelo livro o descanso recupera **Vida e Foco**, não Investidura — Investidura volta por Inspirar Luz das Tempestades |
 | Exportar estado / backup manual | Contra perder tudo se limpar o navegador. Cresce de importância se a Fase 5 não sair |
 | Marcos (moeda) — gastar/ganhar | ✅ `resources.marks` = 65. Baixa prioridade na mesa |
 | Especializações na tela | ✅ `expertises[]` — o Eccho tem 4 |

@@ -38,6 +38,7 @@ export default function App() {
     alternarItemEquipado,
     definirMarcos,
     definirEquipamentoTexto,
+    definirFoto,
     adicionarItem,
     removerItem,
     adicionarAnotacao,
@@ -157,8 +158,6 @@ export default function App() {
         removerCondicao={removerCondicao}
         salvarLesao={salvarLesao}
         removerLesao={removerLesao}
-        fazerDescansoCurto={fazerDescansoCurto}
-        fazerDescansoLongo={fazerDescansoLongo}
       />
     ) : s === 'Inventário' ? (
       <Inventario
@@ -204,6 +203,9 @@ export default function App() {
         <CabecalhoFixo
           ficha={ficha}
           alterarRecurso={alterarRecurso}
+          definirFoto={definirFoto}
+          fazerDescansoCurto={fazerDescansoCurto}
+          fazerDescansoLongo={fazerDescansoLongo}
           aoVerCondicoes={() => setSecao('Condições')}
           menu={
             <MenuEngrenagem

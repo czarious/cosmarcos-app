@@ -57,3 +57,8 @@ export function deflexaoTotal(ficha: Personagem): { total: number; linhas: Parce
   if (melhor) linhas.push({ origem: melhor.nome, valor: melhor.deflexao ?? 0 })
   return { total: linhas.reduce((s, l) => s + l.valor, 0), linhas, variasVestidas: vestidas.length > 1 }
 }
+
+/** Dano que chega na Vida: a deflexão reduz dano afiado, energético e impactante, nunca abaixo de 0 (livro, "Defesas e Deflexão"). */
+export function danoAposDeflexao(dano: number, deflexao: number): number {
+  return Math.max(0, dano - Math.max(0, deflexao))
+}

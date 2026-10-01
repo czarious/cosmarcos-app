@@ -34,6 +34,8 @@ type Retorno = {
   definirMarcos: (valor: number) => void
   /** O texto livre de pertences (o "Equipment" do Shards). */
   definirEquipamentoTexto: (texto: string) => void
+  /** Põe, troca ou (`undefined`) tira a foto do personagem. */
+  definirFoto: (foto: string | undefined) => void
   /** Acrescenta um item ao inventário geral (aba Inventário → Gerenciar). */
   adicionarItem: (item: Item) => void
   /** Remove um item pelo índice na lista `ficha.itens`. */
@@ -247,14 +249,17 @@ export function usePersonagem(caminhoJson: string): Retorno {
     } catch (e) {
       return e instanceof ErroImportacao ? e.message : String(e)
     }
+    const novaSemente = (json as { characters: Record<string, unknown>[] }).characters[0]
+    // A foto é do app (o Shards não tem): reimportar o MESMO personagem a mantém; outro personagem vem sem
+    if (ficha?.foto && semente?.id === novaSemente.id) novaFicha.foto = ficha.foto
     guardarAntes()
     setFicha(novaFicha)
     setEscolhasTalento(semearEscolhas(novaFicha))
-    setSemente((json as { characters: Record<string, unknown>[] }).characters[0])
+    setSemente(novaSemente)
     setErro(null)
     podeSalvar.current = true
     return null
-  }, [guardarAntes])
+  }, [guardarAntes, ficha, semente])
 
   const desfazerImportacao = useCallback(() => {
     let antes
@@ -347,6 +352,10 @@ export function usePersonagem(caminhoJson: string): Retorno {
 
   const definirEquipamentoTexto = useCallback((texto: string) => {
     setFicha((atual) => (atual ? { ...atual, equipamentoTexto: texto } : atual))
+  }, [])
+
+  const definirFoto = useCallback((foto: string | undefined) => {
+    setFicha((atual) => (atual ? { ...atual, foto } : atual))
   }, [])
 
   const adicionarItem = useCallback((item: Item) => {
@@ -516,6 +525,7 @@ export function usePersonagem(caminhoJson: string): Retorno {
     alternarItemEquipado,
     definirMarcos,
     definirEquipamentoTexto,
+    definirFoto,
     adicionarItem,
     removerItem,
     adicionarAnotacao,

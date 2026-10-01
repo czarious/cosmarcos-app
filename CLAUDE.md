@@ -102,19 +102,21 @@ Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não 
 
 Publicado (v0.10.2): **arrastar entre abas** (Embla) ·  **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
 
-**Próxima conversa (30/Set/2026): ver a rodada do iPhone disparada com a v0.10.2 (`gh run list --workflow iphone.yml -L 1`), o César confere o arrastar no celular (itens 11 e 5), e segue pro 7 usando agente barato no mecânico.**
+**Próxima conversa:** o César confere o 12 (cabeçalho novo) na tela. Depois ver a rodada do iPhone desse push (item 5) e seguir pro 7.
 
 **Pedidos do César, em ordem — nenhum se apaga, só muda de estado (ele pediu, 30/Set/2026):**
 1. ✅ Plano do turno, Desfazer e travas de carga (v0.9.0).
 2. ✅ 20 turnos de jogador testados + regra das mãos no Golpear (v0.9.1).
 3. ✅ Ligações entre abas conferidas na tela (equipar ↔ ataques, recarga com Investidura ↔ cargas e topo, ação ↔ Foco, Aprimorar ↔ Principal/Perícias/Condições, descanso ↔ topo, fluxo Radiante ↔ Ações, vaga de talento ↔ perícia) (v0.9.2).
 4. ✅ Salvar/exportar/importar: condições e lesões vão e voltam pro Shards; "Voltar à ficha de antes da importação" na ⚙ (v0.9.2). Falta ele conferir no celular.
-5. ⏳ Teste de iPhone: roteiro consertado — a rodada 36800145393 passou nas 10 abas. Achou o roteiro desatualizado no turno ("Usar" só planeja desde v0.9.0); corrigido pra planejar → Confirmar → contar. **Falta:** ver a rodada disparada no push da v0.10.2.
+5. ⏳ Teste de iPhone: agora roda **sozinho em Linux depois de cada publicação** (WebKit, 1–2 min); o Safari real do simulador só com `-f mac=true` (30/Set/2026). A rodada da v0.10.2 parou no clique do Golpear só no WebKit; o log agora mostra o motivo. **Falta:** a rodada do próximo push dizer se ainda trava.
 6. ✅ Armadura (v0.10.0): vestir/tirar no Inventário, deflexão total, Desajeitada. **Ainda falta:** `modifiers` de item vestido do Shards (+N em atributo/perícia/defesa/recurso — `js/rules/itemRules.js → collectItemEffects`); nenhum personagem da mesa usa ainda.
-7. ⏳ Mapeamento do Shards mais fundo.
+7. ⏳ Mapeamento do Shards mais fundo. Proposta (30/Set/2026), aguardando o César dizer se é isso: o tradutor passa a ler os campos que hoje ignora calado, primeiro os que mexem em conta (bônus de avanço, ajuste de deflexão, alcance do vínculo e da arma, `modifiers` de item vestido).
 8. ⏳ Funcionalidades que faltam, pela [checklist](escopo/checklist-shards.md).
 9. ⏳ 2ª etapa do idioma (descrições de regra).
 10. 📌 Lembrar a mesa de importar a ficha uma vez depois de atualizar (save antigo guarda nomes em inglês e tipos velhos).
 11. 🔶 Arrastar o dedo pra trocar de aba: v0.10.1 publicada travava; refeito com **Embla** (abas montadas uma vez, vizinha real no meio do arrasto) + "Iniciar combate" dentro da aba Ações. César achou fluido no PC (30/Set/2026). Publicado na v0.10.2; falta conferir no celular.
+12. 🔶 **Cabeçalho fixo novo** (pedido 30/Set/2026; feito, falta o César conferir na tela): foto quadrada do personagem no canto esquerdo, com recorte e zoom; nome em cima da foto; botão de descanso em forma de fogueira embaixo dela (curto ou longo); Vida, Foco e Investidura empilhados em linhas à direita, todos no mesmo padrão; o texto da linha de cima (sem o nome) e a ⚙ continuam no alto à direita.
+13. ⏳ **Avisar quando a ficha-semente for mais nova que o save** (pedido 30/Set/2026): "Há uma ficha mais nova do Eccho — Importar". Nasceu de um save velho no `localhost` sem o PROJÉTIL — o mesmo buraco do item 10, sem depender de lembrar a mesa.
 
 Detalhe e critério de pronto: [roadmap.md](escopo/roadmap.md).

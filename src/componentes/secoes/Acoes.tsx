@@ -57,15 +57,8 @@ function ataquesDaArma(arma: Personagem['armas'][number], fab: Fabrial | undefin
   return golpesDaArma(GOLPEAR, arma.nome, arma.tracos, disparos)
 }
 
-/** "−1 ◆ −2 ✦ −1 ⚡" — o que o uso desconta, já com o Focado aplicado. */
-function textoCusto(acao: AcaoUsavel, ficha: Personagem): string {
-  const c = custoEfetivo(acao, ficha)
-  const partes: string[] = []
-  if (c.foco) partes.push(`−${c.foco} ${SIMBOLO_RECURSO.foco}`)
-  if (c.investidura) partes.push(`−${c.investidura} ${SIMBOLO_RECURSO.investidura}`)
-  if (acao.cargas) partes.push(`−${acao.cargas.qtd} ${SIMBOLO_RECURSO.cargas}`)
-  return partes.join(' ')
-}
+/** Os 3 recursos do bloco de custo, nesta ordem em todo botão — Vida ainda não tem ação que gaste, mas a vaga fica. */
+const RECURSOS_DO_CUSTO = ['foco', 'vida', 'investidura'] as const
 
 export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: Props) {
   const { t, tx, nome } = useIdioma()
@@ -168,7 +161,7 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
                         ctx={ctx}
                         key={`${rotulo}-${mao}`}
                         acao={acao}
-                        rotulo={`${mao === 'inabil' ? `${nome(rotulo)} · ${tx.acoes.maoInabil}` : nome(rotulo)} ${SIMBOLO_ATIVACAO['1acao']}`}
+                        rotulo={mao === 'inabil' ? `${nome(rotulo)} · ${tx.acoes.maoInabil}` : nome(rotulo)}
                       />
                     ))}
                   </div>
@@ -255,14 +248,13 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
               const usavel: AcaoUsavel = { chave: `fabrial:${f.id}`, nome: f.nome, ativacao: ativacaoDoFabrial(f)!, cargas: { idFabrial: f.id, qtd: 1 } }
               return (
                 <li className={avaliar(usavel, turno.simulacao?.estado ?? null, turno.simulacao?.ficha ?? ficha).pode ? 'acao-padrao' : 'acao-padrao acao-apagada'} key={f.id}>
-                  <span className="acao-padrao-simbolo">{SIMBOLO_ATIVACAO[usavel.ativacao]}</span>
                   <div className="acao-corpo">
                     <span className="acao-padrao-nome">{nome(f.nome)}</span>
                     <p className="acao-padrao-resumo">
                       {SIMBOLO_RECURSO.cargas} {f.cargas.atual}/{f.cargas.max} — {t(tx.acoes.detalheAbaFabriais)}
                     </p>
+                    <BotaoUsar ctx={ctx} acao={usavel} />
                   </div>
-                  <BotaoUsar ctx={ctx} acao={usavel} />
                 </li>
               )
             })}
@@ -320,17 +312,32 @@ type Ctx = {
   abrirDetalhe: (p: Pericia) => void
 }
 
-/** Botão "Usar" + custo; o motivo aparece embaixo quando não dá. */
+/**
+ * Botão de ação: o custo SEMPRE à esquerda, no mesmo bloco e na mesma ordem
+ * (tipo da ação · Foco · Vida · Investidura, zero apagado) — botões empilhados
+ * alinham. Já com o Focado aplicado. Carga de fabrial vem depois do nome, só se houver.
+ * O motivo aparece embaixo quando não dá.
+ */
 function BotaoUsar({ ctx, acao, rotulo }: { ctx: Ctx; acao: AcaoUsavel; rotulo?: string }) {
   const { ficha, turno, tocarUsar } = ctx
   const { t, tx, msg } = useIdioma()
   const av = avaliar(acao, turno.simulacao?.estado ?? null, turno.simulacao?.ficha ?? ficha)
-  const custo = textoCusto(acao, ficha)
+  const c = custoEfetivo(acao, ficha)
+  const custo = { foco: c.foco ?? 0, vida: 0, investidura: c.investidura ?? 0 }
   return (
     <span className="usar">
       <button className="usar-botao" disabled={!av.pode} onClick={() => tocarUsar(acao)}>
-        {rotulo ?? tx.acoes.usar}
-        {custo && <small> {custo}</small>}
+        <span className="usar-custo" aria-hidden>
+          <span className="custo-ativacao">{SIMBOLO_ATIVACAO[acao.ativacao]}</span>
+          {RECURSOS_DO_CUSTO.map((r) => (
+            <span key={r} className={`custo-recurso custo-${r}${custo[r] ? '' : ' custo-zero'}`}>
+              {SIMBOLO_RECURSO[r]}
+              {custo[r]}
+            </span>
+          ))}
+        </span>
+        <span className="usar-nome">{rotulo ?? tx.acoes.usar}</span>
+        {acao.cargas && <small>−{acao.cargas.qtd} {SIMBOLO_RECURSO.cargas}</small>}
       </button>
       {!av.pode && av.motivo && <small className="usar-motivo">{msg(av.motivo)}</small>}
       {av.daPreparada && <small className="usar-motivo">{t(tx.acoes.daPreparada)}</small>}
@@ -344,8 +351,8 @@ function LinhaAcao({ ctx, acao, grupo, extra }: { ctx: Ctx; acao: EntradaAcao; g
   const usavel = usavelDe(grupo, acao)
   const apagada = !avaliar(usavel, turno.simulacao?.estado ?? null, turno.simulacao?.ficha ?? ficha).pode
   return (
+    // o tipo da ação (▶ ↻ ▷) aparece no bloco de custo do botão — não repete na linha
     <li className={apagada ? 'acao-padrao acao-apagada' : 'acao-padrao'}>
-      <span className="acao-padrao-simbolo">{SIMBOLO_ATIVACAO[acao.ativacao]}</span>
       <div className="acao-corpo">
         <span className="acao-padrao-nome">{nome(acao.nome)}</span>
         {extra && <span className="talento-fonte"> · {nome(extra)}</span>}
@@ -355,8 +362,8 @@ function LinhaAcao({ ctx, acao, grupo, extra }: { ctx: Ctx; acao: EntradaAcao; g
             {t(tx.acoes.peloLivroMenosN, { n: 3 * ficha.recursos.investidura.max })}
           </p>
         )}
+        <BotaoUsar ctx={ctx} acao={usavel} />
       </div>
-      <BotaoUsar ctx={ctx} acao={usavel} />
     </li>
   )
 }
@@ -373,7 +380,7 @@ function CartaoFluxo({ ctx, fluxo: f }: { ctx: Ctx; fluxo: Fluxo }) {
     <li className="ataque">
       <div className="ataque-cabeca">
         <span className="ataque-nome">
-          <span className="acao-padrao-simbolo">{SIMBOLO_ATIVACAO[f.ativacao]}</span> {nome(f.nome)}
+          {nome(f.nome)}
         </span>
         <button className="numero-detalhavel" onClick={() => abrirDetalhe(fluxoComoPericia(f))}>
           {d.total >= 0 ? '+' : ''}

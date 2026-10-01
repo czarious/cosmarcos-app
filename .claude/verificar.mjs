@@ -112,6 +112,19 @@ for (const doc of docs) {
   }
 }
 
+// 7. Classe que o roteiro do iPhone procura existe no código? Já falhou (30/Set/2026):
+// a janela da fogueira trocou de classe, o roteiro seguiu procurando a velha, e só a
+// rodada no GitHub (depois do push) diria. Aqui pega antes.
+{
+  const roteiro = readFileSync(join(RAIZ, '.github/iphone/teste-iphone.mjs'), 'utf8')
+  const fonte = codigo.filter((f) => /\.(tsx|css)$/.test(f)).map((f) => readFileSync(f, 'utf8')).join('\n')
+  const seletores = [...roteiro.matchAll(/locator\('([^']+)'\)/g)].map((m) => m[1])
+  const classes = new Set(seletores.flatMap((s) => [...s.matchAll(/\.([a-z][\w-]*)/g)].map((m) => m[1])))
+  for (const c of classes) {
+    if (!new RegExp(`[\\s"'\`.]${c}(?![\\w-])`).test(fonte)) problemas.push(`roteiro do iPhone procura classe que não existe · .${c}`)
+  }
+}
+
 function ignoradoPeloGit(caminho) {
   return spawnSync('git', ['check-ignore', '-q', caminho], { cwd: RAIZ }).status === 0
 }

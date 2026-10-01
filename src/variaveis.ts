@@ -37,6 +37,12 @@ export const ICONE = {
   talentoChave: '★',
   /** A engrenagem do topo (MenuEngrenagem) — importar, exportar, backup. */
   menu: '⚙',
+  /** As setas de ±1 ao lado de cada recurso no cabeçalho. */
+  subir: '▲',
+  descer: '▼',
+  /** Abrir / minimizar uma faixa (o turno). */
+  abrir: '▾',
+  recolher: '▴',
 } as const
 
 /**

@@ -4,7 +4,7 @@ import type { Item, Personagem } from '../tipos/personagem'
 import { importarShards } from '../estado/importarShards'
 import { exportarShards } from '../estado/exportarShards'
 import { MIGRACOES } from '../estado/armazenamento'
-import { armaduraPesada, deflexaoTotal } from './armadura'
+import { armaduraPesada, danoAposDeflexao, deflexaoTotal } from './armadura'
 import { condicoesEfetivas, efeitoCondicoesPericia, movimentoComCondicoes, modificadorRolagemLesao } from './condicoes'
 import eccho from '../../public/personagens/eccho.json'
 
@@ -107,5 +107,17 @@ describe('armadura no Shards', () => {
     f.itens = f.itens.map((i) => (i.idShards === 'arm-1' ? { ...i, deflexao: undefined, tracos: undefined, tracosPerito: undefined } : i))
     MIGRACOES[6](f, j.characters[0])
     expect(f.itens.find((i) => i.idShards === 'arm-1')?.deflexao).toBe(2)
+  })
+})
+
+describe('dano com deflexão', () => {
+  it('o exemplo do livro: deflexão 2 e 5 de dano energético tiram 3 de Vida', () => {
+    expect(danoAposDeflexao(5, 2)).toBe(3)
+  })
+  it('dano menor que a deflexão não cura: fica 0', () => {
+    expect(danoAposDeflexao(1, 2)).toBe(0)
+  })
+  it('sem deflexão o dano passa inteiro', () => {
+    expect(danoAposDeflexao(5, 0)).toBe(5)
   })
 })

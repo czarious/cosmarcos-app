@@ -6,7 +6,7 @@ import { condicoesEfetivas, bonusAprimorado, movimentoComCondicoes } from '../..
 import { formatarMetros } from './Condicoes'
 import { useState } from 'react'
 import { deflexaoTotal } from '../../regras/armadura'
-import PopoverDetalhe from '../PopoverDetalhe'
+import PopoverDeflexao from '../PopoverDeflexao'
 
 // Aba Principal — o "Abilities, Saves, Senses" do DDB com as regras do Cosmere
 // (cosmere-e-a-interface.md): o atributo JÁ é o modificador (sem o número de
@@ -75,9 +75,7 @@ export default function Principal({ ficha }: Props) {
         </li>
       </ul>
       {defl.variasVestidas && <p className="proximo">{tx.principal.duasArmaduras}</p>}
-      {vendoDeflexao && (
-        <PopoverDetalhe detalhe={{ titulo: tx.geral.deflexao, linhas: defl.linhas, total: defl.total }} aoFechar={() => setVendoDeflexao(false)} />
-      )}
+      {vendoDeflexao && <PopoverDeflexao ficha={ficha} aoFechar={() => setVendoDeflexao(false)} />}
 
       <h2 className="titulo-secao">{t(tx.principal.deslocamentoSentidos)}</h2>
       <ul className="pr-derivados">
