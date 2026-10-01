@@ -31,11 +31,14 @@ p.on('console', (m) => m.type() === 'error' && rel.erros.push(`console: ${m.text
 const foto = (nome) => p.screenshot({ path: join(SAIDA, `${nome}.png`), fullPage: false })
 const espera = (ms) => p.waitForTimeout(ms)
 
-/** Troca de aba pelo nome EXATO ("Ações" não pode casar com "Anotações"). Menu que ficou aberto é fechado antes. */
+/**
+ * Troca de aba pelo nome EXATO ("Ações" não pode casar com "Anotações"). Menu que ficou aberto é fechado antes.
+ * Pelo nome acessível, não pelo texto: o ícone vem colado ("✧Perícias") e fica fora do nome por ser aria-hidden.
+ */
 async function abrirAba(nome) {
   if (await p.locator('.ss-menu').isVisible()) await p.locator('.ss-fechar').click()
   await p.locator('.ss-barra').click()
-  await p.locator('.ss-item').filter({ hasText: new RegExp(`(^|\\s)${nome}$`) }).click()
+  await p.locator('.ss-menu').getByRole('button', { name: nome, exact: true }).click()
   await espera(400)
 }
 
@@ -135,5 +138,9 @@ try {
 await nav.close()
 writeFileSync(join(SAIDA, 'relatorio.json'), JSON.stringify(rel, null, 2))
 const falhas = rel.passos.filter((x) => !x.ok).length
+const parou = rel.erros.some((x) => x.startsWith('roteiro parou'))
 console.log(`${rel.passos.length} passos, ${falhas} falha(s), ${rel.erros.length} erro(s) de página`)
 console.log(readFileSync(join(SAIDA, 'relatorio.json'), 'utf8'))
+// Rodada verde com 10 abas falhando já passou despercebida: falha de passo deixa a rodada vermelha.
+// Erro de console (CSP da foto do Playwright) não conta.
+if (falhas || parou) process.exitCode = 1

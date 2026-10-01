@@ -109,7 +109,7 @@ Publicado (v0.10.0): **rastreador de turno** na aba Ações · guia dos fluxos �
 2. ✅ 20 turnos de jogador testados + regra das mãos no Golpear (v0.9.1).
 3. ✅ Ligações entre abas conferidas na tela (equipar ↔ ataques, recarga com Investidura ↔ cargas e topo, ação ↔ Foco, Aprimorar ↔ Principal/Perícias/Condições, descanso ↔ topo, fluxo Radiante ↔ Ações, vaga de talento ↔ perícia) (v0.9.2).
 4. ✅ Salvar/exportar/importar: condições e lesões vão e voltam pro Shards; "Voltar à ficha de antes da importação" na ⚙ (v0.9.2). Falta ele conferir no celular.
-5. ⏳ Teste de iPhone: roteiro e passo do simulador consertados; a rodada **36778831114** ainda rodava quando paramos — **ver o resultado primeiro** (`gh run view 36778831114`; artefato `iphone`). As recusas de CSP no log são da foto do Playwright.
+5. ⏳ Teste de iPhone: a rodada 36778831114 mostrou o app abrindo no iPhone, mas o roteiro não achava nenhuma aba (ícone colado no nome) e ficava verde mesmo falhando. Consertado (30/Set/2026): aba pelo nome acessível, rodada vermelha quando um passo falha. **Falta:** push + nova rodada (`gh workflow run iphone.yml`). As recusas de CSP no log são da foto do Playwright.
 6. ✅ Armadura (v0.10.0): vestir/tirar no Inventário, deflexão total, Desajeitada. **Ainda falta:** `modifiers` de item vestido do Shards (+N em atributo/perícia/defesa/recurso — `js/rules/itemRules.js → collectItemEffects`); nenhum personagem da mesa usa ainda.
 7. ⏳ Mapeamento do Shards mais fundo.
 8. ⏳ Funcionalidades que faltam, pela [checklist](escopo/checklist-shards.md).

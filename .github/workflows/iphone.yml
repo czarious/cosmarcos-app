@@ -40,6 +40,7 @@ jobs:
           node teste-iphone.mjs "$URL_APP" saida
 
       - name: Safari de verdade no simulador da Apple
+        if: ${{ !cancelled() }}
         run: |
           set -e
           mkdir -p .github/iphone/saida
