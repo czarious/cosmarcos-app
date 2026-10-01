@@ -104,6 +104,10 @@ export const EN: Dicionario = {
     umaCopiaFicouGuardada: 'A copy was kept on this device — download it and send it to Claude to recover. The sheet below came from the seed JSON.',
     aAbaSecaoVem: 'The {secao} tab comes next.',
     aEstruturaJaEsta: 'The structure is in place — we build one at a time.',
+    fichaMaisNova: 'There is a newer sheet for {nome}.',
+    importar: 'Import',
+    agoraNao: 'Not now',
+    fichaNovaImportada: 'New sheet imported — the previous one is in ⚙ to go back.',
   },
 
   // ── CabecalhoFixo ───────────────────────────────────────────────

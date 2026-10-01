@@ -572,7 +572,9 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
       cognitiva: num(defB.cognitive ?? 0, 'defenseBonuses.cognitive'),
       espiritual: num(defB.spiritual ?? 0, 'defenseBonuses.spiritual'),
     },
-    deflect: num(rec.deflect ?? 0, 'resources.deflect'),
+    // O Shards NÃO soma o ajuste manual (deflectMod) no deflect exportado — a tela dele soma na hora.
+    // A armadura vestida o app soma por conta própria (regras/armadura.ts). Ver dados.md → "Bônus: o que já vem somado"
+    deflect: num(rec.deflect ?? 0, 'resources.deflect') + num(rec.deflectMod ?? 0, 'resources.deflectMod'),
     recursos: {
       vida: { atual: num(rec.healthCur ?? 0, 'healthCur'), max: num(rec.healthMax ?? 0, 'healthMax') },
       foco: { atual: num(rec.focusCur ?? 0, 'focusCur'), max: num(rec.focusMax ?? 0, 'focusMax') },

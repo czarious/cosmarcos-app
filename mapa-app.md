@@ -34,7 +34,7 @@
 | `src/vite-env.d.ts` | Declara `__VERSAO__` (a do package.json, posta pelo vite.config) |
 | `src/main.tsx` | Ponto de entrada — monta o React no `#raiz`, dentro do `ProvedorIdioma` |
 | `src/App.tsx` | Compõe a ficha: cabeçalho fixo (com a engrenagem) + painel de turno + abas + conteúdo + rodapé (estado do save). Liga o `useTurno` ao `usePersonagem` |
-| `src/estado/usePersonagem.ts` | **Estado VIVO** — recursos, escolhas de vaga, `alternarEquipada`, `definirMarcos`, `adicionarItem`/`removerItem`, fabriais, `importarTexto`/`exportarJson`. Carrega do save; o JSON é semente e base da exportação |
+| `src/estado/usePersonagem.ts` | **Estado VIVO** — recursos, escolhas de vaga, `alternarEquipada`, `definirMarcos`, `adicionarItem`/`removerItem`, fabriais, `importarTexto`/`exportarJson`. Carrega do save; o JSON é semente e base da exportação. Semente mais nova que o save → aviso "Importar / Agora não" no topo |
 | `src/estado/useTurno.ts` | **Estado do combate** ligado à ficha: o **plano do turno** ("Usar" só planeja), **Confirmar** grava o que `simularPlano` calculou, **Desfazer** volta a última confirmação. Tira Surpreendido no fim do turno. Chave própria no localStorage, fora do save |
 | `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre → **quarentena** (cópia guardada) + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
 | `src/estado/armazenamento.test.ts` | Testes do save: migração sem buraco, quarentena, gravação que falha, backup ida e volta |

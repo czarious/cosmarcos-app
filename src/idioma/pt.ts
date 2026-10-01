@@ -116,6 +116,10 @@ export const PT = {
     umaCopiaFicouGuardada: 'Uma cópia ficou guardada no aparelho — baixe e mande pro Claude recuperar. A ficha abaixo veio do JSON de semente.',
     aAbaSecaoVem: 'A aba {secao} vem a seguir.',
     aEstruturaJaEsta: 'A estrutura já está de pé — construímos uma por vez.',
+    fichaMaisNova: 'Há uma ficha mais nova do {nome}.',
+    importar: 'Importar',
+    agoraNao: 'Agora não',
+    fichaNovaImportada: 'Ficha nova importada — a de antes ficou na ⚙ pra voltar.',
   },
 
   // ── CabecalhoFixo ───────────────────────────────────────────────

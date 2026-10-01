@@ -6,7 +6,7 @@ import { importarShards, ErroImportacao } from './importarShards'
 import { exportarShards } from './exportarShards'
 import { CATALOGO_TALENTOS, chaveVaga, type EscolhaVaga, type TipoVaga } from '../regras/talentos'
 import { vinculosDe } from '../regras/especialidades'
-import { lerFicha, salvarFicha, lerBackup, lerDescartado, montarPacote } from './armazenamento'
+import { lerFicha, salvarFicha, lerBackup, lerDescartado, montarPacote, sementeMaisNova } from './armazenamento'
 
 // O estado VIVO da ficha — e quem decide de ONDE ela vem (item 2.3):
 // localStorage primeiro, JSON do Shards só como SEMENTE. Depois da primeira
@@ -90,6 +90,12 @@ type Retorno = {
   /** O save deste aparelho não abriu e foi pra quarentena — aviso fixo até o jogador dispensar. */
   alertaSave: string | null
   dispensarAlertaSave: () => void
+  /** A ficha-semente do repositório é mais nova que a salva (mesmo personagem) — ver `sementeMaisNova`. */
+  sementeNova: boolean
+  /** Importa a ficha-semente nova (a importação de sempre: guarda a de antes, mantém a foto). */
+  atualizarDaSemente: () => string | null
+  /** "Agora não" — não avisa de novo por esta mesma semente. */
+  dispensarSementeNova: () => void
   /** Texto cru do save que não abriu, pra baixar e recuperar. */
   saveDescartado: () => string | null
 }
@@ -166,6 +172,20 @@ export function usePersonagem(caminhoJson: string): Retorno {
       setSemente(salva.semente)
       setErro(null)
       podeSalvar.current = true
+      // A semente do repositório ficou mais nova que o save? Avisa (sem internet: só não avisa)
+      fetch(caminhoJson)
+        .then((r) => (r.ok ? r.text() : null))
+        .then((texto) => {
+          const nova = texto ? (JSON.parse(texto) as { characters?: Record<string, unknown>[] }).characters?.[0] : undefined
+          let dispensada: string | null = null
+          try {
+            dispensada = localStorage.getItem(`cosmarcos:semente-dispensada:${id}`)
+          } catch {
+            // storage bloqueado: avisa de novo, sem problema
+          }
+          if (texto && nova && sementeMaisNova(salva.semente, nova) && nova.updatedAt !== dispensada) setSementeNova({ texto, data: String(nova.updatedAt) })
+        })
+        .catch(() => {})
       return
     }
 
@@ -512,6 +532,23 @@ export function usePersonagem(caminhoJson: string): Retorno {
     [ficha, escolhasTalento, semente],
   )
   const dispensarAlertaSave = useCallback(() => setAlertaSave(null), [])
+
+  const [sementeNova, setSementeNova] = useState<{ texto: string; data: string } | null>(null)
+  const atualizarDaSemente = useCallback((): string | null => {
+    if (!sementeNova) return null
+    const falha = importarTexto(sementeNova.texto)
+    if (!falha) setSementeNova(null)
+    return falha
+  }, [sementeNova, importarTexto])
+  const dispensarSementeNova = useCallback(() => {
+    if (!sementeNova) return
+    try {
+      localStorage.setItem(`cosmarcos:semente-dispensada:${id}`, sementeNova.data)
+    } catch {
+      // só não lembra
+    }
+    setSementeNova(null)
+  }, [sementeNova, id])
   const saveDescartado = useCallback(() => lerDescartado(id), [id])
 
   return {
@@ -554,6 +591,9 @@ export function usePersonagem(caminhoJson: string): Retorno {
     salvou,
     alertaSave,
     dispensarAlertaSave,
+    sementeNova: sementeNova !== null,
+    atualizarDaSemente,
+    dispensarSementeNova,
     saveDescartado,
   }
 }

@@ -67,7 +67,7 @@ Tudo em `C:\dev\GitHub\cosmarcos-app`; o backup é o **GitHub**. O Google Drive 
 ### O Shards é SEMENTE; o app é dono da ficha
 Importa o JSON do Shards **uma vez** e a partir daí **o app manda**: o César ajusta o que quiser, define a ficha no padrão dele, e o JSON é abandonado. Quem decide no boot é o **localStorage**; o JSON só é lido quando não há nada salvo.
 
-- **Importar é um botão só** — o mesmo pro primeiro JSON e pra cada atualização: escolhe o arquivo exportado pelo Shards.
+- **Importar é um botão só** — o mesmo pro primeiro JSON e pra cada atualização: escolhe o arquivo exportado pelo Shards. Quando a ficha-semente do repositório fica mais nova que o save (mesmo personagem), o topo avisa e oferece importar — save velho não fica pra trás calado.
 - **Exportar devolve pro Shards** (27/Set/2026): o app guarda o JSON cru da importação e exporta ele com as mudanças do app aplicadas por cima; o Shards substitui a ficha de mesmo id. Campo que o app não edita volta idêntico — é o que deixa construir no Shards (nível, talento) e jogar no app sem perder nenhum dos dois. A mesma regra vale na volta: **importar no Shards sobrescreve lá**.
 - ⚠️ **Importar sobrescreve tudo. Não existe fusão** da ficha do app com o JSON novo, e não vai existir: a ficha não tem como adivinhar qual lado está certo. **Trazer um JSON desatualizado é perda de dado, e a responsabilidade é de quem importa.**
 - 📌 **A exceção é a foto** (30/Set/2026, decisão do César): o Shards não tem foto, então não há lado a adivinhar — reimportar o **mesmo** personagem (mesmo `id`) mantém a foto; outro personagem vem sem. A foto vai no backup do app, nunca pro Shards.

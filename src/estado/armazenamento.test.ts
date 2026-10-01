@@ -1,6 +1,6 @@
 /* arquivo: armazenamento.test.ts */
 import { describe, it, expect, beforeEach } from 'vitest'
-import { lerFicha, salvarFicha, lerDescartado, lerBackup, montarPacote, MIGRACOES, VERSAO_ESQUEMA } from './armazenamento'
+import { lerFicha, salvarFicha, lerDescartado, lerBackup, montarPacote, MIGRACOES, VERSAO_ESQUEMA, sementeMaisNova } from './armazenamento'
 import { importarShards } from './importarShards'
 import eccho from '../../public/personagens/eccho.json'
 
@@ -114,5 +114,23 @@ describe('backup', () => {
 
   it('export do Shards não é confundido com backup', () => {
     expect(lerBackup(structuredClone(eccho))).toBeNull()
+  })
+})
+
+describe('ficha-semente mais nova que o save', () => {
+  const velha = { id: 'eccho', updatedAt: '2026-07-03T17:46:26.005Z' }
+  const nova = { id: 'eccho', updatedAt: '2026-09-28T02:26:07.533Z' }
+  it('mesmo personagem, semente mais nova: avisa', () => {
+    expect(sementeMaisNova(velha, nova)).toBe(true)
+  })
+  it('save igual ou mais novo que a semente: não avisa', () => {
+    expect(sementeMaisNova(nova, nova)).toBe(false)
+    expect(sementeMaisNova(nova, velha)).toBe(false)
+  })
+  it('outro personagem: a semente não é dele', () => {
+    expect(sementeMaisNova({ id: 'outro', updatedAt: velha.updatedAt }, nova)).toBe(false)
+  })
+  it('save antigo sem semente: avisa', () => {
+    expect(sementeMaisNova(undefined, nova)).toBe(true)
   })
 })

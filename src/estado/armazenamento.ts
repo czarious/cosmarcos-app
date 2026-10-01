@@ -271,3 +271,16 @@ export function salvarFicha(
     return false
   }
 }
+
+/**
+ * A ficha-semente do repositório é mais nova que a do save? Mesmo personagem
+ * (`id` do Shards) e `updatedAt` maior. Save sem semente é dos muito antigos,
+ * de antes da importação existir — a semente é dele. Outro personagem: a
+ * semente não diz nada sobre ele. Nasceu de um save velho sem o PROJÉTIL.
+ */
+export function sementeMaisNova(atual: Record<string, unknown> | undefined, nova: Record<string, unknown> | undefined): boolean {
+  if (!nova || typeof nova.updatedAt !== 'string') return false
+  if (!atual) return true
+  if (atual.id !== nova.id) return false
+  return typeof atual.updatedAt !== 'string' || nova.updatedAt > atual.updatedAt
+}

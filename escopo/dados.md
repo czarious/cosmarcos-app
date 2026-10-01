@@ -136,6 +136,21 @@ O tradutor tem que saber destas — todas verificadas no export real:
 | Talentos (nome) | Erudition (chave) · Efficient Engineer · Prized Acquisition · Fine Handiwork |
 | Fluxos | Transformation (Vontade, `action2x`) · Transportation (Intelecto, `action`) — ✅ **com ativação** |
 
+### Bônus: o que já vem somado
+
+*Lido no código do Shards 3.5.0 (`/js/rules/*.js`, `ui/sheetDerivedState.js`), 01/Out/2026.* Regra: **número pronto que já traz o bônus, o app usa direto — somar de novo conta dobrado.**
+
+| Campo do Shards | Já vem somado em | O app |
+|---|---|---|
+| `advancement.bonusHealth/Focus/Investiture` | `healthMax` · `focusMax` · `investitureMax` | Usa os máximos prontos ✅ |
+| `radiant.sprenBondRangeMod` | `radiant.sprenBondRange` | Usa o pronto ✅ |
+| `range.reachBonus` | `range.reach` (corpo a corpo) | Usa o `reach` ✅ |
+| `resources.deflectMod` | **em nada** — a tela do Shards soma na hora | Soma no tradutor ✅ |
+| `modifiers` de item **equipado** (`{target: "escopo:chave", value}`) | defesas, `focusMax`, `investitureMax`, movimento — **no momento do export** | ⚠️ Não aplica `skill:` (perícia), `attribute:` (na perícia) nem `resource:deflect`; e equipar/tirar no app não refaz os prontos. Nenhum personagem da mesa usa |
+| `advancement.bonusAttributePoints/SkillRanks/Talents`, `post20TalentChoices` | — (orçamento de criação, não muda número da ficha) | Ignora de propósito |
+| `skills[].rankLevel` + `rankTalent` | `skills[].rank` (a soma) | Usa o `rank` ✅ |
+| `heroic.extraPaths` · `radiant.extraOrders` · `isStarting` | — (rótulo: 2ª trilha, 2ª ordem, item do kit) | Ignora — ninguém da mesa tem 2ª trilha/ordem |
+
 ## O que o Shards NÃO dá
 
 **Buracos reais.** Não adianta procurar melhor — o dado não existe no export:

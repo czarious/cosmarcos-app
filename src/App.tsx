@@ -68,6 +68,9 @@ export default function App() {
     alertaSave,
     dispensarAlertaSave,
     saveDescartado,
+    sementeNova,
+    atualizarDaSemente,
+    dispensarSementeNova,
   } = usePersonagem('./personagens/eccho.json')
   // O turno mexe na ficha pelas mesmas portas da tela (recurso, condição, carga, descanso).
   const apiTurno = useMemo(
@@ -226,6 +229,23 @@ export default function App() {
         <SeletorSecao ativa={secao} aoTrocar={setSecao} />
         <PainelTurno ficha={ficha} turno={turno} />
         <AvisoAtualizacao />
+        {/* a ficha-semente do repositório ficou mais nova que o save — mesma faixa do aviso de versão */}
+        {sementeNova && (
+          <div className="aviso-atualizacao" role="status">
+            <span>{t(tx.app.fichaMaisNova, { nome: ficha.meta.nome })}</span>
+            <span className="turno-botoes">
+              <button className="turno-discreto" onClick={dispensarSementeNova}>
+                {tx.app.agoraNao}
+              </button>
+              <button
+                className="turno-botao turno-primario"
+                onClick={() => setAvisoRodape(atualizarDaSemente() ?? { texto: (d) => d.app.fichaNovaImportada })}
+              >
+                {tx.app.importar}
+              </button>
+            </span>
+          </div>
+        )}
       </div>
       <main className="conteudo">
         {alertaSave && (

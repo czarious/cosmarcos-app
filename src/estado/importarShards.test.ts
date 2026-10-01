@@ -112,3 +112,12 @@ describe('condições e lesões: app → Shards → app', () => {
     expect(c.injuriesCount).toBe(1)
   })
 })
+
+describe('bônus que o Shards não soma no exportado', () => {
+  it('o ajuste manual de deflexão (deflectMod) entra na deflexão da ficha', () => {
+    const json = structuredClone(eccho)
+    json.characters[0].resources.deflect = 1
+    json.characters[0].resources.deflectMod = 2
+    expect(importarShards(json)[0].deflect).toBe(3)
+  })
+})
