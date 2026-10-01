@@ -358,55 +358,55 @@ body {
   padding: 1rem 0.9rem 2rem;
 }
 
-/* ── arrastar entre abas (useArrastarAbas.ts): as abas coladas lado a lado ──
-   A aba segue o dedo; a vizinha aparece encostada, separada por uma linha,
-   com ícone e nome. Ao soltar, a aba nova desliza de onde a vizinha estava. */
-.ficha {
-  overflow-x: clip; /* a vizinha fica fora da coluna sem criar rolagem de lado (clip não solta o topo grudado) */
+/* ── carrossel das abas (CarrosselAbas.tsx): coladas lado a lado ──
+   A margem lateral mora em cada aba, não no .conteudo: assim a vizinha entra
+   pela borda da tela, não pela margem. */
+.conteudo {
+  padding-inline: 0;
+  display: flex;
+  flex-direction: column;
 }
-.conteudo.voltando {
-  transition: transform 0.18s ease-out; /* = ARRASTO.volta */
+/* ocupa ao menos o resto da tela: aba curta não puxa o rodapé pra cima ao chegar nela */
+.carrossel {
+  flex: 1;
+  overflow: hidden;
+  touch-action: pan-y; /* fallback se o navegador não conhecer pinch-zoom */
+  touch-action: pan-y pinch-zoom; /* o dedo de lado é do carrossel; de pé, a rolagem */
 }
-.conteudo.entrando {
-  animation: aba-entra 0.2s ease-out;
+.carrossel-trilho {
+  display: flex;
+  align-items: flex-start;
 }
-@keyframes aba-entra {
-  from {
-    transform: translateX(var(--inicio));
-  }
+.carrossel-aba {
+  position: relative;
+  flex: 0 0 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding-inline: 0.9rem;
 }
-.conteudo:is(.arrastando, .entrando)[data-proxima]::after,
-.conteudo:is(.arrastando, .entrando)[data-anterior]::before {
+/* a vizinha não estica a página: só aparece dentro da altura da aberta */
+.carrossel-aba:not(.carrossel-aba-aberta) {
+  height: 0;
+}
+/* aba longe: montada e pronta, mas o navegador não gasta desenhando */
+.carrossel-aba-longe {
+  content-visibility: hidden;
+}
+/* a linha que separa as abas, colada por fora da aberta (só se vê arrastando) */
+.carrossel-aba-aberta::before,
+.carrossel-aba-aberta::after {
+  content: '';
   position: absolute;
   top: 0;
-  bottom: 0;
-  width: 100%;
-  box-sizing: border-box;
-  padding-top: var(--rotulo-y, 6rem);
-  background: var(--cor-fundo-pagina);
-  color: var(--cor-titulo);
-  font-size: 1.2rem;
-  text-align: center;
-  pointer-events: none;
+  bottom: -100vh;
+  width: 2px;
+  background: var(--cor-borda);
 }
-.conteudo:is(.arrastando, .entrando)[data-proxima]::after {
-  content: attr(data-proxima);
-  left: 100%;
-  border-left: 2px solid var(--cor-borda);
+.carrossel-aba-aberta::before {
+  left: -2px;
 }
-.conteudo:is(.arrastando, .entrando)[data-anterior]::before {
-  content: attr(data-anterior);
-  right: 100%;
-  border-right: 2px solid var(--cor-borda);
-}
-@media (prefers-reduced-motion: reduce) {
-  .conteudo.entrando {
-    animation: none;
-  }
-  .conteudo.entrando::before,
-  .conteudo.entrando::after {
-    display: none;
-  }
+.carrossel-aba-aberta::after {
+  right: -2px;
 }
 
 .em-breve {
@@ -1565,7 +1565,7 @@ label.linha-item input[type='checkbox'] {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin: 0 0.9rem 1rem; /* o .conteudo não tem margem lateral (ver carrossel) */
   padding: 0.7rem 0.8rem;
   border: 2px solid var(--cor-destaque);
   border-radius: 6px;
@@ -2049,6 +2049,12 @@ label.linha-item input[type='checkbox'] {
   flex-direction: column;
   gap: 0.3rem;
   font-size: 0.8rem;
+}
+/* fora de combate, dentro da aba Ações: caixa, não faixa */
+.iniciar-combate {
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  margin-bottom: 1rem;
 }
 
 /* fora de combate a faixa é uma linha só: texto + botão */

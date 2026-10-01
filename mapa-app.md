@@ -41,15 +41,15 @@
 | `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo enxuto: identidade + engrenagem + Vida/Foco/Investidura com barra + faixa de condições. **O recurso é BOTÃO** — abre o `ControleRecurso` |
 | `src/componentes/AvisoAtualizacao.tsx` | Registra o service worker, procura versão nova ao voltar pra tela e mostra "Atualizar" — o jogador escolhe a hora |
 | `src/componentes/MenuEngrenagem.tsx` | A ⚙ do topo: importar (com confirmação), exportar pro Shards, baixar backup, idioma PT/EN |
-| `src/componentes/PainelTurno.tsx` | Faixa do turno no topo fixo: rodada, ▶ (restantes, planejadas, gastas), ↻, preparada; o **plano** com ✕, custo, Confirmar/Limpar/Desfazer; turno rápido/lento, encerrar, fim do combate |
+| `src/componentes/PainelTurno.tsx` | Faixa do turno no topo fixo: rodada, ▶ (restantes, planejadas, gastas), ↻, preparada; o **plano** com ✕, custo, Confirmar/Limpar/Desfazer; turno rápido/lento, encerrar, fim do combate. Exporta `IniciarCombate`, que fica no alto da aba Ações (fora de combate) |
 | `src/componentes/DialogoUso.tsx` | Pergunta o dado rolado antes de usar Restaurar (1d6), Recuperar (dado de recuperação) e quantas ▶ o Preparar reserva |
 | `src/componentes/ControleRecurso.tsx` | **Popover de ±**: botões − e + de ±1 + entrada numérica. Serve a qualquer contador atual/máximo — os 3 recursos e as cargas de fabrial |
 | `src/componentes/FormularioFabrial.tsx` | Montador de fabrial (novo/editar): padrão ou único, efeito, qualidade, aprimoramentos, revezes e características do livro, com avisos que não bloqueiam |
 | `src/componentes/ControleMarcos.tsx` | As 3 caixas de marco de história + concluir. Serve a Objetivos e Ideais |
 | `src/componentes/PopoverDetalhe.tsx` | Popover só-leitura — toca num número calculado e vê de onde vem cada parcela. Reaproveita o visual do `ControleRecurso` |
 | `src/componentes/SeletorSecao.tsx` | Barra de uma linha (ícone + aba aberta + 9 quadradinhos) que abre o menu com todas as abas. Exporta `SECOES` (nome → ícone), `LISTA` (a ordem) e o tipo `Secao` |
-| `src/componentes/useArrastarAbas.ts` | Arrastar o dedo no conteúdo troca de aba, na ordem da `LISTA`; decide arrasto × rolagem e ignora borda, campo e diálogo |
-| `src/componentes/useArrastarAbas.test.ts` | Testes do arrastar: sentido, rolagem que não troca, pontas da lista |
+| `src/componentes/CarrosselAbas.tsx` | As abas coladas lado a lado: arrastar o dedo passa pra vizinha (Embla). Desenha só a aberta e as vizinhas; ignora borda, campo e diálogo |
+| `src/componentes/CarrosselAbas.test.ts` | Testes do carrossel: quais abas desenha, quando o arrasto vale |
 | `src/componentes/secoes/Principal.tsx` | Aba Principal — o "Abilities, Saves, Senses" do DDB: 3 cartões [atributo·DEFESA·atributo], Deflexão, movimento/sentidos/recuperação/carga/levantamento, com o efeito das condições |
 | `src/componentes/secoes/Pericias.tsx` | Aba Perícias — as 18 agrupadas por atributo, bolinha de graduação (◎ = de talento, isenta do teto) e o total calculado, grande. Toque no total abre o `PopoverDetalhe` |
 | `src/componentes/secoes/Talentos.tsx` | Aba Talentos — cruza talento (dado) × `regras/talentos.ts` (regra) × escolha do jogador (vivo). Talento com `vagas` ganha dropdown editável; sem vagas, fallback só-leitura |

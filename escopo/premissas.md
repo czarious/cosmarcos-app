@@ -131,6 +131,9 @@ Vida, Foco e Investidura ficam visíveis em qualquer seção **e em qualquer rol
 - 📌 **Se apertar, a saída é encolher** — faixa fina com os três números — **nunca sumir**.
 - 📌 **No topo fica só o que muda na mesa:** os três recursos e as condições ativas. Atributos, defesas e derivados moram na aba Principal — o César pediu o topo enxuto, como o do DDB.
 
+### Arrastar entre abas: Embla
+Arrastar o dedo troca de aba com as abas coladas lado a lado. O arrasto é do **Embla Carousel** (`embla-carousel-react`): MIT, ~7 KB, sem dependência de terceiros, entra no próprio app (nada de CDN). Escolhido em 30/Set/2026 porque o arrasto feito à mão travava — falta física (inércia, trava de direção). Custa: uma dependência a mais pra manter atualizada.
+
 ### O dado é rolado na mão
 *"Jogar RPG é rolar dados na mão e fazer acontecer ali."* O rolador desceu pra Fase 4; o MVP é a **ficha viva**. Isso **não** muda a tese do app — ele continua sendo ficha viva na mesa **e** ficha correta antes da sessão. O que mudou é só quem rola o dado.
 

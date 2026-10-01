@@ -7,35 +7,42 @@ import { ICONE, SIMBOLO_ATIVACAO, SIMBOLO_RECURSO } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
 
 // Faixa do rastreador de turno, no topo fixo. Em combate aparece em qualquer
-// aba (as ▶ que restam importam em todas); fora de combate, só a aba Ações
-// oferece "Iniciar combate". A conta é de regras/turno.ts; o gasto na ficha,
+// aba (as ▶ que restam importam em todas). Fora de combate, "Iniciar combate"
+// mora DENTRO da aba Ações (IniciarCombate): no topo, mudaria a altura dele a
+// cada arrasto de aba. A conta é de regras/turno.ts; o gasto na ficha,
 // de estado/useTurno.ts — aqui só se desenha e se toca.
 
 type Props = {
   ficha: Personagem
   turno: Turno
-  /** Fora de combate a faixa só aparece onde se começa um (aba Ações). */
-  naAbaAcoes: boolean
 }
 
-export default function PainelTurno({ ficha, turno, naAbaAcoes }: Props) {
+/** Fora de combate, no alto da aba Ações. */
+export function IniciarCombate({ turno }: Pick<Props, 'turno'>) {
+  const { t, tx } = useIdioma()
+  if (turno.estado) return null
+  return (
+    <div className="painel-turno iniciar-combate">
+      <div className="turno-linha">
+        <span className="turno-info">{t(tx.turno.foraCombateUsarAcao)}</span>
+        <span className="turno-botoes">
+          <button className="turno-botao turno-primario" onClick={turno.iniciar}>
+            {t(tx.turno.iniciarCombate)}
+          </button>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+export default function PainelTurno({ ficha, turno }: Props) {
   const { t, tx, tn, msg } = useIdioma()
   const e = turno.estado
   const temPlano = turno.plano.length > 0 || turno.podeDesfazer
   if (!e) {
-    if (!naAbaAcoes && !temPlano) return null
+    if (!temPlano) return null
     return (
       <div className="painel-turno">
-        {naAbaAcoes && (
-          <div className="turno-linha">
-            <span className="turno-info">{t(tx.turno.foraCombateUsarAcao)}</span>
-            <span className="turno-botoes">
-              <button className="turno-botao turno-primario" onClick={turno.iniciar}>
-                {t(tx.turno.iniciarCombate)}
-              </button>
-            </span>
-          </div>
-        )}
         <PlanoDoTurno ficha={ficha} turno={turno} />
       </div>
     )

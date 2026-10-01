@@ -26,6 +26,7 @@ import type { Turno } from '../../estado/useTurno'
 import PopoverDetalhe from '../PopoverDetalhe'
 import DialogoUso, { precisaDialogo } from '../DialogoUso'
 import ControleRecurso from '../ControleRecurso'
+import { IniciarCombate } from '../PainelTurno'
 import { useIdioma } from '../../idioma/IdiomaContexto'
 
 // Aba Ações — tudo que o personagem pode FAZER, olhando a ficha inteira, e
@@ -92,6 +93,7 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
 
   return (
     <div className="secao acoes">
+      <IniciarCombate turno={turno} />
       <section className="grupo-acoes">
         <h2 className="titulo-secao">
           {t(tx.acoes.ataques)} <span className="contador">({armasEquipadas.length})</span>

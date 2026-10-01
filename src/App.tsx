@@ -6,8 +6,8 @@ import PainelTurno from './componentes/PainelTurno'
 import MenuEngrenagem from './componentes/MenuEngrenagem'
 import AvisoAtualizacao from './componentes/AvisoAtualizacao'
 import CabecalhoFixo from './componentes/CabecalhoFixo'
-import SeletorSecao, { LISTA, SECOES, type Secao } from './componentes/SeletorSecao'
-import { useArrastarAbas } from './componentes/useArrastarAbas'
+import SeletorSecao, { LISTA, type Secao } from './componentes/SeletorSecao'
+import CarrosselAbas from './componentes/CarrosselAbas'
 import Principal from './componentes/secoes/Principal'
 import Pericias from './componentes/secoes/Pericias'
 import Talentos from './componentes/secoes/Talentos'
@@ -75,7 +75,6 @@ export default function App() {
   )
   const turno = useTurno(ficha, apiTurno)
   const [secao, setSecao] = useState<Secao>('Principal')
-  const arrasto = useArrastarAbas(LISTA, secao, setSecao, (s) => `${SECOES[s]} ${tx.nomesAbas[s]}`)
   /**
    * Resultado da última importação/exportação, mostrado no rodapé. Mensagem
    * (escrita no idioma da hora) ou o erro do tradutor, que vem só em português.
@@ -131,6 +130,70 @@ export default function App() {
     )
   }
 
+  /** O conteúdo de uma aba — o carrossel desenha a aberta e as vizinhas. */
+  function desenharSecao(s: Secao) {
+    if (!ficha) return null
+    return s === 'Principal' ? (
+      <Principal ficha={ficha} />
+    ) : s === 'Perícias' ? (
+      <Pericias ficha={ficha} escolhasTalento={escolhasTalento} />
+    ) : s === 'Talentos' ? (
+      <Talentos ficha={ficha} escolhasTalento={escolhasTalento} definirEscolhaVaga={definirEscolhaVaga} />
+    ) : s === 'Ações' ? (
+      <Acoes ficha={ficha} escolhasTalento={escolhasTalento} alterarCargas={alterarCargas} turno={turno} />
+    ) : s === 'Fabriais' ? (
+      <Fabriais
+        ficha={ficha}
+        alterarCargas={alterarCargas}
+        recarregarTodos={recarregarTodos}
+        recarregarComInvestidura={recarregarComInvestidura}
+        salvarFabrial={salvarFabrial}
+        removerFabrial={removerFabrial}
+      />
+    ) : s === 'Condições' ? (
+      <Condicoes
+        ficha={ficha}
+        adicionarCondicao={adicionarCondicao}
+        removerCondicao={removerCondicao}
+        salvarLesao={salvarLesao}
+        removerLesao={removerLesao}
+        fazerDescansoCurto={fazerDescansoCurto}
+        fazerDescansoLongo={fazerDescansoLongo}
+      />
+    ) : s === 'Inventário' ? (
+      <Inventario
+        ficha={ficha}
+        alternarEquipada={alternarEquipada}
+        alternarItemEquipado={alternarItemEquipado}
+        definirMarcos={definirMarcos}
+        definirEquipamentoTexto={definirEquipamentoTexto}
+        adicionarItem={adicionarItem}
+        removerItem={removerItem}
+      />
+    ) : s === 'Personagem' ? (
+      <Personagem
+        ficha={ficha}
+        alterarObjetivo={alterarObjetivo}
+        adicionarObjetivo={adicionarObjetivo}
+        removerObjetivo={removerObjetivo}
+      />
+    ) : s === 'Radiante' ? (
+      <Radiante ficha={ficha} escolhasTalento={escolhasTalento} alterarIdeal={alterarIdeal} />
+    ) : s === 'Anotações' ? (
+      <Anotacoes
+        ficha={ficha}
+        adicionarAnotacao={adicionarAnotacao}
+        editarAnotacao={editarAnotacao}
+        removerAnotacao={removerAnotacao}
+      />
+    ) : (
+      <div className="em-breve">
+        <p>{t(tx.app.aAbaSecaoVem, { secao: tx.nomesAbas[s] })}</p>
+        <p className="proximo">{t(tx.app.aEstruturaJaEsta)}</p>
+      </div>
+    )
+  }
+
   const fundo = fundoDaAba(secao, ficha)
 
   return (
@@ -159,10 +222,10 @@ export default function App() {
           }
         />
         <SeletorSecao ativa={secao} aoTrocar={setSecao} />
-        <PainelTurno ficha={ficha} turno={turno} naAbaAcoes={secao === 'Ações'} />
+        <PainelTurno ficha={ficha} turno={turno} />
         <AvisoAtualizacao />
       </div>
-      <main key={secao} className={`conteudo${arrasto.classe}`} {...arrasto.props}>
+      <main className="conteudo">
         {alertaSave && (
           <div className="alerta-save" role="alert">
             <p>
@@ -179,65 +242,7 @@ export default function App() {
             </span>
           </div>
         )}
-        {secao === 'Principal' ? (
-          <Principal ficha={ficha} />
-        ) : secao === 'Perícias' ? (
-          <Pericias ficha={ficha} escolhasTalento={escolhasTalento} />
-        ) : secao === 'Talentos' ? (
-          <Talentos ficha={ficha} escolhasTalento={escolhasTalento} definirEscolhaVaga={definirEscolhaVaga} />
-        ) : secao === 'Ações' ? (
-          <Acoes ficha={ficha} escolhasTalento={escolhasTalento} alterarCargas={alterarCargas} turno={turno} />
-        ) : secao === 'Fabriais' ? (
-          <Fabriais
-            ficha={ficha}
-            alterarCargas={alterarCargas}
-            recarregarTodos={recarregarTodos}
-            recarregarComInvestidura={recarregarComInvestidura}
-            salvarFabrial={salvarFabrial}
-            removerFabrial={removerFabrial}
-          />
-        ) : secao === 'Condições' ? (
-          <Condicoes
-            ficha={ficha}
-            adicionarCondicao={adicionarCondicao}
-            removerCondicao={removerCondicao}
-            salvarLesao={salvarLesao}
-            removerLesao={removerLesao}
-            fazerDescansoCurto={fazerDescansoCurto}
-            fazerDescansoLongo={fazerDescansoLongo}
-          />
-        ) : secao === 'Inventário' ? (
-          <Inventario
-            ficha={ficha}
-            alternarEquipada={alternarEquipada}
-            alternarItemEquipado={alternarItemEquipado}
-            definirMarcos={definirMarcos}
-            definirEquipamentoTexto={definirEquipamentoTexto}
-            adicionarItem={adicionarItem}
-            removerItem={removerItem}
-          />
-        ) : secao === 'Personagem' ? (
-          <Personagem
-            ficha={ficha}
-            alterarObjetivo={alterarObjetivo}
-            adicionarObjetivo={adicionarObjetivo}
-            removerObjetivo={removerObjetivo}
-          />
-        ) : secao === 'Radiante' ? (
-          <Radiante ficha={ficha} escolhasTalento={escolhasTalento} alterarIdeal={alterarIdeal} />
-        ) : secao === 'Anotações' ? (
-          <Anotacoes
-            ficha={ficha}
-            adicionarAnotacao={adicionarAnotacao}
-            editarAnotacao={editarAnotacao}
-            removerAnotacao={removerAnotacao}
-          />
-        ) : (
-          <div className="em-breve">
-            <p>{t(tx.app.aAbaSecaoVem, { secao: tx.nomesAbas[secao] })}</p>
-            <p className="proximo">{t(tx.app.aEstruturaJaEsta)}</p>
-          </div>
-        )}
+        <CarrosselAbas lista={LISTA} ativa={secao} aoTrocar={setSecao} desenhar={desenharSecao} />
       </main>
 
       {/* Rodapé: só o estado do save e o resultado da última importação/exportação.
