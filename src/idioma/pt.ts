@@ -382,6 +382,8 @@ export const PT = {
 
   // ── aba Principal ───────────────────────────────────────────────
   principal: {
+    testesRapidos: 'Testes rápidos',
+    testesRapidosLegenda: 'As 5 perícias de total mais alto. Todas estão na aba Perícias.',
     atributosDefesas: 'Atributos e Defesas',
     grupoNome: 'Grupo {nome}',
     defesa: 'Defesa',

@@ -164,3 +164,27 @@ export function pesoCarregado(ficha: Personagem): number {
   const dasArmas = ficha.armas.reduce((soma, a) => soma + a.peso, 0)
   return dosItens + dasArmas
 }
+
+/**
+ * As N perícias de MAIOR total — usadas no topo da aba Principal como "Testes rápidos".
+ * Ordena decrescente por total; empate mantém a ordem de ficha.pericias.
+ */
+export function periciasMaisAltas(
+  ficha: Personagem,
+  escolhas: Record<string, EscolhaVaga>,
+  n = 5,
+): Pericia[] {
+  // Calcular totais e manter índice original
+  const comTotal = ficha.pericias.map((p, idx) => ({
+    pericia: p,
+    total: totalPericia(p, ficha, escolhas),
+    indiceOriginal: idx,
+  }))
+  // Ordenar por total decrescente, mantendo ordem original no empate
+  comTotal.sort((a, b) => {
+    if (b.total !== a.total) return b.total - a.total
+    return a.indiceOriginal - b.indiceOriginal
+  })
+  // Extrair as N primeiras
+  return comTotal.slice(0, n).map((x) => x.pericia)
+}

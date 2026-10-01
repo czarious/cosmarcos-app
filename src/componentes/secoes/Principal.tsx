@@ -1,27 +1,31 @@
 /* arquivo: Principal.tsx */
-import type { Personagem, NomeAtributo } from '../../tipos/personagem'
+import type { Personagem, NomeAtributo, Pericia } from '../../tipos/personagem'
+import type { EscolhaVaga } from '../../regras/talentos'
 import { GRUPOS_FICHA } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
-import { condicoesEfetivas, bonusAprimorado, movimentoComCondicoes } from '../../regras/condicoes'
+import { condicoesEfetivas, bonusAprimorado, movimentoComCondicoes, efeitoCondicoesPericia } from '../../regras/condicoes'
+import { periciasMaisAltas, totalPericia, detalhePericia, alteradoPorCondicao } from '../../regras/calculos'
 import { formatarMetros } from './Condicoes'
 import { useState } from 'react'
 import { deflexaoTotal } from '../../regras/armadura'
 import PopoverDeflexao from '../PopoverDeflexao'
+import PopoverDetalhe from '../PopoverDetalhe'
 
 // Aba Principal — o "Abilities, Saves, Senses" do DDB com as regras do Cosmere
 // (cosmere-e-a-interface.md): o atributo JÁ é o modificador (sem o número de
 // baixo do D&D) e as 3 Defesas ocupam o lugar dos testes de resistência.
 // Cada grupo é uma linha da ficha oficial: [atributo] [DEFESA] [atributo].
 
-type Props = { ficha: Personagem }
+type Props = { ficha: Personagem; escolhasTalento: Record<string, EscolhaVaga> }
 
-export default function Principal({ ficha }: Props) {
+export default function Principal({ ficha, escolhasTalento }: Props) {
   const { t, tx, nome } = useIdioma()
   const { atributos, atributosMod, defesas, deflect, derivados } = ficha
   const efetivas = condicoesEfetivas(ficha)
   const mov = movimentoComCondicoes(ficha)
   const defl = deflexaoTotal(ficha)
   const [vendoDeflexao, setVendoDeflexao] = useState(false)
+  const [detalheAberto, setDetalheAberto] = useState<Pericia | null>(null)
 
   const atributo = (a: NomeAtributo) => {
     const aprimorado = bonusAprimorado(efetivas, a)
@@ -44,8 +48,45 @@ export default function Principal({ ficha }: Props) {
     { rotulo: tx.principal.capacidadeLevantamento, valor: derivados.capacidadeLevantamento },
   ]
 
+  const testesRapidos = periciasMaisAltas(ficha, escolhasTalento)
+
   return (
     <div className="secao principal">
+      <h2 className="titulo-secao">{t(tx.principal.testesRapidos)}</h2>
+      <ul className="lista-pericias">
+        {testesRapidos.map((p) => {
+          const total = totalPericia(p, ficha, escolhasTalento)
+          const alterado = alteradoPorCondicao(p, ficha)
+
+          return (
+            <li className="linha-pericia" key={p.id}>
+              <span className="pericia-nome">
+                {nome(p.nome)}
+                {(() => {
+                  const { vantagem, desvantagem } = efeitoCondicoesPericia(p, ficha)
+                  return (
+                    <>
+                      {vantagem.length > 0 && <small className="pericia-vant" title={vantagem.map((v) => nome(v)).join(', ')}> {tx.pericias.vantagem}</small>}
+                      {desvantagem.length > 0 && <small className="pericia-desv" title={desvantagem.map((v) => nome(v)).join(', ')}> {tx.pericias.desvantagem}</small>}
+                    </>
+                  )
+                })()}
+              </span>
+
+              <button
+                className={`numero-detalhavel pericia-total${alterado ? ' numero-alterado' : ''}`}
+                onClick={() => setDetalheAberto(p)}
+                aria-label={t(alterado ? tx.geral.nomeTotalAlteradoVer : tx.geral.nomeTotalVer, { nome: nome(p.nome), total })}
+              >
+                {total >= 0 ? '+' : ''}
+                {total}
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+      <p className="proximo">{t(tx.principal.testesRapidosLegenda)}</p>
+
       <h2 className="titulo-secao">{t(tx.principal.atributosDefesas)}</h2>
       {GRUPOS_FICHA.map((g) => (
         <section className="pr-grupo" key={g.defesa} aria-label={t(tx.principal.grupoNome, { nome: tx.grupos[g.defesa] })}>
@@ -76,6 +117,13 @@ export default function Principal({ ficha }: Props) {
       </ul>
       {defl.variasVestidas && <p className="proximo">{tx.principal.duasArmaduras}</p>}
       {vendoDeflexao && <PopoverDeflexao ficha={ficha} aoFechar={() => setVendoDeflexao(false)} />}
+
+      {detalheAberto && (
+        <PopoverDetalhe
+          detalhe={detalhePericia(detalheAberto, ficha, escolhasTalento)}
+          aoFechar={() => setDetalheAberto(null)}
+        />
+      )}
 
       <h2 className="titulo-secao">{t(tx.principal.deslocamentoSentidos)}</h2>
       <ul className="pr-derivados">

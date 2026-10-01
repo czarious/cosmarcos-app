@@ -69,7 +69,8 @@
 | `src/regras/especialidadesCulturais.ts` | As 13 especialidades culturais do livro (Cap. 2) — lista fechada, completa dropdown |
 | `src/regras/especialidadesUtilidadePerito.ts` | Rótulo das 5 categorias de especialidade + exemplos do livro (Cap. 3) pra Utilidade/Perito — o livro não fecha essas duas, por isso o dropdown tem "Outra" |
 | `src/regras/pericias.ts` | Teto de graduação por patamar (2/3/4/5/5) + a exceção da Erudição. Consumido pela aba Perícias |
-| `src/regras/calculos.ts` | `totalPericia`/`detalhePericia` + `bonusNaoAtribuido` (o bônus que o Shards mandou e ninguém atribuiu) + `pesoCarregado`/`pesoEmKg` + `periciaPorNome` |
+| `src/regras/calculos.ts` | `totalPericia`/`detalhePericia` + `bonusNaoAtribuido` (o bônus que o Shards mandou e ninguém atribuiu) + `pesoCarregado`/`pesoEmKg` + `periciaPorNome` + `periciasMaisAltas` (top 5 da aba Principal) |
+| `src/regras/periciasMaisAltas.test.ts` | Testes de periciasMaisAltas: 5 itens, ordem decrescente, maior de todos, preserva ordem no empate |
 | `src/regras/condicoes.ts` | **Condições e lesões** (Cap. 9): as 14 condições, efeitos d8 de lesão, gravidade, rolagem de lesão — e o que muda na ficha (perícia, movimento, ações no turno, lembretes). Lesão com efeito vira condição por `condicoesEfetivas`, sem gravar duas vezes |
 | `src/regras/condicoes.test.ts` | Testes de condição/lesão/descanso com os exemplos e faixas exatas do livro |
 | `src/regras/descanso.ts` | **Descanso** curto (soma o dado de recuperação distribuído) e longo (Vida/Foco cheios, Exausto −1, superficial cura) |
