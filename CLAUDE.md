@@ -98,11 +98,11 @@ Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não 
 
 > Não existe Live Server aqui: quem serve o projeto é o Vite.
 
-## Estado atual — 30/Set/2026
+## Estado atual — 01/Out/2026
 
-Publicado (v0.10.2): **arrastar entre abas** (Embla) ·  **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
+Publicado (v0.11.0): **cabeçalho novo** (foto com recorte, fogueira do descanso, quadradinhos coloridos, setas ▲▼, escudinho da deflexão) · **botões com custo à esquerda** · turno minimizável · aviso de ficha mais nova · **arrastar entre abas** (Embla) ·  **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
 
-**Próxima conversa:** publicar a v0.11.0 (ramo `teste/cabecalho-novo` + o que ainda não foi commitado: item 13 e o ajuste de deflexão) quando o César autorizar; seguir pro 8.
+**Próxima conversa:** ver a rodada do iPhone da v0.11.0 (`gh run list --workflow iphone.yml -L 1`); seguir pro 8 nesta ordem (César aprovou, 01/Out/2026): atalho das perícias mais altas → texto dos talentos fora do catálogo → contador e saldo de talentos. O César faz os testes do item 14 no iPhone.
 
 **Pedidos do César, em ordem — nenhum se apaga, só muda de estado (ele pediu, 30/Set/2026):**
 1. ✅ Plano do turno, Desfazer e travas de carga (v0.9.0).
@@ -116,8 +116,8 @@ Publicado (v0.10.2): **arrastar entre abas** (Embla) ·  **rastreador de turno**
 9. ⏳ 2ª etapa do idioma (descrições de regra).
 10. 📌 Lembrar a mesa de importar a ficha uma vez depois de atualizar (save antigo guarda nomes em inglês e tipos velhos).
 11. 🔶 Arrastar o dedo pra trocar de aba: v0.10.1 publicada travava; refeito com **Embla** (abas montadas uma vez, vizinha real no meio do arrasto) + "Iniciar combate" dentro da aba Ações. César achou fluido no PC (30/Set/2026). Publicado na v0.10.2; celular → item 14.
-12. ✅ **Cabeçalho fixo novo** (César conferiu na tela do PC, 01/Out/2026; celular → item 14; no ramo `teste/cabecalho-novo`, passou no WebKit, aguarda autorização pra publicar v0.11.0). Junto: botões com visual único e custo à esquerda, turno minimizável, deflexão no editor da Vida, janela do descanso. Pedido: foto quadrada do personagem no canto esquerdo, com recorte e zoom; nome em cima da foto; botão de descanso em forma de fogueira embaixo dela (curto ou longo); Vida, Foco e Investidura empilhados em linhas à direita, todos no mesmo padrão; o texto da linha de cima (sem o nome) e a ⚙ continuam no alto à direita.
-13. 🔶 **Avisar quando a ficha-semente for mais nova que o save** (pedido 30/Set/2026; feito no ramo, testado com save envelhecido, falta o César ver na tela): "Há uma ficha mais nova do Eccho — Importar". Nasceu de um save velho no `localhost` sem o PROJÉTIL — o mesmo buraco do item 10, sem depender de lembrar a mesa.
+12. ✅ **Cabeçalho fixo novo** (César conferiu na tela do PC, 01/Out/2026; celular → item 14; publicado na v0.11.0). Junto: botões com visual único e custo à esquerda, turno minimizável, deflexão no editor da Vida, janela do descanso. Pedido: foto quadrada do personagem no canto esquerdo, com recorte e zoom; nome em cima da foto; botão de descanso em forma de fogueira embaixo dela (curto ou longo); Vida, Foco e Investidura empilhados em linhas à direita, todos no mesmo padrão; o texto da linha de cima (sem o nome) e a ⚙ continuam no alto à direita.
+13. 🔶 **Avisar quando a ficha-semente for mais nova que o save** (pedido 30/Set/2026; v0.11.0, testado com save envelhecido, falta o César ver na tela): "Há uma ficha mais nova do Eccho — Importar". Nasceu de um save velho no `localhost` sem o PROJÉTIL — o mesmo buraco do item 10, sem depender de lembrar a mesa.
 14. 📱 **Testes que só o César faz, no iPhone** (ele pediu pra deixar pra depois, 01/Out/2026): arrastar entre abas (item 11) · salvar/exportar/importar (item 4) · foto pela galeria e recorte com dois dedos · instalar pela Tela de Início e o aviso "Versão nova — Atualizar" · setas, escudinho, fogueira e faixa do turno no toque. Nenhum simulador cobre instalar nem o corte de ~7 dias do Safari.
 
 Detalhe e critério de pronto: [roadmap.md](escopo/roadmap.md).
