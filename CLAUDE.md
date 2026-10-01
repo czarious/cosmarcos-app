@@ -115,5 +115,6 @@ Publicado (v0.10.0): **rastreador de turno** na aba Ações · guia dos fluxos �
 8. ⏳ Funcionalidades que faltam, pela [checklist](escopo/checklist-shards.md).
 9. ⏳ 2ª etapa do idioma (descrições de regra).
 10. 📌 Lembrar a mesa de importar a ficha uma vez depois de atualizar (save antigo guarda nomes em inglês e tipos velhos).
+11. 🔶 Arrastar o dedo pra trocar de aba (v0.10.1). Falta ele conferir no celular.
 
 Detalhe e critério de pronto: [roadmap.md](escopo/roadmap.md).

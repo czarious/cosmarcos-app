@@ -358,6 +358,57 @@ body {
   padding: 1rem 0.9rem 2rem;
 }
 
+/* ── arrastar entre abas (useArrastarAbas.ts): as abas coladas lado a lado ──
+   A aba segue o dedo; a vizinha aparece encostada, separada por uma linha,
+   com ícone e nome. Ao soltar, a aba nova desliza de onde a vizinha estava. */
+.ficha {
+  overflow-x: clip; /* a vizinha fica fora da coluna sem criar rolagem de lado (clip não solta o topo grudado) */
+}
+.conteudo.voltando {
+  transition: transform 0.18s ease-out; /* = ARRASTO.volta */
+}
+.conteudo.entrando {
+  animation: aba-entra 0.2s ease-out;
+}
+@keyframes aba-entra {
+  from {
+    transform: translateX(var(--inicio));
+  }
+}
+.conteudo:is(.arrastando, .entrando)[data-proxima]::after,
+.conteudo:is(.arrastando, .entrando)[data-anterior]::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: var(--rotulo-y, 6rem);
+  background: var(--cor-fundo-pagina);
+  color: var(--cor-titulo);
+  font-size: 1.2rem;
+  text-align: center;
+  pointer-events: none;
+}
+.conteudo:is(.arrastando, .entrando)[data-proxima]::after {
+  content: attr(data-proxima);
+  left: 100%;
+  border-left: 2px solid var(--cor-borda);
+}
+.conteudo:is(.arrastando, .entrando)[data-anterior]::before {
+  content: attr(data-anterior);
+  right: 100%;
+  border-right: 2px solid var(--cor-borda);
+}
+@media (prefers-reduced-motion: reduce) {
+  .conteudo.entrando {
+    animation: none;
+  }
+  .conteudo.entrando::before,
+  .conteudo.entrando::after {
+    display: none;
+  }
+}
+
 .em-breve {
   text-align: center;
   color: var(--cor-texto-suave);

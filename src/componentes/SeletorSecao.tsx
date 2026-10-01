@@ -24,7 +24,8 @@ export const SECOES = {
 
 export type Secao = keyof typeof SECOES
 
-const LISTA = Object.keys(SECOES) as Secao[]
+/** A ordem das abas — a do menu e a do arrastar. */
+export const LISTA = Object.keys(SECOES) as Secao[]
 
 type Props = {
   ativa: Secao

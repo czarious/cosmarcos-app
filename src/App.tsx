@@ -6,7 +6,8 @@ import PainelTurno from './componentes/PainelTurno'
 import MenuEngrenagem from './componentes/MenuEngrenagem'
 import AvisoAtualizacao from './componentes/AvisoAtualizacao'
 import CabecalhoFixo from './componentes/CabecalhoFixo'
-import SeletorSecao, { type Secao } from './componentes/SeletorSecao'
+import SeletorSecao, { LISTA, SECOES, type Secao } from './componentes/SeletorSecao'
+import { useArrastarAbas } from './componentes/useArrastarAbas'
 import Principal from './componentes/secoes/Principal'
 import Pericias from './componentes/secoes/Pericias'
 import Talentos from './componentes/secoes/Talentos'
@@ -74,6 +75,7 @@ export default function App() {
   )
   const turno = useTurno(ficha, apiTurno)
   const [secao, setSecao] = useState<Secao>('Principal')
+  const arrasto = useArrastarAbas(LISTA, secao, setSecao, (s) => `${SECOES[s]} ${tx.nomesAbas[s]}`)
   /**
    * Resultado da última importação/exportação, mostrado no rodapé. Mensagem
    * (escrita no idioma da hora) ou o erro do tradutor, que vem só em português.
@@ -160,7 +162,7 @@ export default function App() {
         <PainelTurno ficha={ficha} turno={turno} naAbaAcoes={secao === 'Ações'} />
         <AvisoAtualizacao />
       </div>
-      <main className="conteudo">
+      <main key={secao} className={`conteudo${arrasto.classe}`} {...arrasto.props}>
         {alertaSave && (
           <div className="alerta-save" role="alert">
             <p>
