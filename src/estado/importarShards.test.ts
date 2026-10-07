@@ -25,6 +25,18 @@ describe('importar o Eccho', () => {
   it('grita com arquivo que não é do Shards', () => {
     expect(() => importarShards({ qualquer: 1 })).toThrow(ErroImportacao)
   })
+
+  it('pula linha em branco de especialidade e condição, mas ainda grita com tipo estranho', () => {
+    const json = structuredClone(eccho) as unknown as { characters: Record<string, unknown[]>[] }
+    const antes = ficha().especializacoes.length
+    json.characters[0].expertises.push({ id: 'x', type: '', name: '', source: 'manual' })
+    json.characters[0].conditions = [{ id: 'y', name: '', detail: '' }]
+    const f = importarShards(json)[0]
+    expect(f.especializacoes).toHaveLength(antes)
+    expect(f.condicoes).toEqual([])
+    json.characters[0].expertises.push({ id: 'z', type: 'Inventado', name: 'Algo', source: 'manual' })
+    expect(() => importarShards(json)).toThrow(ErroImportacao)
+  })
 })
 
 describe('total de perícia', () => {

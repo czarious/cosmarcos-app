@@ -215,8 +215,13 @@ function traduzPericias(bruto: unknown): Pericia[] {
   })
 }
 
+/** Linha criada no Shards e não preenchida: pula — dados.md → "Armadilhas do JSON do Shards". */
+function linhaVazia(x: unknown, ...campos: string[]): boolean {
+  return ehObjeto(x) && campos.every((k) => texto(x[k]).trim() === '')
+}
+
 function traduzEspecializacoes(bruto: unknown): Especializacao[] {
-  return lista(bruto).map((e) => {
+  return lista(bruto).filter((e) => !linhaVazia(e, 'type', 'name')).map((e) => {
     const o = ehObjeto(e) ? e : {}
     const bruto = texto(o.type)
     const tipo = TIPO_ESPECIALIDADE[bruto]
@@ -611,7 +616,7 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
     objetivos: traduzObjetivos(c.goals),
     radiante: traduzRadiante(c.radiant),
     // estado vivo: começa do que o Shards mandou (pode ser sobrescrito ao reimportar — pergunta 7)
-    condicoes: lista(c.conditions).map(traduzCondicao),
+    condicoes: lista(c.conditions).filter((x) => !linhaVazia(x, 'name')).map(traduzCondicao),
     lesoes: lista(c.injuries).map(traduzLesao),
     anotacoes: anotacoesDoShards(c),
   }
