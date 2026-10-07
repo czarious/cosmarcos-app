@@ -2,13 +2,15 @@
 import { useState } from 'react'
 import type { Personagem, Talento } from '../../tipos/personagem'
 import {
-  CATALOGO_TALENTOS,
+  entradaTalento,
+  talentosDeFluxo,
   chaveVaga,
   type EscolhaVaga,
   type TipoVaga,
   type VagaTalento,
 } from '../../regras/talentos'
 import { bonusDeEscolhas } from '../../regras/calculos'
+import { contarTalentos } from '../../regras/contagemTalentos'
 import { ICONE, SIMBOLO_ATIVACAO } from '../../variaveis'
 import { vinculosDe } from '../../regras/especialidades'
 import { ESPECIALIDADES_CULTURAIS } from '../../regras/especialidadesCulturais'
@@ -19,8 +21,9 @@ import {
 import { useIdioma } from '../../idioma/IdiomaContexto'
 
 // Aba Talentos — cruza 4 fontes pra cada talento do personagem carregado:
-//  1. ficha.talentos          → o que o Shards diz que ele TEM (dado)
-//  2. CATALOGO_TALENTOS       → o que o talento FAZ (regra, universal)
+//  1. ficha.talentos          → o que o Shards diz que ele TEM (dado), mais
+//     os de fluxo aprendidos (talentosDeFluxo), num grupo próprio
+//  2. entradaTalento()        → o que o talento FAZ (regra, universal)
 //  3. escolhasTalento         → o que o JOGADOR escolheu pras vagas em
 //     aberto (ex.: qual perícia recebe o bônus da Erudição) — estado vivo,
 //     editável por dropdown, não fica preso a um arquivo de código.
@@ -42,6 +45,39 @@ const GRUPOS: Array<{ origem: Talento['origem']; titulo: 'heroicos' | 'radiantes
 ]
 
 const OUTRA = '__outra__'
+
+/** Contagem no alto da aba: talentos usados × previstos pela tabela do livro, por categoria (regras/contagemTalentos.ts). */
+function ContagemTalentos({ ficha }: { ficha: Personagem }) {
+  const { t, tx } = useIdioma()
+  const c = contarTalentos(ficha)
+  const saldo =
+    c.saldo > 0
+      ? t(tx.talentos.saldoAEscolher, { n: c.saldo })
+      : c.saldo < 0
+        ? t(tx.talentos.saldoAMais, { n: -c.saldo })
+        : tx.talentos.saldoEmDia
+  const linhas = [
+    { rotulo: tx.talentos.porNivel, ...c.porNivel },
+    {
+      rotulo: ficha.meta.ancestralidade === 'Cantor' ? tx.talentos.ancestralidadeCantor : tx.talentos.ancestralidadeHeroica,
+      ...c.ancestralidade,
+    },
+  ]
+  return (
+    <section className="quadro-resumo contagem-talentos" aria-label={tx.talentos.contagem}>
+      <h2 className="titulo-secao">{tx.talentos.contagem}</h2>
+      <dl>
+        {linhas.map(({ rotulo, usados, previstos }) => (
+          <div key={rotulo}>
+            <dt>{rotulo}</dt>
+            <dd>{t(tx.talentos.deTotal, { usados, previstos })}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="contagem-saldo">{saldo}</p>
+    </section>
+  )
+}
 
 /** Um campo de vaga (perícia OU especialidade), com estado próprio quando precisa de texto livre. */
 function CampoVaga({
@@ -206,8 +242,12 @@ function ConcessaoFixa({ id, ficha }: { id: string; ficha: Personagem }) {
 export default function Talentos({ ficha, escolhasTalento, definirEscolhaVaga }: Props) {
   const { t, tx, nome } = useIdioma()
   const { talentos } = ficha
+  const grupos = [
+    ...GRUPOS.map(({ origem, titulo }) => ({ chave: origem, titulo, lista: talentos.filter((tal) => tal.origem === origem) })),
+    { chave: 'fluxo', titulo: 'deFluxo' as const, lista: talentosDeFluxo(ficha) },
+  ]
 
-  if (talentos.length === 0) {
+  if (grupos.every((g) => g.lista.length === 0)) {
     return (
       <div className="secao talentos">
         <p className="proximo">{tx.talentos.nenhumTalento}</p>
@@ -217,17 +257,17 @@ export default function Talentos({ ficha, escolhasTalento, definirEscolhaVaga }:
 
   return (
     <div className="secao talentos">
-      {GRUPOS.map(({ origem, titulo }) => {
-        const doGrupo = talentos.filter((tal) => tal.origem === origem)
+      <ContagemTalentos ficha={ficha} />
+      {grupos.map(({ chave, titulo, lista: doGrupo }) => {
         if (doGrupo.length === 0) return null
         return (
-          <section key={origem} className="grupo-talentos">
+          <section key={chave} className="grupo-talentos">
             <h2 className="titulo-secao">
               {tx.talentos[titulo]} <span className="contador">({doGrupo.length})</span>
             </h2>
             <ul className="lista-talentos">
               {doGrupo.map((tal) => {
-                const info = CATALOGO_TALENTOS[tal.id]
+                const info = entradaTalento(tal)
                 const nomeExibido = nome(info?.nome ?? tal.nome)
                 return (
                   <li className="talento" key={tal.id || tal.nome}>

@@ -64,6 +64,7 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | [`.claude/apk.md`](apk.md) | Como gerar o APK, onde mora a chave de assinatura (fora do repo), conferência de segurança |
 | `.claude/verificar.mjs` | A revisão de organização executável: `node .claude/verificar.mjs`. Links, mapas × disco, versão copiada |
 | [`.claude/organizacao.md`](organizacao.md) | **Como a estrutura se mantém.** A regra do CLAUDE.md, pastas por papel, gatilhos de refatoração. A organização é responsabilidade do Claude |
+| `.vscode/settings.json` | Configuração do VS Code deste projeto: a extensão de Java ignora `apk/` |
 | `.claude/settings.local.json` | Configuração local do Claude Code. Não é do app |
 | `.claude/agents/transcritor-livro.md` | Agente que transcreve UM capítulo do Guia de Regras. **Não versionado** — cita o livro |
 | `.claude/agents/arte.md` | Agente de arte (Opus): cria os fundos das abas no estilo do livro, sem copiar ilustração, e confere contraste e tela. **Não versionado** (a pasta `agents/` inteira fica fora) |

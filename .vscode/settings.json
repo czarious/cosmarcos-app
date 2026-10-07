@@ -1,0 +1,13 @@
+// arquivo: settings.json — configuração do VS Code só deste projeto
+{
+  // apk/ é o projeto Android gerado pelo Bubblewrap (.claude/apk.md). O app não tem
+  // Java: sem isto a extensão de Java tenta importar o Gradle de lá e acusa erro.
+  "java.import.gradle.enabled": false,
+  "java.import.exclusions": [
+    "**/node_modules/**",
+    "**/.metadata/**",
+    "**/archetype-resources/**",
+    "**/META-INF/maven/**",
+    "**/apk/**"
+  ]
+}

@@ -1,5 +1,31 @@
 /* arquivo: talentos.ts */
-import type { Ativacao, Pericia } from '../tipos/personagem'
+import type { Ativacao, Pericia, Personagem, Talento } from '../tipos/personagem'
+import { TALENTOS_ERUDITO } from './talentos/erudito'
+import { TALENTOS_AGENTE } from './talentos/agente'
+import { TALENTOS_CACADOR } from './talentos/cacador'
+import { TALENTOS_EMISSARIO } from './talentos/emissario'
+import { TALENTOS_GUERREIRO } from './talentos/guerreiro'
+import { TALENTOS_LIDER } from './talentos/lider'
+import { TALENTOS_CANTOR } from './talentos/cantor'
+import { TALENTOS_ALTERNAUTA } from './talentos/alternauta'
+import { TALENTOS_CORREDOR_DOS_VENTOS } from './talentos/corredor-dos-ventos'
+import { TALENTOS_DANCARINO_DE_PRECIPICIOS } from './talentos/dancarino-de-precipicios'
+import { TALENTOS_GUARDIAO_DAS_PEDRAS } from './talentos/guardiao-das-pedras'
+import { TALENTOS_PLASMADOR } from './talentos/plasmador'
+import { TALENTOS_PULVERIZADOR } from './talentos/pulverizador'
+import { TALENTOS_ROMPE_CEU } from './talentos/rompe-ceu'
+import { TALENTOS_SENTINELA_DA_VERDADE } from './talentos/sentinela-da-verdade'
+import { TALENTOS_TECELUZ } from './talentos/teceluz'
+import { TALENTOS_FLUXO_ABRASAO } from './talentos/fluxo-abrasao'
+import { TALENTOS_FLUXO_ADESAO } from './talentos/fluxo-adesao'
+import { TALENTOS_FLUXO_COESAO } from './talentos/fluxo-coesao'
+import { TALENTOS_FLUXO_DIVISAO } from './talentos/fluxo-divisao'
+import { TALENTOS_FLUXO_GRAVITACAO } from './talentos/fluxo-gravitacao'
+import { TALENTOS_FLUXO_ILUMINACAO } from './talentos/fluxo-iluminacao'
+import { TALENTOS_FLUXO_PROGRESSAO } from './talentos/fluxo-progressao'
+import { TALENTOS_FLUXO_TENSAO } from './talentos/fluxo-tensao'
+import { TALENTOS_FLUXO_TRANSFORMACAO } from './talentos/fluxo-transformacao'
+import { TALENTOS_FLUXO_TRANSPORTE } from './talentos/fluxo-transporte'
 
 /**
  * CATÁLOGO DE TALENTOS — a regra em si, universal (vale pra qualquer
@@ -11,8 +37,8 @@ import type { Ativacao, Pericia } from '../tipos/personagem'
  * não versionada). Texto aqui é PARÁFRASE própria, nunca cópia do livro —
  * este arquivo é público no repo (premissas.md → "GitHub Pages, repositório público"), diferente da transcrição.
  *
- * Organizado em blocos por TRILHA de origem — mesma divisão da transcrição
- * (04-trilhas-heroicas/, 05-trilhas-radiantes/). Cresce um bloco por vez.
+ * Um arquivo por TRILHA em regras/talentos/ — mesma divisão da transcrição
+ * (04-trilhas-heroicas/, 05-trilhas-radiantes/). Aqui ficam o tipo e o índice.
  */
 
 /**
@@ -60,83 +86,63 @@ export type EntradaTalento = {
 // O símbolo de exibição de cada ativação mudou de casa: é rótulo de tela, não
 // catálogo de talento. Mora em `variaveis.ts` → SIMBOLO_ATIVACAO.
 
-// ── Cap. 4 · Trilha heroica: Erudito ──────────────────────────────
-const TALENTOS_ERUDITO: Record<string, EntradaTalento> = {
-  'scholar::key::erudition': {
-    nome: 'Erudição',
-    nomeEn: 'Erudition',
-    fonte: 'Talento-chave · Erudito',
-    fonteEn: 'Key talent · Scholar',
-    preRequisitos: 'nenhum',
-    ativacao: 'especial',
-    descricao:
-      'Ao adquirir, escolhe uma especialidade cultural ou de utilidade que ainda não tenha, e duas perícias cognitivas que não sejam de fluxo. Passa a contar como se tivesse a especialidade escolhida, e ganha +1 graduação em cada uma das duas perícias — mesmo acima do teto normal de graduação do patamar (é uma exceção explícita da regra de teto). Especialidade e graduações são temporárias: depois de um descanso longo com acesso a uma biblioteca, podem ser redistribuídas.',
-    vagas: [
-      { tipo: 'especialidade', indice: 0, rotulo: 'Especialidade concedida (cultural ou utilidade)', rotuloEn: 'Granted expertise (cultural or utility)' },
-      {
-        tipo: 'pericia',
-        indice: 0,
-        rotulo: 'Perícia bônus 1 (cognitiva)',
-        rotuloEn: 'Bonus skill 1 (cognitive)',
-        filtroPericia: (p) => p.atributo === 'intelecto' || p.atributo === 'vontade',
-      },
-      {
-        tipo: 'pericia',
-        indice: 1,
-        rotulo: 'Perícia bônus 2 (cognitiva)',
-        rotuloEn: 'Bonus skill 2 (cognitive)',
-        filtroPericia: (p) => p.atributo === 'intelecto' || p.atributo === 'vontade',
-      },
-    ],
-  },
-  'scholar::artifabrian::efficient-engineer': {
-    nome: 'Engenheiro Eficiente',
-    nomeEn: 'Efficient Engineer',
-    fonte: 'Erudito · Artifabriano',
-    fonteEn: 'Scholar · Artifabrian',
-    preRequisitos: 'Manufatura 1+; talento-chave Erudição',
-    ativacao: 'sempre',
-    descricao:
-      'Ao adquirir, ganha uma especialidade de utilidade (Manufatura de Arma, Armadura ou Equipamento) e um item à escolha (dorial amplificador, dorial entorpecente, ou um par de telepenas com bracelete de emoção). Ao manufaturar um item ou inventar um fabrial, o intervalo de Oportunidade desses testes aumenta em 2 pontos, e o custo de matéria-prima cai pela metade.',
-  },
-  'scholar::artifabrian::prized-acquisition': {
-    nome: 'Aquisição Valiosa',
-    nomeEn: 'Prized Acquisition',
-    fonte: 'Erudito · Artifabriano',
-    fonteEn: 'Scholar · Artifabrian',
-    preRequisitos: 'talento-chave Erudição',
-    ativacao: 'especial',
-    descricao:
-      'Ao adquirir, ganha uma especialidade de perito em Manufatura de Fabrial e uma gema especialmente lapidada, usada como matéria-prima para um fabrial — ela vale como a gema de um fabrial único do patamar atual do personagem. Na primeira tentativa com essa gema, o tempo normal para atrair um espreno e manufaturar é ignorado. A gema não pode ser vendida nem trocada; se perdida, pode ser substituída após um descanso longo (a critério do MJ). Durante o recesso, é possível desfazer o fabrial pra recuperar a gema e reaproveitá-la.',
-  },
-  'scholar::artifabrian::fine-handiwork': {
-    nome: 'Trabalho Manual Refinado',
-    nomeEn: 'Fine Handiwork',
-    fonte: 'Erudito · Artifabriano',
-    fonteEn: 'Scholar · Artifabrian',
-    preRequisitos: 'talento Engenheiro Eficiente',
-    ativacao: 'especial',
-    descricao:
-      'Ao manufaturar um item ou inventar um fabrial, pode gastar apenas uma melhoria (em vez de duas) para aplicar uma característica avançada. Só se beneficia deste talento uma vez por item.',
-  },
-}
-
-// ── Cap. 5 · Trilha Radiante: Alternauta ──────────────────────────
-const TALENTOS_ALTERNAUTA: Record<string, EntradaTalento> = {
-  'elsecaller::first-ideal-elsecaller-key': {
-    nome: 'Primeiro Ideal',
-    nomeEn: 'First Ideal',
-    fonte: 'Talento-chave · Alternauta',
-    fonteEn: 'Key talent · Elsecaller',
-    preRequisitos: 'Nível 2+',
-    ativacao: 'especial',
-    descricao:
-      'Ao adquirir, ganha acesso à Investidura (máximo inicial = 2 + o maior entre Consciência e Presença) e destrava as ações Inspirar Luz das Tempestades, Aprimorar e Restaurar. Ganha o objetivo "Dizer o Primeiro Ideal" — ao completá-lo, fica Potencializado até o fim da cena, ganha os fluxos de Transformação e Transporte (1 graduação inicial em cada) e desbloqueia a árvore de talentos de Vínculo com Espreno de Tinta.',
-  },
-}
-
 /** Catálogo consultado pela tela — junta todos os blocos acima. */
 export const CATALOGO_TALENTOS: Record<string, EntradaTalento> = {
   ...TALENTOS_ERUDITO,
+  ...TALENTOS_AGENTE,
+  ...TALENTOS_CACADOR,
+  ...TALENTOS_EMISSARIO,
+  ...TALENTOS_GUERREIRO,
+  ...TALENTOS_LIDER,
+  ...TALENTOS_CANTOR,
   ...TALENTOS_ALTERNAUTA,
+  ...TALENTOS_CORREDOR_DOS_VENTOS,
+  ...TALENTOS_DANCARINO_DE_PRECIPICIOS,
+  ...TALENTOS_GUARDIAO_DAS_PEDRAS,
+  ...TALENTOS_PLASMADOR,
+  ...TALENTOS_PULVERIZADOR,
+  ...TALENTOS_ROMPE_CEU,
+  ...TALENTOS_SENTINELA_DA_VERDADE,
+  ...TALENTOS_TECELUZ,
+  ...TALENTOS_FLUXO_ABRASAO,
+  ...TALENTOS_FLUXO_ADESAO,
+  ...TALENTOS_FLUXO_COESAO,
+  ...TALENTOS_FLUXO_DIVISAO,
+  ...TALENTOS_FLUXO_GRAVITACAO,
+  ...TALENTOS_FLUXO_ILUMINACAO,
+  ...TALENTOS_FLUXO_PROGRESSAO,
+  ...TALENTOS_FLUXO_TENSAO,
+  ...TALENTOS_FLUXO_TRANSFORMACAO,
+  ...TALENTOS_FLUXO_TRANSPORTE,
+}
+
+/**
+ * A entrada do catálogo de um talento da ficha: pelo id do Shards. Talento de
+ * Cantor (ancestral) cai pro nome em inglês — o Shards não documenta o id deles,
+ * e as chaves `singer::` daqui são nossas.
+ */
+export function entradaTalento(tal: Talento): EntradaTalento | undefined {
+  return (
+    CATALOGO_TALENTOS[tal.id] ??
+    (tal.origem === 'ancestral' ? Object.values(TALENTOS_CANTOR).find((e) => e.nomeEn === tal.nome) : undefined)
+  )
+}
+
+/** Chave de catálogo de um talento de fluxo: o Shards o guarda dentro do fluxo, sem prefixo (`surge-talents.json`). */
+export function chaveTalentoFluxo(fluxoId: string, talentoId: string): string {
+  return `${fluxoId}::${talentoId}`
+}
+
+/**
+ * Talentos de fluxo APRENDIDOS, no formato da lista de talentos. Moram em
+ * `radiante.fluxos[].talentos`, fora de `ficha.talentos`, mas gastam vaga de
+ * talento igual: a árvore de fluxo é árvore da trilha Radiante (transcrição
+ * 05-trilhas-radiantes/01-usando-trilhas-radiantes.md).
+ */
+export function talentosDeFluxo(ficha: Personagem): Talento[] {
+  return (ficha.radiante?.fluxos ?? []).flatMap((f) =>
+    f.talentos
+      .filter((t) => t.aprendido)
+      .map((t): Talento => ({ id: chaveTalentoFluxo(f.id, t.id), nome: t.nome, origem: 'radiante', chave: false })),
+  )
 }

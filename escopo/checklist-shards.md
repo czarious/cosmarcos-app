@@ -29,7 +29,7 @@
 | Marcos (moeda) | ✅ | Inventário, editável |
 | Vida · Foco · Investidura | ✅ | Topo fixo, ± e número |
 | Deflexão · movimento · dado de recuperação · carga · levantamento · sentidos | ✅ | Aba Principal |
-| Contador de talentos (total / heroico / saldo "-1") | ❌ | Leitura simples; útil ao subir de nível |
+| Contador de talentos (total / heroico / saldo "-1") | 🔶 | Aba Talentos → "Contagem": por nível e bônus de ancestralidade, usados × previstos, e o saldo (01/Out/2026); falta o César ver na tela |
 | 18 perícias com graduação e total | ✅ | Aba Perícias, total calculado e detalhado |
 | Ordenar perícias | ❌ | Baixa prioridade |
 | Propósito · obstáculo · personalidade · aparência · conexões | ✅ | Aba Personagem |
@@ -39,12 +39,12 @@
 | Lesões: deflexão da armadura, modificador, rolar lesão, duração | ✅ | Aba Condições, rolagem guiada |
 | Condições com detalhes e efeitos | ✅ | Aba Condições, 14 do livro, efeito na conta |
 | Notas | ✅ | Viram blocos na aba Anotações |
-| Trilhas heroicas: talentos com o texto da habilidade | 🔶 | Aba Talentos: só os talentos já no catálogo do app (Erudito, Alternauta); talento fora do catálogo mostra só o nome |
+| Trilhas heroicas: talentos com o texto da habilidade | 🔶 | Aba Talentos: todo talento de trilha heroica, ordem Radiante e Cantor tem nome PT, ativação, pré-requisitos e texto (07/Out/2026); falta o César ver na tela |
 | Trilha radiante: ordem, Ideais com marcos, vínculo (nome, tipo, alcance) | ✅ | Aba Radiante |
 | Segunda ordem (vínculo duplo, raro) | ❌ | Nenhum personagem da mesa usa |
 | Fluxos: graduação, dado, tamanho, descrição | ✅ | Abas Radiante e Ações (guia de uso) |
 | Fluxos: habilidades separadas (Transporte: emoções, localizar, sentir Investidura) | 🔶 | O app lista no "Como usar"; o Shards dá um botão por habilidade |
-| Talentos de fluxo (+ Talent) | 🔶 | Mostra os aprendidos pelo nome; sem texto de regra |
+| Talentos de fluxo (+ Talent) | 🔶 | Os aprendidos: nome na aba Radiante e cartão com o texto na aba Talentos → "De fluxo"; contam na "Contagem" (07/Out/2026); falta o César ver na tela |
 | Notas de trilha | ❌ | Campo livre do Shards que o tradutor não lê |
 | Defesas Física · Cognitiva · Espiritual | ✅ | Aba Principal |
 | Armas equipadas (dano, alcance, perícia, bônus) | ✅ | Aba Ações, com Golpear no rastreador de turno |
@@ -73,7 +73,7 @@
 
 | Item do Shards | App | Nota |
 |---|---|---|
-| Ver trilhas, talentos escolhidos, saldo de pontos | 🔶 | Os escolhidos aparecem; o saldo não |
+| Ver trilhas, talentos escolhidos, saldo de pontos | 🔶 | Os escolhidos aparecem; o saldo, na "Contagem" da aba Talentos (ver "Contador de talentos" acima) |
 | Escolher talento na árvore / gastar ponto | ➖ | Subir de nível acontece no Shards (semente) |
 
 ## Roll Log · DM Roster · Reference

@@ -212,6 +212,8 @@ export type Personagem = {
     kitInicial: string       // "Acadêmico"
     trilhaHeroica: string    // "Erudito" (heroic.startingPath)
     trilhaRadiante?: string  // "Alternauta" (radiant.order) — nem todo PC é Radiante
+    /** Talentos além da tabela do livro (advancement.bonusTalents + post20TalentChoices). Opcional: save antigo não tem. */
+    talentosExtras?: number
   }
 
   /** O rosto, no cabeçalho: JPEG quadrado (data URL). Só do app — o Shards não tem; reimportar o mesmo personagem mantém. */

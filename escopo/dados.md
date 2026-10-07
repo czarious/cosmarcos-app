@@ -148,7 +148,8 @@ O tradutor tem que saber destas — todas verificadas no export real:
 | `range.reachBonus` | `range.reach` (corpo a corpo) | Usa o `reach` ✅ |
 | `resources.deflectMod` | **em nada** — a tela do Shards soma na hora | Soma no tradutor ✅ |
 | `modifiers` de item **equipado** (`{target: "escopo:chave", value}`) | defesas, `focusMax`, `investitureMax`, movimento — **no momento do export** | ⚠️ Não aplica `skill:` (perícia), `attribute:` (na perícia) nem `resource:deflect`; e equipar/tirar no app não refaz os prontos. Nenhum personagem da mesa usa |
-| `advancement.bonusAttributePoints/SkillRanks/Talents`, `post20TalentChoices` | — (orçamento de criação, não muda número da ficha) | Ignora de propósito |
+| `advancement.bonusTalents` + `post20TalentChoices` | `meta.talentosExtras` | Somam às vagas por nível da contagem de talentos (`regras/contagemTalentos.ts`) ✅ |
+| `advancement.bonusAttributePoints/SkillRanks` | — (orçamento de criação, não muda número da ficha) | Ignora de propósito |
 | `skills[].rankLevel` + `rankTalent` | `skills[].rank` (a soma) | Usa o `rank` ✅ |
 | `heroic.extraPaths` · `radiant.extraOrders` · `isStarting` | — (rótulo: 2ª trilha, 2ª ordem, item do kit) | Ignora — ninguém da mesa tem 2ª trilha/ordem |
 

@@ -44,7 +44,6 @@ import {
   ORDEM,
   ESPRENO,
   FLUXO,
-  TALENTO_FLUXO,
   CATEGORIA_ITEM,
   traduz,
   TRACO_ARMA,
@@ -59,6 +58,7 @@ import {
 } from './deparaShards'
 import { efeitoPorNome, ID_PROPRIO, CARACTERISTICAS_AVANCADAS } from '../regras/fabriais'
 import { EFEITOS_LESAO } from '../regras/condicoes'
+import { CATALOGO_TALENTOS, chaveTalentoFluxo } from '../regras/talentos'
 
 /** Erro com contexto — diz QUAL personagem e QUAL campo, pra caçar rápido. */
 export class ErroImportacao extends Error {
@@ -414,7 +414,9 @@ function traduzFluxos(bruto: unknown): Fluxo[] {
       ativacao: traduzAtivacao(texto(s.activation)),
       talentos: lista(s.talents).map((t) => {
         const o = ehObjeto(t) ? t : {}
-        return { id: texto(o.id), nome: traduz(TALENTO_FLUXO, texto(o.name)), aprendido: o.learned === true }
+        // nome PT vem do catálogo de talentos (mesma chave do Shards); fora dele, passa cru
+        const nome = CATALOGO_TALENTOS[chaveTalentoFluxo(texto(s.id), texto(o.id))]?.nome ?? texto(o.name)
+        return { id: texto(o.id), nome, aprendido: o.learned === true }
       }),
     }
   })
@@ -559,6 +561,10 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
       kitInicial: traduz(CONJUNTO_INICIAL, texto(meta.startingKit)),
       trilhaHeroica: traduz(TRILHA_HEROICA, texto(ehObjeto(c.heroic) ? c.heroic.startingPath : '')),
       trilhaRadiante: traduz(ORDEM, texto(ehObjeto(c.radiant) ? c.radiant.order : '')) || undefined,
+      talentosExtras: ehObjeto(c.advancement)
+        ? num(c.advancement.bonusTalents ?? 0, 'advancement.bonusTalents') +
+          num(c.advancement.post20TalentChoices ?? 0, 'advancement.post20TalentChoices')
+        : 0,
     },
     atributos: traduzAtributos(c.attributes, 'attributes'),
     atributosMod: ehObjeto(c.attributeMods)

@@ -278,26 +278,6 @@ export const FLUXO: Record<string, string> = {
   Transportation: 'Transporte',
 }
 
-/** Talentos de fluxo — só os dos fluxos do Eccho estão no livro transcrito. */
-export const TALENTO_FLUXO: Record<string, string> = {
-  'Soulcast Defense': 'Defesa Transmutada',
-  'Soulcast Parry': 'Aparagem Transmutada',
-  'Living Soulcasting': 'Transmutação Viva',
-  Bloodcasting: 'Transmutar Sangue',
-  'Distant Surgebinding': 'Manipulação de Fluxos Distante',
-  Flamecasting: 'Transmutar Chamas',
-  'Persistent Transformation': 'Transformação Persistente',
-  'Expansive Transmuter': 'Transmutador Expansivo',
-  'Cognitive Farsight': 'Visão Cognitiva Distante',
-  'Realmic Evasion': 'Evasão Entre Reinos',
-  'Cognitive Vision': 'Visão Cognitiva',
-  'Realmic Step': 'Passo Entre Reinos',
-  'Shared Transportation': 'Transporte Compartilhado',
-  Elsecalling: 'Alternavegar',
-  Elsegate: 'Alterportal',
-  Realmwalker: 'Caminhante dos Reinos',
-}
-
 /** Categoria de item do Shards — o catálogo só usa "equipment". */
 /** As 8 armaduras (dicionário → "Armaduras", 07-itens/05-armaduras.md). Vale pro item e pra especialidade em armadura. */
 export const ARMADURA_NOME: Record<string, string> = {

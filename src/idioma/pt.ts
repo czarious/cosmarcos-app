@@ -490,6 +490,7 @@ export const PT = {
     heroicos: 'Heroicos',
     radiantes: 'Radiantes',
     ancestrais: 'Ancestrais',
+    deFluxo: 'De fluxo',
     graduacaoBonus: '+{n} graduação',
     outraDigitar: 'Outra (digitar)…',
     grupoCulturais: 'Culturais',
@@ -501,6 +502,14 @@ export const PT = {
     semTraducao: '(sem tradução)',
     preRequisitos: 'Pré-requisitos: {texto}',
     semEntradaCatalogo: '(ainda sem entrada no catálogo)',
+    contagem: 'Contagem',
+    porNivel: 'Por nível',
+    ancestralidadeHeroica: 'Bônus de ancestralidade (trilha heroica)',
+    ancestralidadeCantor: 'Bônus de ancestralidade (Cantor ou heroica)',
+    deTotal: '{usados} de {previstos}',
+    saldoAEscolher: '{n} a escolher',
+    saldoAMais: '{n} a mais que a tabela do livro',
+    saldoEmDia: 'em dia com a tabela do livro',
   },
   // ── o que as REGRAS devolvem pra tela escrever (regras/*.ts) ────
   regras: {

@@ -98,11 +98,11 @@ Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não 
 
 > Não existe Live Server aqui: quem serve o projeto é o Vite.
 
-## Estado atual — 01/Out/2026
+## Estado atual — 07/Out/2026
 
-Publicado (v0.11.0): **cabeçalho novo** (foto com recorte, fogueira do descanso, quadradinhos coloridos, setas ▲▼, escudinho da deflexão) · **botões com custo à esquerda** · turno minimizável · aviso de ficha mais nova · **arrastar entre abas** (Embla) ·  **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
+Publicado (v0.13.0): **texto de todo talento** (trilhas, Cantor, 9 ordens, 10 fluxos; grupo "De fluxo") · **Contagem de talentos** · importa ficha com linha em branco (v0.12.2, caso do Tiago) · **cabeçalho novo** (foto com recorte, fogueira do descanso, quadradinhos coloridos, setas ▲▼, escudinho da deflexão) · **botões com custo à esquerda** · turno minimizável · aviso de ficha mais nova · **arrastar entre abas** (Embla) ·  **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
 
-**Próxima conversa:** ver a rodada do iPhone da v0.11.0 (`gh run list --workflow iphone.yml -L 1`); seguir pro 8 nesta ordem (César aprovou, 01/Out/2026): ~~atalho das perícias mais altas~~ (v0.12.0, retirado na v0.12.1 a pedido do César) → texto dos talentos fora do catálogo → contador e saldo de talentos. O César faz os testes do item 14 no iPhone.
+**Próxima conversa:** ver a rodada do iPhone da v0.13.0 (`gh run list --workflow iphone.yml -L 1`); item 8: Contagem e texto de todo talento publicados na v0.13.0 — falta o César ver na tela (Talentos do Eccho e do Tiago); seguir pela [checklist](escopo/checklist-shards.md). Atalho das perícias mais altas: descartado (v0.12.1). O César faz os testes do item 14 no iPhone.
 
 **Pedidos do César, em ordem — nenhum se apaga, só muda de estado (ele pediu, 30/Set/2026):**
 1. ✅ Plano do turno, Desfazer e travas de carga (v0.9.0).

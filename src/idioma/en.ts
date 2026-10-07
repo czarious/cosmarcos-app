@@ -473,6 +473,7 @@ export const EN: Dicionario = {
     heroicos: 'Heroic',
     radiantes: 'Radiant',
     ancestrais: 'Ancestry',
+    deFluxo: 'Surge',
     graduacaoBonus: '+{n} rank',
     outraDigitar: 'Other (type it)…',
     grupoCulturais: 'Cultural',
@@ -484,6 +485,14 @@ export const EN: Dicionario = {
     semTraducao: '(no translation)',
     preRequisitos: 'Prerequisites: {texto}',
     semEntradaCatalogo: '(no catalog entry yet)',
+    contagem: 'Count',
+    porNivel: 'Per level',
+    ancestralidadeHeroica: 'Ancestry bonus (heroic path)',
+    ancestralidadeCantor: 'Ancestry bonus (Singer or heroic)',
+    deTotal: '{usados} of {previstos}',
+    saldoAEscolher: '{n} to choose',
+    saldoAMais: "{n} more than the book's table",
+    saldoEmDia: "matches the book's table",
   },
   // ── o que as REGRAS devolvem pra tela escrever (regras/*.ts) ────
   regras: {

@@ -201,6 +201,7 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 | 10 | O Shards tem **"Roll Log"** e rastreia estado vivo — ele já faz o que a gente quer? | 🔶 **Em parte (varredura 27/Set/2026, Shards 3.5.0):** ganhou a tela **Play** (recursos ±, condições, lesões, testes rápidos, ataques, fluxos) e um **DM Roster**. Continua site em inglês, sem PWA e sem cálculo em PT-BR — não muda o MVP. Vale olhar a Play antes de desenhar as Fases 4 e 5 | Usar o Shards |
 | 11 | Quais ideias suas ainda não estão escritas? | ❓ | **César** |
 | ~~12~~ | ~~O export do Shards está desatualizado — o 1º Ideal não está marcado lá~~ | ✅ **RESOLVIDA 27/Set/2026:** o export novo traz `ideals.i1: true` e Investidura **5/5** (2 + Consciência 3, como o livro manda) | Shards reexportado |
+| 13 | Sentinela da Verdade Iluminado: "nenhum inimigo tem visões de evento que você influencia" é de **Vislumbrar o Futuro** ou de **Visão do Vazio**? O texto corrido do livro (p.197) põe em Vislumbrar; o quadro-resumo da mesma página e o Shards, em Visão do Vazio | 🔶 **PROVISÓRIA:** o app segue o texto corrido (Vislumbrar). Só importa se o Tiago pegar a árvore Iluminada | Livro (errata) ou **César** |
 
 ### Resolvidas
 

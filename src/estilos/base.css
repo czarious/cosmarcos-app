@@ -626,6 +626,35 @@ body {
   letter-spacing: 0.04em;
 }
 
+/* Quadro de resumo no alto de uma aba (Talentos "Contagem") */
+.quadro-resumo {
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.7rem 0.7rem;
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+/* Contagem da aba Talentos: usados × previstos por categoria; saldo em cor neutra (o "-1" do Eccho é decisão do César) */
+.contagem-talentos dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+  font-size: 0.85rem;
+}
+
+.contagem-talentos dd {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.contagem-saldo {
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+}
+
 /* grupos de seção (ex.: Talentos por origem — Heroicos/Radiantes/Ancestrais) */
 .grupo-talentos + .grupo-talentos {
   margin-top: 1.1rem;
@@ -1597,6 +1626,12 @@ label.linha-item input[type='checkbox'] {
   border-radius: 10px;
   padding: 1rem;
   box-shadow: 0 8px 24px rgba(43, 38, 32, 0.35);
+}
+
+/* painel em coluna flex (ex.: menu da ⚙) rola por dentro: sem isto, em tela baixa o
+   flex espreme os filhos e botão de 2 linhas fica mais baixo que o texto */
+.cr-painel > * {
+  flex-shrink: 0;
 }
 
 .cr-cabeca {
