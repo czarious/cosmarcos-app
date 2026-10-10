@@ -2,9 +2,9 @@
 import { useState } from 'react'
 import type { Personagem, Item } from '../../tipos/personagem'
 import { pesoCarregado, pesoEmKg } from '../../regras/calculos'
-import { ICONE } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
-import Sobreposicao from '../Sobreposicao'
+import Janela from '../Janela'
+import BotaoApagar from '../BotaoApagar'
 
 // Aba Inventário — resumo de peso carregado/máximo + marcos (moeda) editável no topo, botão
 // "Gerenciar Inventário" (adicionar/remover), Armas (com checkbox de
@@ -54,71 +54,58 @@ function GerenciarInventario({
   }
 
   return (
-    <Sobreposicao aoFechar={aoFechar}>
-      <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
-        <div className="cr-cabeca">
-          <span className="cr-titulo">{tx.inventario.gerenciar}</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label={tx.geral.fechar}>
-            {ICONE.fechar}
-          </button>
-        </div>
-
-        <div className="gerenciar-form">
+    <Janela titulo={tx.inventario.gerenciar} aoFechar={aoFechar}>
+      <div className="gerenciar-form">
+        <input
+          className="cr-input"
+          placeholder={tx.inventario.nomeItem}
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+        />
+        <input
+          className="cr-input"
+          placeholder={tx.inventario.categoriaExemplo}
+          value={tipo}
+          onChange={(e) => setTipo(e.target.value)}
+        />
+        <div className="gerenciar-form-linha">
           <input
             className="cr-input"
-            placeholder={tx.inventario.nomeItem}
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
+            type="number"
+            inputMode="decimal"
+            placeholder={tx.inventario.pesoKg}
+            value={peso}
+            onChange={(e) => setPeso(e.target.value)}
           />
           <input
             className="cr-input"
-            placeholder={tx.inventario.categoriaExemplo}
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value)}
+            type="number"
+            inputMode="numeric"
+            placeholder={tx.inventario.qtd}
+            value={qtd}
+            onChange={(e) => setQtd(e.target.value)}
           />
-          <div className="gerenciar-form-linha">
-            <input
-              className="cr-input"
-              type="number"
-              inputMode="decimal"
-              placeholder={tx.inventario.pesoKg}
-              value={peso}
-              onChange={(e) => setPeso(e.target.value)}
-            />
-            <input
-              className="cr-input"
-              type="number"
-              inputMode="numeric"
-              placeholder={tx.inventario.qtd}
-              value={qtd}
-              onChange={(e) => setQtd(e.target.value)}
-            />
-          </div>
-          <button className="cr-btn cr-mais" onClick={adicionar} disabled={!nome.trim()}>
-            {tx.geral.adicionar}
-          </button>
         </div>
-
-        {ficha.itens.length > 0 && (
-          <ul className="gerenciar-lista">
-            {ficha.itens.map((item, indice) => (
-              <li key={`${item.nome}-${indice}`} className="gerenciar-linha">
-                <span>
-                  {nomeJogo(item.nome)} <i>({nomeJogo(item.tipo)})</i>
-                </span>
-                <button
-                  className="gerenciar-remover"
-                  onClick={() => removerItem(indice)}
-                  aria-label={t(tx.geral.removerNome, { nome: nomeJogo(item.nome) })}
-                >
-                  🗑
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        <button className="cr-btn cr-mais" onClick={adicionar} disabled={!nome.trim()}>
+          {tx.geral.adicionar}
+        </button>
       </div>
-    </Sobreposicao>
+
+      {ficha.itens.length > 0 && (
+        <ul className="gerenciar-lista">
+          {ficha.itens.map((item, indice) => (
+            <li key={`${item.nome}-${indice}`} className="gerenciar-linha">
+              <span>
+                {nomeJogo(item.nome)} <i>({nomeJogo(item.tipo)})</i>
+              </span>
+              <BotaoApagar classe="gerenciar-remover" aoApagar={() => removerItem(indice)} rotulo={t(tx.geral.removerNome, { nome: nomeJogo(item.nome) })}>
+                🗑
+              </BotaoApagar>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Janela>
   )
 }
 

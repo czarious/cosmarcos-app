@@ -7,6 +7,7 @@ import { exportarShards } from './exportarShards'
 import { CATALOGO_TALENTOS, chaveVaga, type EscolhaVaga, type TipoVaga } from '../regras/talentos'
 import { vinculosDe } from '../regras/especialidades'
 import { lerFicha, salvarFicha, lerBackup, lerDescartado, montarPacote, sementeMaisNova } from './armazenamento'
+import { guardarCopia, retirarUltimaCopia, temCopia } from './copias'
 
 // O estado VIVO da ficha — e quem decide de ONDE ela vem (item 2.3):
 // localStorage primeiro, JSON do Shards só como SEMENTE. Depois da primeira
@@ -148,6 +149,8 @@ function idDoCaminho(caminho: string): string {
   return caminho.split('/').pop()?.replace(/\.json$/i, '') ?? 'ficha'
 }
 
+const SEM_COPIA = 'Não consegui guardar a ficha atual antes de trocar, porque falta espaço no aparelho. Baixe um backup em Configurações e tente de novo.'
+
 export function usePersonagem(caminhoJson: string): Retorno {
   const id = idDoCaminho(caminhoJson)
   const [ficha, setFicha] = useState<Personagem | null>(null)
@@ -225,31 +228,23 @@ export function usePersonagem(caminhoJson: string): Retorno {
   }, [id, ficha, escolhasTalento, semente])
 
   // A rede de segurança da importação: antes de sobrescrever, guarda a ficha
-  // atual — importar um JSON velho sem querer deixa de ser perda sem volta.
-  const chaveAntes = `cosmarcos:antes-importar:${id}`
-  const [temAntes, setTemAntes] = useState(() => {
-    try {
-      return localStorage.getItem(chaveAntes) !== null
-    } catch {
-      return false
-    }
-  })
-  const guardarAntes = useCallback(() => {
-    if (!ficha) return
-    try {
-      localStorage.setItem(chaveAntes, JSON.stringify(montarPacote(ficha, escolhasTalento, semente)))
-      setTemAntes(true)
-    } catch {
-      // sem espaço: a importação segue, só sem a cópia (o aviso de backup continua valendo)
-    }
-  }, [ficha, escolhasTalento, semente, chaveAntes])
+  // atual na pasta das cópias (copias.ts) — as 3 últimas, então importar duas
+  // vezes seguidas não apaga a ficha original.
+  const [temAntes, setTemAntes] = useState(() => temCopia(id, 'antes-de-importar'))
+  /** `false` = a cópia NÃO foi guardada: a importação não pode seguir. */
+  const guardarAntes = useCallback((): boolean => {
+    if (!ficha) return true // nada a perder
+    if (!guardarCopia(id, 'antes-de-importar', JSON.stringify(montarPacote(ficha, escolhasTalento, semente)))) return false
+    setTemAntes(true)
+    return true
+  }, [ficha, escolhasTalento, semente, id])
 
   const importarTexto = useCallback((texto: string): string | null => {
     let json: unknown
     try {
       json = JSON.parse(texto)
     } catch {
-      return 'Esse arquivo não é um JSON — exporte de novo no Shards (Files → Export current JSON).'
+      return 'Esse arquivo não é uma ficha do Shards. Exporte de novo no Shards, em Files → Export current JSON.'
     }
     // Backup do app primeiro: restaura TUDO, inclusive o que o Shards não tem.
     let backup
@@ -259,7 +254,7 @@ export function usePersonagem(caminhoJson: string): Retorno {
       return String(e instanceof Error ? e.message : e)
     }
     if (backup) {
-      guardarAntes()
+      if (!guardarAntes()) return SEM_COPIA
       setFicha(backup.ficha)
       setEscolhasTalento(backup.escolhasTalento)
       setSemente(backup.semente)
@@ -267,16 +262,21 @@ export function usePersonagem(caminhoJson: string): Retorno {
       podeSalvar.current = true
       return null
     }
-    let novaFicha: Personagem
+    let fichas: Personagem[]
     try {
-      novaFicha = importarShards(json)[0]
+      fichas = importarShards(json)
     } catch (e) {
       return e instanceof ErroImportacao ? e.message : String(e)
     }
+    // O app guarda UM personagem: pegar o 1º calado poderia trocar o jogador pelo de outro
+    if (fichas.length > 1) {
+      return `O arquivo tem ${fichas.length} personagens (${fichas.map((f) => f.meta.nome).join(', ')}), e o app importa um por vez. No Shards, abra só o seu e use Files → Export current JSON.`
+    }
+    const novaFicha = fichas[0]
     const novaSemente = (json as { characters: Record<string, unknown>[] }).characters[0]
     // A foto é do app (o Shards não tem): reimportar o MESMO personagem a mantém; outro personagem vem sem
     if (ficha?.foto && semente?.id === novaSemente.id) novaFicha.foto = ficha.foto
-    guardarAntes()
+    if (!guardarAntes()) return SEM_COPIA
     setFicha(novaFicha)
     setEscolhasTalento(semearEscolhas(novaFicha))
     setSemente(novaSemente)
@@ -285,10 +285,11 @@ export function usePersonagem(caminhoJson: string): Retorno {
     return null
   }, [guardarAntes, ficha, semente])
 
+  // Volta a cópia mais recente e a tira da pasta: tocar de novo volta a anterior.
   const desfazerImportacao = useCallback(() => {
     let antes
     try {
-      antes = lerBackup(JSON.parse(localStorage.getItem(chaveAntes) ?? 'null'))
+      antes = lerBackup(JSON.parse(retirarUltimaCopia(id, 'antes-de-importar') ?? 'null'))
     } catch {
       antes = null
     }
@@ -298,13 +299,8 @@ export function usePersonagem(caminhoJson: string): Retorno {
       setSemente(antes.semente)
       podeSalvar.current = true
     }
-    try {
-      localStorage.removeItem(chaveAntes)
-    } catch {
-      // nada a fazer
-    }
-    setTemAntes(false)
-  }, [chaveAntes])
+    setTemAntes(temCopia(id, 'antes-de-importar'))
+  }, [id])
 
   const exportarJson = useCallback(
     (): string | null => (ficha && semente ? exportarShards(ficha, semente) : null),

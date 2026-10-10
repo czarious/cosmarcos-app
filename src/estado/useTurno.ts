@@ -51,7 +51,9 @@ function ler(ficha: Personagem | null): EstadoTurno | null {
   if (!ficha) return null
   try {
     const cru = localStorage.getItem(chaveSave(ficha))
-    return cru ? (JSON.parse(cru) as EstadoTurno) : null
+    const e = cru ? (JSON.parse(cru) as Partial<EstadoTurno>) : null
+    // Combate salvo por uma versão de formato diferente: descarta (só se perde a rodada, não a ficha)
+    return e && typeof e.rodada === 'number' && Array.isArray(e.usadas) && Array.isArray(e.usadasNaCena) ? (e as EstadoTurno) : null
   } catch {
     return null
   }

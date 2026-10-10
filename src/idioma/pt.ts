@@ -74,10 +74,13 @@ export const PT = {
   geral: {
     fechar: 'Fechar',
     cancelar: 'Cancelar',
+    apagar: 'Apagar',
+    manter: 'Manter',
+    cuidado: 'Cuidado',
     salvar: 'Salvar',
     aplicar: 'Aplicar',
     total: 'Total',
-    menu: 'Menu',
+    menu: 'Configurações',
     importarJson: 'Importar JSON',
     exportarJson: 'Exportar pro Shards',
     baixarBackup: 'Baixar backup',
@@ -119,7 +122,16 @@ export const PT = {
     fichaMaisNova: 'Há uma ficha mais nova do {nome}.',
     importar: 'Importar',
     agoraNao: 'Agora não',
-    fichaNovaImportada: 'Ficha nova importada — a de antes ficou na ⚙ pra voltar.',
+    fichaNovaImportada: 'Ficha nova importada. A de antes ficou guardada em Configurações, pra voltar.',
+    naoImportei: 'Não importei',
+    fichaNaoMudou: 'Sua ficha não mudou.',
+  },
+
+  // ── ErroTela — quando a tela quebra ao desenhar ─────────────────
+  erroTela: {
+    explicacao: 'O app travou ao desenhar a tela. Sua ficha continua guardada neste aparelho — baixe uma cópia e mande pro Claude.',
+    baixarSave: 'Baixar meu save',
+    recarregar: 'Recarregar',
   },
 
   // ── CabecalhoFixo ───────────────────────────────────────────────
@@ -175,7 +187,7 @@ export const PT = {
   // ── MenuEngrenagem — a ⚙ do topo ────────────────────────────────
   menu: {
     shards: 'Shards',
-    confirmaImportar: 'Isso apaga tudo que você mudou no app. Não tem desfazer.',
+    confirmaImportar: 'Isso troca a ficha. Vida atual, condições e tudo que você mudou no app saem junto. A de agora fica guardada em Configurações, pra voltar.',
     esteAparelho: 'Este aparelho',
     idioma: 'Idioma',
     desfazerImportacao: 'Voltar à ficha de antes da importação',
@@ -367,8 +379,6 @@ export const PT = {
     equipado: 'Equipado',
     nadaAinda: '—',
     objetivos: 'Objetivos',
-    apagar: 'Apagar',
-    manter: 'Manter',
     apagarObjetivoNome: 'Apagar o objetivo {nome}',
     objetivoNovoMestreDeu: 'Objetivo novo (o Mestre deu, ou você escolheu)',
     nomeObjetivoNovo: 'Nome do objetivo novo',

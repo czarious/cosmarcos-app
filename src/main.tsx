@@ -3,6 +3,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import { ProvedorIdioma } from './idioma/IdiomaContexto'
+import ErroTela from './componentes/ErroTela'
 import './estilos/base.css'
 
 // Pede ao navegador pra não apagar o save sozinho (limpeza por falta de
@@ -13,7 +14,9 @@ navigator.storage?.persist?.().catch(() => {})
 createRoot(document.getElementById('raiz')!).render(
   <StrictMode>
     <ProvedorIdioma>
-      <App />
+      <ErroTela>
+        <App />
+      </ErroTela>
     </ProvedorIdioma>
   </StrictMode>,
 )

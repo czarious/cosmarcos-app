@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { ICONE } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
 import { IDIOMAS, type Idioma } from '../idioma/idioma'
-import Sobreposicao from './Sobreposicao'
+import Janela from './Janela'
+import AvisoCuidado from './AvisoCuidado'
 
 // A engrenagem no canto do topo: o que é do APP, não da ficha na mesa —
 // a ponte com o Shards (importar/exportar), o backup e o idioma da tela.
@@ -41,57 +42,48 @@ export default function MenuEngrenagem({ aoImportar, aoExportar, aoBaixarBackup,
         {ICONE.menu}
       </button>
       {aberto && (
-        <Sobreposicao aoFechar={fechar}>
-          <div className="cr-painel menu-engrenagem" onClick={(ev) => ev.stopPropagation()}>
-            <div className="cr-cabeca">
-              <span className="cr-titulo">{tx.geral.menu}</span>
-              <button className="cr-fechar" onClick={fechar} aria-label={tx.geral.fechar}>
-                {ICONE.fechar}
-              </button>
-            </div>
-
-            <h3 className="menu-grupo">{t(tx.menu.shards)}</h3>
-            {confirmandoImportar ? (
-              <div className="menu-confirma">
-                <p>{tx.menu.confirmaImportar}</p>
-                <button className="menu-item menu-perigo" onClick={e(aoImportar)}>
-                  {tx.geral.importarJson}
-                </button>
-                <button className="menu-item" onClick={() => setConfirmandoImportar(false)}>
-                  {tx.geral.cancelar}
-                </button>
-              </div>
-            ) : (
-              <button className="menu-item" onClick={() => setConfirmandoImportar(true)}>
+        <Janela titulo={tx.geral.menu} aoFechar={fechar} classe="menu-engrenagem">
+          <h3 className="menu-grupo">{t(tx.menu.shards)}</h3>
+          {confirmandoImportar ? (
+            <div className="menu-confirma">
+              <AvisoCuidado>{tx.menu.confirmaImportar}</AvisoCuidado>
+              <button className="menu-item menu-perigo" onClick={e(aoImportar)}>
                 {tx.geral.importarJson}
               </button>
-            )}
-            {aoDesfazerImportacao && (
-              <button className="menu-item" onClick={e(aoDesfazerImportacao)}>
-                ↶ {tx.menu.desfazerImportacao}
+              <button className="menu-item" onClick={() => setConfirmandoImportar(false)}>
+                {tx.geral.cancelar}
               </button>
-            )}
-            <button className="menu-item" onClick={e(aoExportar)}>
-              {tx.geral.exportarJson}
-            </button>
-
-            <h3 className="menu-grupo">{t(tx.menu.esteAparelho)}</h3>
-            <button className={salvou ? 'menu-item' : 'menu-item menu-perigo'} onClick={e(aoBaixarBackup)}>
-              {tx.geral.baixarBackup}
-            </button>
-
-            <h3 className="menu-grupo">{t(tx.menu.idioma)}</h3>
-            <div className="menu-idioma" role="group" aria-label={t(tx.menu.idioma)}>
-              {(Object.keys(IDIOMAS) as Idioma[]).map((i) => (
-                <button key={i} className={i === idioma ? 'menu-item menu-ativo' : 'menu-item'} aria-pressed={i === idioma} onClick={() => definirIdioma(i)}>
-                  {IDIOMAS[i]}
-                </button>
-              ))}
             </div>
+          ) : (
+            <button className="menu-item" onClick={() => setConfirmandoImportar(true)}>
+              {tx.geral.importarJson}
+            </button>
+          )}
+          {aoDesfazerImportacao && (
+            <button className="menu-item" onClick={e(aoDesfazerImportacao)}>
+              ↶ {tx.menu.desfazerImportacao}
+            </button>
+          )}
+          <button className="menu-item" onClick={e(aoExportar)}>
+            {tx.geral.exportarJson}
+          </button>
 
-            <p className="menu-versao">{t(tx.menu.versao, { v: __VERSAO__ })}</p>
+          <h3 className="menu-grupo">{t(tx.menu.esteAparelho)}</h3>
+          <button className={salvou ? 'menu-item' : 'menu-item menu-perigo'} onClick={e(aoBaixarBackup)}>
+            {tx.geral.baixarBackup}
+          </button>
+
+          <h3 className="menu-grupo">{t(tx.menu.idioma)}</h3>
+          <div className="menu-idioma" role="group" aria-label={t(tx.menu.idioma)}>
+            {(Object.keys(IDIOMAS) as Idioma[]).map((i) => (
+              <button key={i} className={i === idioma ? 'menu-item menu-ativo' : 'menu-item'} aria-pressed={i === idioma} onClick={() => definirIdioma(i)}>
+                {IDIOMAS[i]}
+              </button>
+            ))}
           </div>
-        </Sobreposicao>
+
+          <p className="menu-versao">{t(tx.menu.versao, { v: __VERSAO__ })}</p>
+        </Janela>
       )}
     </>
   )

@@ -1,9 +1,9 @@
 /* arquivo: Fogueira.tsx */
 import { useState } from 'react'
 import type { Personagem } from '../tipos/personagem'
-import { ICONE, SIMBOLO_RECURSO } from '../variaveis'
+import { SIMBOLO_RECURSO } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
-import Sobreposicao from './Sobreposicao'
+import Janela from './Janela'
 
 // A fogueira embaixo da foto, no cabeçalho: toca e escolhe o descanso — curto
 // (rola o dado de recuperação na mão e divide entre Vida e Foco) ou longo
@@ -40,85 +40,73 @@ export default function Fogueira({ ficha, fazerDescansoCurto, fazerDescansoLongo
 
       {aberta && (
         // fundo escurecido: toca fora → fecha (o mesmo painel do ControleRecurso)
-        <Sobreposicao aoFechar={fechar}>
-          <div className="cr-painel desc-painel" onClick={(e) => e.stopPropagation()}>
-            <div className="cr-cabeca">
-              <span className="cr-titulo desc-titulo">
-                <DesenhoFogueira />
-                {t(tx.descanso.titulo)}
-              </span>
-              <button className="cr-fechar" onClick={fechar} aria-label={tx.geral.fechar}>
-                {ICONE.fechar}
-              </button>
+        <Janela titulo={<><DesenhoFogueira />{t(tx.descanso.titulo)}</>} aoFechar={fechar} largura="media" classe="desc-painel">
+          {/* curto: o jogador rola o dado de recuperação na mão e divide */}
+          <section className="desc-cartao">
+            <h3 className="desc-nome">
+              {t(tx.descanso.curto)} <small>{t(tx.descanso.curtoDuracao)}</small>
+            </h3>
+            <p className="desc-texto">{t(tx.descanso.curtoComo, { dado: derivados.dadoRecuperacao })}</p>
+            <div className="desc-campos">
+              <label className="desc-campo desc-vida">
+                <span>
+                  <i className="desc-simbolo">{SIMBOLO_RECURSO.vida}</i> {tx.recursos.vida} +
+                </span>
+                <input type="number" inputMode="numeric" min={0} value={vida} onChange={(e) => setVida(e.target.value)} />
+              </label>
+              <label className="desc-campo desc-foco">
+                <span>
+                  <i className="desc-simbolo">{SIMBOLO_RECURSO.foco}</i> {tx.recursos.foco} +
+                </span>
+                <input type="number" inputMode="numeric" min={0} value={foco} onChange={(e) => setFoco(e.target.value)} />
+              </label>
             </div>
+            <button
+              type="button"
+              className="botao-gerenciar"
+              disabled={!vida && !foco}
+              onClick={() => {
+                fazerDescansoCurto(Number(vida) || 0, Number(foco) || 0)
+                fechar()
+              }}
+            >
+              {tx.geral.aplicar}
+            </button>
+          </section>
 
-            {/* curto: o jogador rola o dado de recuperação na mão e divide */}
-            <section className="desc-cartao">
-              <h3 className="desc-nome">
-                {t(tx.descanso.curto)} <small>{t(tx.descanso.curtoDuracao)}</small>
-              </h3>
-              <p className="desc-texto">{t(tx.descanso.curtoComo, { dado: derivados.dadoRecuperacao })}</p>
-              <div className="desc-campos">
-                <label className="desc-campo desc-vida">
-                  <span>
-                    <i className="desc-simbolo">{SIMBOLO_RECURSO.vida}</i> {tx.recursos.vida} +
-                  </span>
-                  <input type="number" inputMode="numeric" min={0} value={vida} onChange={(e) => setVida(e.target.value)} />
-                </label>
-                <label className="desc-campo desc-foco">
-                  <span>
-                    <i className="desc-simbolo">{SIMBOLO_RECURSO.foco}</i> {tx.recursos.foco} +
-                  </span>
-                  <input type="number" inputMode="numeric" min={0} value={foco} onChange={(e) => setFoco(e.target.value)} />
-                </label>
-              </div>
-              <button
-                type="button"
-                className="botao-gerenciar"
-                disabled={!vida && !foco}
-                onClick={() => {
-                  fazerDescansoCurto(Number(vida) || 0, Number(foco) || 0)
-                  fechar()
-                }}
-              >
-                {tx.geral.aplicar}
-              </button>
-            </section>
-
-            {/* longo: tudo cheio — confirma antes, porque não tem volta */}
-            <section className="desc-cartao">
-              <h3 className="desc-nome">
-                {t(tx.descanso.longo)} <small>{t(tx.descanso.longoDuracao)}</small>
-              </h3>
-              <ul className="desc-efeitos">
-                <li className="desc-vida">
-                  <i className="desc-simbolo">{SIMBOLO_RECURSO.vida}</i> {t(tx.descanso.vidaCheia, { n: recursos.vida.max })}
-                </li>
-                <li className="desc-foco">
-                  <i className="desc-simbolo">{SIMBOLO_RECURSO.foco}</i> {t(tx.descanso.focoCheio, { n: recursos.foco.max })}
-                </li>
-                <li>{t(tx.descanso.exaustoMenos1)}</li>
-                <li>{t(tx.descanso.superficialCura)}</li>
-              </ul>
-              {confirmandoLongo ? (
-                <div className="desc-confirma">
-                  <button type="button" className="botao-gerenciar" onClick={() => { fazerDescansoLongo(); fechar() }}>
-                    {t(tx.descanso.confirmarDescansoLongo)}
-                  </button>
-                  <button type="button" className="turno-discreto" onClick={() => setConfirmandoLongo(false)}>
-                    {tx.geral.cancelar}
-                  </button>
-                </div>
-              ) : (
-                <button type="button" className="botao-gerenciar" onClick={() => setConfirmandoLongo(true)}>
-                  {t(tx.descanso.descansar)}
+          {/* longo: tudo cheio — confirma antes, porque não tem volta */}
+          <section className="desc-cartao">
+            <h3 className="desc-nome">
+              {t(tx.descanso.longo)} <small>{t(tx.descanso.longoDuracao)}</small>
+            </h3>
+            <ul className="desc-efeitos">
+              <li className="desc-vida">
+                <i className="desc-simbolo">{SIMBOLO_RECURSO.vida}</i> {t(tx.descanso.vidaCheia, { n: recursos.vida.max })}
+              </li>
+              <li className="desc-foco">
+                <i className="desc-simbolo">{SIMBOLO_RECURSO.foco}</i> {t(tx.descanso.focoCheio, { n: recursos.foco.max })}
+              </li>
+              <li>{t(tx.descanso.exaustoMenos1)}</li>
+              <li>{t(tx.descanso.superficialCura)}</li>
+            </ul>
+            {confirmandoLongo ? (
+              <div className="desc-confirma">
+                <button type="button" className="botao-gerenciar" onClick={() => { fazerDescansoLongo(); fechar() }}>
+                  {t(tx.descanso.confirmarDescansoLongo)}
                 </button>
-              )}
-            </section>
+                <button type="button" className="turno-discreto" onClick={() => setConfirmandoLongo(false)}>
+                  {tx.geral.cancelar}
+                </button>
+              </div>
+            ) : (
+              <button type="button" className="botao-gerenciar" onClick={() => setConfirmandoLongo(true)}>
+                {t(tx.descanso.descansar)}
+              </button>
+            )}
+          </section>
 
-            <p className="desc-nota">{t(tx.descanso.lesaoLeveGraveConta)}</p>
-          </div>
-        </Sobreposicao>
+          <p className="desc-nota">{t(tx.descanso.lesaoLeveGraveConta)}</p>
+        </Janela>
       )}
     </>
   )

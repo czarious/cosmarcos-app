@@ -13,6 +13,7 @@ import { SIMBOLO_RECURSO } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
 import ControleRecurso from '../ControleRecurso'
 import FormularioFabrial from '../FormularioFabrial'
+import BotaoApagar from '../BotaoApagar'
 
 // Aba Fabriais (item 3.2) — um cartão por fabrial: cargas com o mesmo
 // popover de ± dos recursos, recarga pelas regras do livro (descanso curto
@@ -141,9 +142,9 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
             <button className="anotacao-botao" onClick={aoEditar} aria-label={t(tx.geral.editarNome, { nome: nome(f.nome) })}>
               {tx.fabriais.editar}
             </button>
-            <button className="anotacao-botao" onClick={() => props.removerFabrial(f.id)} aria-label={t(tx.geral.excluirNome, { nome: nome(f.nome) })}>
+            <BotaoApagar classe="anotacao-botao" aoApagar={() => props.removerFabrial(f.id)} rotulo={t(tx.geral.excluirNome, { nome: nome(f.nome) })}>
               {tx.fabriais.excluir}
-            </button>
+            </BotaoApagar>
           </div>
         </div>
       )}

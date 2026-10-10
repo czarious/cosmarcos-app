@@ -165,7 +165,8 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 
 | Ideia | Nota |
 |---|---|
-| _(a preencher — as quatro da Fase 4 já subiram pro roadmap)_ | |
+| **Ficha na nuvem (Supabase ou parecido)** | Melhoria futura (10/Out/2026). Traz login, depende de internet pra sincronizar e o plano grátis pausa sem uso; resolve a Fase 5 ("A mesa inteira", acima), não o espaço do aparelho — ver [premissas](premissas.md) → "localStorage, sem servidor" |
+| **Subir de nível guiado** (o forte do Pathbuilder: cada escolha explicada, regra conferida) | Melhoria futura, dá trabalho (10/Out/2026). Hoje subir de nível fica no Shards; o foco agora é absorver o JSON dele — ver [boas-praticas.md](boas-praticas.md) |
 
 ### Derivadas do schema e das conversas
 

@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { lerFicha, salvarFicha, lerDescartado, lerBackup, montarPacote, MIGRACOES, VERSAO_ESQUEMA, sementeMaisNova } from './armazenamento'
 import { importarShards } from './importarShards'
+import { guardarCopia, retirarUltimaCopia, temCopia, ultimaCopia } from './copias'
 import eccho from '../../public/personagens/eccho.json'
 
 // O risco mais caro do app é perder a ficha em silêncio (29/Set/2026).
@@ -114,6 +115,57 @@ describe('backup', () => {
 
   it('export do Shards não é confundido com backup', () => {
     expect(lerBackup(structuredClone(eccho))).toBeNull()
+  })
+})
+
+describe('save de esquema antigo', () => {
+  const antigo = () => JSON.stringify({ ...montarPacote(ficha(), {}, undefined), versaoEsquema: VERSAO_ESQUEMA - 1 })
+
+  it('antes de converter, o original vai pra pasta das cópias', () => {
+    const cru = antigo()
+    localStorage.setItem('cosmarcos:ficha:eccho', cru)
+    expect(lerFicha('eccho').salva?.versaoEsquema).toBe(VERSAO_ESQUEMA)
+    expect(ultimaCopia('eccho', 'antes-de-atualizar')).toBe(cru)
+  })
+
+  it('conversão que quebra vira quarentena com aviso, nunca tela branca', () => {
+    const original = MIGRACOES[VERSAO_ESQUEMA - 1]
+    MIGRACOES[VERSAO_ESQUEMA - 1] = () => {
+      throw new Error('campo sumiu')
+    }
+    try {
+      localStorage.setItem('cosmarcos:ficha:eccho', antigo())
+      const r = lerFicha('eccho')
+      expect(r.salva).toBeNull()
+      expect(r.problema).toMatch(/conversão/)
+      expect(lerDescartado('eccho')).not.toBeNull()
+    } finally {
+      MIGRACOES[VERSAO_ESQUEMA - 1] = original
+    }
+  })
+})
+
+describe('pasta das cópias', () => {
+  it('guarda só as últimas 3 de antes de importar', () => {
+    for (const n of [1, 2, 3, 4]) guardarCopia('eccho', 'antes-de-importar', `ficha ${n}`)
+    expect(Object.keys(localStorage).filter((k) => k.startsWith('cosmarcos:copia:eccho:antes-de-importar:'))).toHaveLength(3)
+    expect(ultimaCopia('eccho', 'antes-de-importar')).toBe('ficha 4')
+  })
+
+  it('"voltar" tira a mais recente e a anterior vira a próxima', () => {
+    guardarCopia('eccho', 'antes-de-importar', 'original')
+    guardarCopia('eccho', 'antes-de-importar', 'importação errada')
+    expect(retirarUltimaCopia('eccho', 'antes-de-importar')).toBe('importação errada')
+    expect(retirarUltimaCopia('eccho', 'antes-de-importar')).toBe('original')
+    expect(temCopia('eccho', 'antes-de-importar')).toBe(false)
+  })
+
+  it('cópias da v0.14.0 (chaves soltas) entram na pasta sem se perder', () => {
+    localStorage.setItem('cosmarcos:antes-importar:eccho', 'antes velho')
+    localStorage.setItem('cosmarcos:descartado:eccho:2026-10-01T00:00:00.000Z', 'quebrado velho')
+    expect(ultimaCopia('eccho', 'antes-de-importar')).toBe('antes velho')
+    expect(lerDescartado('eccho')).toBe('quebrado velho')
+    expect(localStorage.getItem('cosmarcos:antes-importar:eccho')).toBeNull()
   })
 })
 

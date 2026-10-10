@@ -1,10 +1,10 @@
 /* arquivo: ControleRecurso.tsx */
 import { useState } from 'react'
 import type { Recurso } from '../tipos/personagem'
-import { ICONE, SIMBOLO_RECURSO, VERBOS_RECURSO } from '../variaveis'
+import { SIMBOLO_RECURSO, VERBOS_RECURSO } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
 import { danoAposDeflexao } from '../regras/armadura'
-import Sobreposicao from './Sobreposicao'
+import Janela from './Janela'
 
 // Popover que abre ao tocar num recurso do cabeçalho. Duas formas de mexer:
 //   − e + grandes  → ±1 (o caso comum: 1 de foco, 1 de investidura)
@@ -46,73 +46,61 @@ export default function ControleRecurso({ qual, de, recurso, alterar, aoFechar, 
 
   return (
     // fundo escurecido: toca fora → fecha
-    <Sobreposicao aoFechar={aoFechar}>
-      <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
-        <div className="cr-cabeca">
-          <span className="cr-titulo">
-            <span className="cr-simbolo">{SIMBOLO_RECURSO[qual]}</span> {tx.recursos[qual]}
-            {de && ` — ${de}`}
-          </span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label={tx.geral.fechar}>
-            {ICONE.fechar}
-          </button>
+    <Janela titulo={<><span className="cr-simbolo">{SIMBOLO_RECURSO[qual]}</span> {tx.recursos[qual]}{de && ` — ${de}`}</>} aoFechar={aoFechar}>
+      {/* valor grande + os botões − e + de ±1 */}
+      <div className="cr-linha-valor">
+        <button
+          className="cr-passo"
+          onClick={() => alterar(-1)}
+          disabled={recurso.atual <= 0}
+          aria-label={t(tx.recurso.menos)}
+        >
+          −
+        </button>
+        <div className="cr-valor">
+          <span className="cr-atual">{recurso.atual}</span>
+          <span className="cr-max">/ {recurso.max}</span>
         </div>
-
-        {/* valor grande + os botões − e + de ±1 */}
-        <div className="cr-linha-valor">
-          <button
-            className="cr-passo"
-            onClick={() => alterar(-1)}
-            disabled={recurso.atual <= 0}
-            aria-label={t(tx.recurso.menos)}
-          >
-            −
-          </button>
-          <div className="cr-valor">
-            <span className="cr-atual">{recurso.atual}</span>
-            <span className="cr-max">/ {recurso.max}</span>
-          </div>
-          <button
-            className="cr-passo"
-            onClick={() => alterar(+1)}
-            disabled={recurso.atual >= recurso.max}
-            aria-label={t(tx.recurso.mais)}
-          >
-            +
-          </button>
-        </div>
-
-        {/* número + aplicar como dano/cura */}
-        <input
-          className="cr-input"
-          type="number"
-          inputMode="numeric"
-          min={0}
-          placeholder={t(tx.recurso.quantidade)}
-          value={valor}
-          onChange={(e) => setValor(e.target.value)}
-          autoFocus
-        />
-        {/* Deflexão: afiado, energético e impactante descontam; espiritual e vital passam inteiros */}
-        {deflexao > 0 && (
-          <label className="cr-deflexao">
-            <input type="checkbox" checked={deflete} onChange={(e) => setDeflete(e.target.checked)} />
-            <span>
-              {t(tx.recurso.descontarDeflexao, { n: deflexao })}
-              <small>{t(tx.recurso.deflexaoVale)}</small>
-            </span>
-          </label>
-        )}
-        <div className="cr-aplicar">
-          <button className="cr-btn cr-menos" onClick={() => aplicar(-1)} disabled={n === 0}>
-            − {tx.recursos[diminuir]}
-            {descontar && n > 0 && ` ${dano}`}
-          </button>
-          <button className="cr-btn cr-mais" onClick={() => aplicar(+1)} disabled={n === 0}>
-            + {tx.recursos[aumentar]}
-          </button>
-        </div>
+        <button
+          className="cr-passo"
+          onClick={() => alterar(+1)}
+          disabled={recurso.atual >= recurso.max}
+          aria-label={t(tx.recurso.mais)}
+        >
+          +
+        </button>
       </div>
-    </Sobreposicao>
+
+      {/* número + aplicar como dano/cura */}
+      <input
+        className="cr-input"
+        type="number"
+        inputMode="numeric"
+        min={0}
+        placeholder={t(tx.recurso.quantidade)}
+        value={valor}
+        onChange={(e) => setValor(e.target.value)}
+        autoFocus
+      />
+      {/* Deflexão: afiado, energético e impactante descontam; espiritual e vital passam inteiros */}
+      {deflexao > 0 && (
+        <label className="cr-deflexao">
+          <input type="checkbox" checked={deflete} onChange={(e) => setDeflete(e.target.checked)} />
+          <span>
+            {t(tx.recurso.descontarDeflexao, { n: deflexao })}
+            <small>{t(tx.recurso.deflexaoVale)}</small>
+          </span>
+        </label>
+      )}
+      <div className="cr-aplicar">
+        <button className="cr-btn cr-menos" onClick={() => aplicar(-1)} disabled={n === 0}>
+          − {tx.recursos[diminuir]}
+          {descontar && n > 0 && ` ${dano}`}
+        </button>
+        <button className="cr-btn cr-mais" onClick={() => aplicar(+1)} disabled={n === 0}>
+          + {tx.recursos[aumentar]}
+        </button>
+      </div>
+    </Janela>
   )
 }

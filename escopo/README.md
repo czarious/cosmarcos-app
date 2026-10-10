@@ -17,6 +17,7 @@
 | **[notas-do-livro.md](notas-do-livro.md)** | Índice das notas `📌 Para o app` da transcrição do livro (fórmulas, condições, dano/lesões) |
 | **[conferencia-formulas.md](conferencia-formulas.md)** | Verificações das fórmulas contra a ficha real do Eccho (as caixas ✅ movidas da transcrição) |
 | **[checklist-shards.md](checklist-shards.md)** | Tudo o que o Shards faz, tela por tela, e se o app já faz — de onde sai o que falta |
+| **[boas-praticas.md](boas-praticas.md)** | O que jogadores e guias dizem sobre ficha digital na mesa, cruzado com o app — ler antes de propor funcionalidade |
 | **[premissas.md](premissas.md)** | Toda decisão de arquitetura numa página só — **vigente, sobrescrita quando muda**. Dentro: o porquê, o que custa, e 🪦 **"Descartado — não repropor"** (leia antes de propor ideia) |
 
 ## Estado do app

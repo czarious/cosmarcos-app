@@ -60,10 +60,10 @@ import { efeitoPorNome, ID_PROPRIO, CARACTERISTICAS_AVANCADAS } from '../regras/
 import { EFEITOS_LESAO } from '../regras/condicoes'
 import { CATALOGO_TALENTOS, chaveTalentoFluxo } from '../regras/talentos'
 
-/** Erro com contexto — diz QUAL personagem e QUAL campo, pra caçar rápido. */
+/** Erro com contexto — diz QUAL personagem e QUAL campo, pra caçar rápido. A mensagem vai pra tela do jogador. */
 export class ErroImportacao extends Error {
   constructor(mensagem: string) {
-    super(`[importarShards] ${mensagem}`)
+    super(mensagem)
     this.name = 'ErroImportacao'
   }
 }
@@ -562,7 +562,7 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
   const culturas = [texto(meta.culture1), texto(meta.culture2)].filter((x) => x !== '').map((x) => traduz(CULTURA, x))
   const { armas, itens } = separaInventario(ehObjeto(c.inventory) ? c.inventory.items : [])
 
-  return {
+  const p: Personagem = {
     meta: {
       nome: texto(meta.name),
       jogador: texto(meta.player),
@@ -637,6 +637,16 @@ function traduzPersonagem(c: unknown, indice: number): Personagem {
     lesoes: lista(c.injuries).map(traduzLesao),
     anotacoes: anotacoesDoShards(c),
   }
+
+  // O que todo personagem do Shards tem. Faltou = o formato mudou e algum campo
+  // veio vazio por causa do `?? 0` — melhor recusar do que trocar a ficha do
+  // jogador por uma com Vida 0/0 e sem perícias.
+  // Texto pra tela do jogador; o campo do Shards de cada um: meta.name, resources.healthMax, skills
+  const formato = 'O Shards pode ter mudado o formato do arquivo.'
+  if (!p.meta.nome) throw new ErroImportacao('A ficha não tem nome. Dê um nome a ela no Shards e exporte de novo.')
+  if (p.recursos.vida.max <= 0) throw new ErroImportacao(`A ficha de ${p.meta.nome} veio sem a Vida máxima. ${formato}`)
+  if (p.pericias.length === 0) throw new ErroImportacao(`A ficha de ${p.meta.nome} veio sem perícias. ${formato}`)
+  return p
 }
 
 /**

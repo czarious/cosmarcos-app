@@ -126,6 +126,13 @@ for (const doc of docs) {
 for (const arq of codigo.filter((f) => f.endsWith('.tsx') && !f.endsWith('Sobreposicao.tsx'))) {
   if (/className=[^>]*cr-overlay/.test(readFileSync(arq, 'utf8'))) problemas.push(`janela fora da Sobreposicao (abre fora da tela dentro das abas) · ${relative(RAIZ, arq)}`)
 }
+// E toda janela pela Janela.tsx: a moldura repetida em 11 arquivos impedia mudar uma
+// característica (fechar, largura, tema) em todas de uma vez (10/Out/2026). Só o menu
+// de abas (SeletorSecao) usa a Sobreposicao direto — é lista, não janela.
+for (const arq of codigo.filter((f) => f.endsWith('.tsx') && !/[\\/](Janela|Sobreposicao|SeletorSecao)\.tsx$/.test(f))) {
+  const texto = readFileSync(arq, 'utf8')
+  if (/<Sobreposicao\b|className=[^>]*\bcr-painel\b/.test(texto)) problemas.push(`janela montada à mão — use <Janela> (características em Janela.tsx) · ${relative(RAIZ, arq)}`)
+}
 
 // 6d. Caractere de controle invisível no código (fora tab/quebra de linha). Já
 // aconteceu (07/Out/2026): um script gravou backspace no lugar de \b numa regex, e ela

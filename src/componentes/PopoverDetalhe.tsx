@@ -1,8 +1,7 @@
 /* arquivo: PopoverDetalhe.tsx */
 import type { DetalhePericia } from '../regras/calculos'
-import { ICONE } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
-import Sobreposicao from './Sobreposicao'
+import Janela from './Janela'
 
 // Popover SÓ-LEITURA que abre ao tocar num número calculado (ex.: o +4 de
 // acerto de um ataque) e mostra de onde vem cada parcela — mesmo visual do
@@ -18,36 +17,27 @@ type Props = {
 export default function PopoverDetalhe({ detalhe, aoFechar, nota }: Props) {
   const { tx, nome, rot } = useIdioma()
   return (
-    <Sobreposicao aoFechar={aoFechar}>
-      <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
-        <div className="cr-cabeca">
-          <span className="cr-titulo">{nome(detalhe.titulo)}</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label={tx.geral.fechar}>
-            {ICONE.fechar}
-          </button>
-        </div>
+    <Janela titulo={nome(detalhe.titulo)} aoFechar={aoFechar}>
+      <ul className="detalhe-linhas">
+        {detalhe.linhas.map((l, i) => (
+          <li key={`${l.origem}-${i}`}>
+            <span>{rot(l.origem)}</span>
+            <span>
+              {l.valor >= 0 ? '+' : ''}
+              {l.valor}
+            </span>
+          </li>
+        ))}
+      </ul>
 
-        <ul className="detalhe-linhas">
-          {detalhe.linhas.map((l, i) => (
-            <li key={`${l.origem}-${i}`}>
-              <span>{rot(l.origem)}</span>
-              <span>
-                {l.valor >= 0 ? '+' : ''}
-                {l.valor}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="detalhe-total">
-          <span>{tx.geral.total}</span>
-          <span>
-            {detalhe.total >= 0 ? '+' : ''}
-            {detalhe.total}
-          </span>
-        </div>
-        {nota && <p className="detalhe-nota">{nota}</p>}
+      <div className="detalhe-total">
+        <span>{tx.geral.total}</span>
+        <span>
+          {detalhe.total >= 0 ? '+' : ''}
+          {detalhe.total}
+        </span>
       </div>
-    </Sobreposicao>
+      {nota && <p className="detalhe-nota">{nota}</p>}
+    </Janela>
   )
 }

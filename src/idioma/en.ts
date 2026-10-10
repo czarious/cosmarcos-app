@@ -63,10 +63,13 @@ export const EN: Dicionario = {
   geral: {
     fechar: 'Close',
     cancelar: 'Cancel',
+    apagar: 'Delete',
+    manter: 'Keep',
+    cuidado: 'Caution',
     salvar: 'Save',
     aplicar: 'Apply',
     total: 'Total',
-    menu: 'Menu',
+    menu: 'Settings',
     importarJson: 'Import JSON',
     exportarJson: 'Export to Shards',
     baixarBackup: 'Download backup',
@@ -107,7 +110,16 @@ export const EN: Dicionario = {
     fichaMaisNova: 'There is a newer sheet for {nome}.',
     importar: 'Import',
     agoraNao: 'Not now',
-    fichaNovaImportada: 'New sheet imported — the previous one is in ⚙ to go back.',
+    fichaNovaImportada: 'New sheet imported. The previous one stays saved in Settings, to go back.',
+    naoImportei: 'Not imported',
+    fichaNaoMudou: 'Your sheet did not change.',
+  },
+
+  // ── ErroTela — when the screen breaks while drawing ─────────────
+  erroTela: {
+    explicacao: 'The app crashed while drawing the screen. Your sheet is still saved on this device — download a copy and send it to Claude.',
+    baixarSave: 'Download my save',
+    recarregar: 'Reload',
   },
 
   // ── CabecalhoFixo ───────────────────────────────────────────────
@@ -163,7 +175,7 @@ export const EN: Dicionario = {
   // ── MenuEngrenagem — a ⚙ do topo ────────────────────────────────
   menu: {
     shards: 'Shards',
-    confirmaImportar: 'This erases everything you changed in the app. There is no undo.',
+    confirmaImportar: 'This replaces the sheet. Current Health, conditions and everything you changed in the app go with it. The current one stays saved in Settings, to go back.',
     esteAparelho: 'This device',
     idioma: 'Language',
     desfazerImportacao: 'Go back to the sheet from before the import',
@@ -355,8 +367,6 @@ export const EN: Dicionario = {
     equipado: 'Equipped',
     nadaAinda: '—',
     objetivos: 'Goals',
-    apagar: 'Delete',
-    manter: 'Keep',
     apagarObjetivoNome: 'Delete the goal {nome}',
     objetivoNovoMestreDeu: 'New goal (from the GM, or your own)',
     nomeObjetivoNovo: 'New goal name',

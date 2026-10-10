@@ -25,6 +25,7 @@ import { FABRIAIS_PADRAO, efeitoPorNome } from '../regras/fabriais'
 import { CONDICOES } from '../regras/condicoes'
 import { importarShards } from './importarShards'
 import type { EscolhaVaga } from '../regras/talentos'
+import { guardarCopia, ultimaCopia } from './copias'
 
 /**
  * Sobe quando o formato salvo mudar de forma incompatível.
@@ -167,22 +168,13 @@ function migrar(dado: FichaSalva): FichaSalva | null {
   return dado.versaoEsquema === VERSAO_ESQUEMA ? dado : null
 }
 
-/** Cópia de segurança de um save que não abriu — uma por ocorrência, com data. */
-function chaveDescartado(id: string): string {
-  return `cosmarcos:descartado:${id}:${new Date().toISOString()}`
-}
-
 /**
  * Save que existia mas não abriu. ANTES de a semente gravar por cima, o texto
- * cru vai pra uma chave própria — senão o próximo save apagaria a única cópia.
+ * cru vai pra pasta das cópias (copias.ts) — senão o próximo save apagaria a única cópia.
  * Foi o risco mais caro do app (29/Set/2026): perda total, avisada só no console.
  */
 function quarentena(id: string, cru: string, motivo: string): Leitura {
-  try {
-    localStorage.setItem(chaveDescartado(id), cru)
-  } catch (e) {
-    console.warn('[cosmarcos] não consegui guardar a cópia do save descartado:', e)
-  }
+  guardarCopia(id, 'nao-abriu', cru)
   console.warn(`[cosmarcos] ${motivo}`)
   return { salva: null, problema: motivo }
 }
@@ -214,7 +206,14 @@ export function lerFicha(id: string): Leitura {
     return quarentena(id, cru, 'o save está num formato que o app não reconhece.')
   }
   const versao = dado.versaoEsquema
-  const migrado = migrar(dado)
+  // Converter regrava o save logo depois: o original fica na pasta das cópias
+  if (versao < VERSAO_ESQUEMA) guardarCopia(id, 'antes-de-atualizar', cru)
+  let migrado: FichaSalva | null
+  try {
+    migrado = migrar(dado)
+  } catch (e) {
+    return quarentena(id, cru, `a conversão do save do esquema v${versao} falhou (${e instanceof Error ? e.message : e}).`)
+  }
   if (!migrado) {
     return quarentena(id, cru, `o save é do esquema v${versao} e o app é v${VERSAO_ESQUEMA}.`)
   }
@@ -223,14 +222,7 @@ export function lerFicha(id: string): Leitura {
 
 /** O save descartado mais recente deste personagem (texto cru), pra baixar. */
 export function lerDescartado(id: string): string | null {
-  try {
-    const prefixo = `cosmarcos:descartado:${id}:`
-    const chaves = Object.keys(localStorage).filter((k) => k.startsWith(prefixo)).sort()
-    const ultima = chaves.at(-1)
-    return ultima ? localStorage.getItem(ultima) : null
-  } catch {
-    return null
-  }
+  return ultimaCopia(id, 'nao-abriu')
 }
 
 /**

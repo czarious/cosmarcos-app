@@ -18,9 +18,8 @@ import {
   avisosFabrial,
   type OpcaoGeral,
 } from '../regras/fabriais'
-import { ICONE } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
-import Sobreposicao from './Sobreposicao'
+import Janela from './Janela'
 
 // Montador de fabrial — novo ou edição. As opções saem todas de
 // regras/fabriais.ts (o livro). Combinação fora da regra só AVISA, não
@@ -100,222 +99,213 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
   }
 
   return (
-    <Sobreposicao aoFechar={aoFechar}>
-      <div className="cr-painel fab-painel" onClick={(e) => e.stopPropagation()}>
-        <div className="cr-cabeca">
-          <span className="cr-titulo">{inicial ? ff.editarFabrial : ff.novoFabrial}</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label={tx.geral.fechar}>
-            {ICONE.fechar}
-          </button>
+    <Janela titulo={inicial ? ff.editarFabrial : ff.novoFabrial} aoFechar={aoFechar} fechar="ate-salvar" largura="larga">
+      <div className="gerenciar-form">
+        <div className="fab-tipo">
+          {(['unico', 'padrao'] as const).map((tipo) => (
+            <button
+              key={tipo}
+              className={`fab-tipo-botao${f.tipo === tipo ? ' fab-tipo-ativo' : ''}`}
+              onClick={() => setF({ ...novoFabrial(), id: f.id, tipo })}
+            >
+              {tipo === 'unico' ? ff.unico : ff.padrao}
+            </button>
+          ))}
         </div>
 
-        <div className="gerenciar-form">
-          <div className="fab-tipo">
-            {(['unico', 'padrao'] as const).map((tipo) => (
-              <button
-                key={tipo}
-                className={`fab-tipo-botao${f.tipo === tipo ? ' fab-tipo-ativo' : ''}`}
-                onClick={() => setF({ ...novoFabrial(), id: f.id, tipo })}
+        <label className="fab-campo">
+          <span>{f.tipo === 'padrao' ? ff.fabrial : ff.efeito}</span>
+          <select className="cr-input" value={f.modelo ?? ''} onChange={(e) => escolherModelo(e.target.value)}>
+            <option value="">{ff.livre}</option>
+            {f.tipo === 'padrao'
+              ? FABRIAIS_PADRAO.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {t(ff.cargasPreco, { nome: nome(p.nome), cargas: p.cargas ?? '∞', preco: p.preco })}
+                  </option>
+                ))
+              : ([1, 2, 3, 4] as const).map((pat) => (
+                  <optgroup key={pat} label={t(ff.patamar, { n: pat, marcos: PATAMAR[pat].marcos, cd: PATAMAR[pat].cd })}>
+                    {EFEITOS_UNICOS.filter((e) => e.patamar === pat).map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {t(ff.cargasN, { nome: nome(e.nome), cargas: e.cargas })}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+          </select>
+        </label>
+        {f.tipo === 'padrao' && fabrialPadrao(f.modelo) && <p className="fab-regra">{fabrialPadrao(f.modelo)?.resumo}</p>}
+        {efeito && <p className="fab-regra">{efeito.resumo}</p>}
+
+        <label className="fab-campo">
+          <span>{ff.nome}</span>
+          <input className="cr-input" value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} placeholder={ff.nomeFabrial} />
+        </label>
+
+        {f.tipo === 'unico' && (
+          <>
+            <label className="fab-campo">
+              <span>{ff.qualidade}</span>
+              <select
+                className="cr-input"
+                value={f.qualidade ?? ''}
+                onChange={(e) => muda({ qualidade: (e.target.value || undefined) as QualidadeFabrial | undefined })}
               >
-                {tipo === 'unico' ? ff.unico : ff.padrao}
-              </button>
-            ))}
-          </div>
+                <option value="">—</option>
+                {(Object.keys(QUALIDADE) as QualidadeFabrial[]).map((k) => (
+                  <option key={k} value={k}>
+                    {QUALIDADE[k].aprimoramentos !== null
+                      ? t(ff.qualidadeOpcao, {
+                          nome: nome(QUALIDADE[k].nome),
+                          resultado: QUALIDADE[k].resultado,
+                          aprimoramentos: QUALIDADE[k].aprimoramentos,
+                          revezes: QUALIDADE[k].revezes ?? 0,
+                        })
+                      : `${nome(QUALIDADE[k].nome)} (${QUALIDADE[k].resultado})`}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-          <label className="fab-campo">
-            <span>{f.tipo === 'padrao' ? ff.fabrial : ff.efeito}</span>
-            <select className="cr-input" value={f.modelo ?? ''} onChange={(e) => escolherModelo(e.target.value)}>
-              <option value="">{ff.livre}</option>
-              {f.tipo === 'padrao'
-                ? FABRIAIS_PADRAO.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {t(ff.cargasPreco, { nome: nome(p.nome), cargas: p.cargas ?? '∞', preco: p.preco })}
-                    </option>
-                  ))
-                : ([1, 2, 3, 4] as const).map((pat) => (
-                    <optgroup key={pat} label={t(ff.patamar, { n: pat, marcos: PATAMAR[pat].marcos, cd: PATAMAR[pat].cd })}>
-                      {EFEITOS_UNICOS.filter((e) => e.patamar === pat).map((e) => (
-                        <option key={e.id} value={e.id}>
-                          {t(ff.cargasN, { nome: nome(e.nome), cargas: e.cargas })}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-            </select>
-          </label>
-          {f.tipo === 'padrao' && fabrialPadrao(f.modelo) && <p className="fab-regra">{fabrialPadrao(f.modelo)?.resumo}</p>}
-          {efeito && <p className="fab-regra">{efeito.resumo}</p>}
-
-          <label className="fab-campo">
-            <span>{ff.nome}</span>
-            <input className="cr-input" value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} placeholder={ff.nomeFabrial} />
-          </label>
-
-          {f.tipo === 'unico' && (
-            <>
-              <label className="fab-campo">
-                <span>{ff.qualidade}</span>
-                <select
-                  className="cr-input"
-                  value={f.qualidade ?? ''}
-                  onChange={(e) => muda({ qualidade: (e.target.value || undefined) as QualidadeFabrial | undefined })}
+            <fieldset className="fab-grupo">
+              <legend>
+                {ff.aprimoramentos}{' '}
+                <span className="contador">
+                  ({gastos}
+                  {q?.aprimoramentos != null && `/${q.aprimoramentos}`})
+                </span>
+              </legend>
+              {efeito && (
+                <label className="fab-opcao">
+                  <input type="checkbox" checked={f.aprimoramentos.includes(ID_PROPRIO)} onChange={() => muda({ aprimoramentos: alterna(f.aprimoramentos, ID_PROPRIO) })} />
+                  <span>
+                    <b>{t(ff.doEfeito, { efeito: nome(efeito.nome) })}</b> — {efeito.aprimoramento}
+                  </span>
+                </label>
+              )}
+              {APRIMORAMENTOS_GERAIS.map((op) => linhaOpcao(op, 'aprimoramentos'))}
+              <p className="fab-sub">{ff.caracteristicasAvancadas}</p>
+              {CARACTERISTICAS_AVANCADAS.map((c) => (
+                <label className="fab-opcao" key={c.id}>
+                  <input type="checkbox" checked={f.aprimoramentos.includes(c.id)} onChange={() => muda({ aprimoramentos: alterna(f.aprimoramentos, c.id) })} />
+                  <span>
+                    <b>{nome(c.nome)}</b> — {c.resumo}
+                  </span>
+                </label>
+              ))}
+              {aprimoramentosLivres.map((id) => (
+                <label className="fab-opcao" key={id}>
+                  <input type="checkbox" checked onChange={() => muda({ aprimoramentos: alterna(f.aprimoramentos, id) })} />
+                  <span>
+                    <b>{id}</b> <i>{ff.combinadoMestre}</i>
+                  </span>
+                </label>
+              ))}
+              <div className="fab-livre">
+                <input className="cr-input" placeholder={ff.outroCombinado} value={livreAprimoramento} onChange={(e) => setLivreAprimoramento(e.target.value)} />
+                <button
+                  className="cr-btn"
+                  disabled={!livreAprimoramento.trim()}
+                  onClick={() => {
+                    muda({ aprimoramentos: [...f.aprimoramentos, livreAprimoramento.trim()] })
+                    setLivreAprimoramento('')
+                  }}
                 >
-                  <option value="">—</option>
-                  {(Object.keys(QUALIDADE) as QualidadeFabrial[]).map((k) => (
-                    <option key={k} value={k}>
-                      {QUALIDADE[k].aprimoramentos !== null
-                        ? t(ff.qualidadeOpcao, {
-                            nome: nome(QUALIDADE[k].nome),
-                            resultado: QUALIDADE[k].resultado,
-                            aprimoramentos: QUALIDADE[k].aprimoramentos,
-                            revezes: QUALIDADE[k].revezes ?? 0,
-                          })
-                        : `${nome(QUALIDADE[k].nome)} (${QUALIDADE[k].resultado})`}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  +
+                </button>
+              </div>
+            </fieldset>
 
-              <fieldset className="fab-grupo">
-                <legend>
-                  {ff.aprimoramentos}{' '}
-                  <span className="contador">
-                    ({gastos}
-                    {q?.aprimoramentos != null && `/${q.aprimoramentos}`})
+            <fieldset className="fab-grupo">
+              <legend>
+                {ff.revezes}{' '}
+                <span className="contador">
+                  ({f.revezes.length}
+                  {q?.revezes != null && `/${q.revezes}`})
+                </span>
+              </legend>
+              {efeito && (
+                <label className="fab-opcao">
+                  <input type="checkbox" checked={f.revezes.includes(ID_PROPRIO)} onChange={() => muda({ revezes: alterna(f.revezes, ID_PROPRIO) })} />
+                  <span>
+                    <b>{t(ff.doEfeito, { efeito: nome(efeito.nome) })}</b> — {efeito.reves}
                   </span>
-                </legend>
-                {efeito && (
-                  <label className="fab-opcao">
-                    <input type="checkbox" checked={f.aprimoramentos.includes(ID_PROPRIO)} onChange={() => muda({ aprimoramentos: alterna(f.aprimoramentos, ID_PROPRIO) })} />
-                    <span>
-                      <b>{t(ff.doEfeito, { efeito: nome(efeito.nome) })}</b> — {efeito.aprimoramento}
-                    </span>
-                  </label>
-                )}
-                {APRIMORAMENTOS_GERAIS.map((op) => linhaOpcao(op, 'aprimoramentos'))}
-                <p className="fab-sub">{ff.caracteristicasAvancadas}</p>
-                {CARACTERISTICAS_AVANCADAS.map((c) => (
-                  <label className="fab-opcao" key={c.id}>
-                    <input type="checkbox" checked={f.aprimoramentos.includes(c.id)} onChange={() => muda({ aprimoramentos: alterna(f.aprimoramentos, c.id) })} />
-                    <span>
-                      <b>{nome(c.nome)}</b> — {c.resumo}
-                    </span>
-                  </label>
-                ))}
-                {aprimoramentosLivres.map((id) => (
-                  <label className="fab-opcao" key={id}>
-                    <input type="checkbox" checked onChange={() => muda({ aprimoramentos: alterna(f.aprimoramentos, id) })} />
-                    <span>
-                      <b>{id}</b> <i>{ff.combinadoMestre}</i>
-                    </span>
-                  </label>
-                ))}
-                <div className="fab-livre">
-                  <input className="cr-input" placeholder={ff.outroCombinado} value={livreAprimoramento} onChange={(e) => setLivreAprimoramento(e.target.value)} />
-                  <button
-                    className="cr-btn"
-                    disabled={!livreAprimoramento.trim()}
-                    onClick={() => {
-                      muda({ aprimoramentos: [...f.aprimoramentos, livreAprimoramento.trim()] })
-                      setLivreAprimoramento('')
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-              </fieldset>
-
-              <fieldset className="fab-grupo">
-                <legend>
-                  {ff.revezes}{' '}
-                  <span className="contador">
-                    ({f.revezes.length}
-                    {q?.revezes != null && `/${q.revezes}`})
+                </label>
+              )}
+              {REVEZES_GERAIS.map((op) => linhaOpcao(op, 'revezes'))}
+              {revezesLivres.map((id) => (
+                <label className="fab-opcao" key={id}>
+                  <input type="checkbox" checked onChange={() => muda({ revezes: alterna(f.revezes, id) })} />
+                  <span>
+                    <b>{id}</b> <i>{ff.combinadoMestre}</i>
                   </span>
-                </legend>
-                {efeito && (
-                  <label className="fab-opcao">
-                    <input type="checkbox" checked={f.revezes.includes(ID_PROPRIO)} onChange={() => muda({ revezes: alterna(f.revezes, ID_PROPRIO) })} />
-                    <span>
-                      <b>{t(ff.doEfeito, { efeito: nome(efeito.nome) })}</b> — {efeito.reves}
-                    </span>
-                  </label>
-                )}
-                {REVEZES_GERAIS.map((op) => linhaOpcao(op, 'revezes'))}
-                {revezesLivres.map((id) => (
-                  <label className="fab-opcao" key={id}>
-                    <input type="checkbox" checked onChange={() => muda({ revezes: alterna(f.revezes, id) })} />
-                    <span>
-                      <b>{id}</b> <i>{ff.combinadoMestre}</i>
-                    </span>
-                  </label>
-                ))}
-                <div className="fab-livre">
-                  <input className="cr-input" placeholder={ff.outroCombinado} value={livreReves} onChange={(e) => setLivreReves(e.target.value)} />
-                  <button
-                    className="cr-btn"
-                    disabled={!livreReves.trim()}
-                    onClick={() => {
-                      muda({ revezes: [...f.revezes, livreReves.trim()] })
-                      setLivreReves('')
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-              </fieldset>
-            </>
-          )}
+                </label>
+              ))}
+              <div className="fab-livre">
+                <input className="cr-input" placeholder={ff.outroCombinado} value={livreReves} onChange={(e) => setLivreReves(e.target.value)} />
+                <button
+                  className="cr-btn"
+                  disabled={!livreReves.trim()}
+                  onClick={() => {
+                    muda({ revezes: [...f.revezes, livreReves.trim()] })
+                    setLivreReves('')
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            </fieldset>
+          </>
+        )}
 
+        <div className="fab-cargas">
+          <label className="fab-campo">
+            <span>{ff.cargasAtuais}</span>
+            <input className="cr-input" type="number" inputMode="numeric" min={0} value={f.cargas.atual} onChange={(e) => setF({ ...f, cargas: { ...f.cargas, atual: Math.max(0, Number(e.target.value) || 0) } })} />
+          </label>
+          <label className="fab-campo">
+            <span>{ff.maximo}</span>
+            <input className="cr-input" type="number" inputMode="numeric" min={0} value={f.cargas.max} onChange={(e) => setF({ ...f, cargas: { ...f.cargas, max: Math.max(0, Number(e.target.value) || 0) } })} />
+          </label>
+        </div>
+
+        {f.tipo === 'unico' && (
           <div className="fab-cargas">
             <label className="fab-campo">
-              <span>{ff.cargasAtuais}</span>
-              <input className="cr-input" type="number" inputMode="numeric" min={0} value={f.cargas.atual} onChange={(e) => setF({ ...f, cargas: { ...f.cargas, atual: Math.max(0, Number(e.target.value) || 0) } })} />
+              <span>{ff.gema}</span>
+              <input className="cr-input" value={f.gema ?? ''} onChange={(e) => setF({ ...f, gema: e.target.value || undefined })} />
             </label>
             <label className="fab-campo">
-              <span>{ff.maximo}</span>
-              <input className="cr-input" type="number" inputMode="numeric" min={0} value={f.cargas.max} onChange={(e) => setF({ ...f, cargas: { ...f.cargas, max: Math.max(0, Number(e.target.value) || 0) } })} />
+              <span>{ff.material}</span>
+              <input className="cr-input" value={f.material ?? ''} onChange={(e) => setF({ ...f, material: e.target.value || undefined })} />
             </label>
           </div>
+        )}
 
-          {f.tipo === 'unico' && (
-            <div className="fab-cargas">
-              <label className="fab-campo">
-                <span>{ff.gema}</span>
-                <input className="cr-input" value={f.gema ?? ''} onChange={(e) => setF({ ...f, gema: e.target.value || undefined })} />
-              </label>
-              <label className="fab-campo">
-                <span>{ff.material}</span>
-                <input className="cr-input" value={f.material ?? ''} onChange={(e) => setF({ ...f, material: e.target.value || undefined })} />
-              </label>
-            </div>
-          )}
+        <label className="fab-campo">
+          <span>{ff.notas}</span>
+          <textarea className="cr-input anotacao-textarea" rows={3} value={f.notas ?? ''} onChange={(e) => setF({ ...f, notas: e.target.value || undefined })} />
+        </label>
 
-          <label className="fab-campo">
-            <span>{ff.notas}</span>
-            <textarea className="cr-input anotacao-textarea" rows={3} value={f.notas ?? ''} onChange={(e) => setF({ ...f, notas: e.target.value || undefined })} />
-          </label>
+        {avisos.length > 0 && (
+          <ul className="fab-avisos">
+            {avisos.map((a) => (
+              <li key={msg(a)}>⚠️ {msg(a)}</li>
+            ))}
+          </ul>
+        )}
 
-          {avisos.length > 0 && (
-            <ul className="fab-avisos">
-              {avisos.map((a) => (
-                <li key={msg(a)}>⚠️ {msg(a)}</li>
-              ))}
-            </ul>
-          )}
-
-          <button
-            className="cr-btn cr-mais"
-            disabled={!f.nome.trim()}
-            onClick={() => {
-              aoSalvar({ ...f, nome: f.nome.trim() })
-              aoFechar()
-            }}
-          >
-            {tx.geral.salvar}
-          </button>
-        </div>
+        <button
+          className="cr-btn cr-mais"
+          disabled={!f.nome.trim()}
+          onClick={() => {
+            aoSalvar({ ...f, nome: f.nome.trim() })
+            aoFechar()
+          }}
+        >
+          {tx.geral.salvar}
+        </button>
       </div>
-    </Sobreposicao>
+    </Janela>
   )
 }

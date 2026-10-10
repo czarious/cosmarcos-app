@@ -2,6 +2,8 @@
 {
   // apk/ é o projeto Android gerado pelo Bubblewrap (.claude/apk.md). O app não tem
   // Java: sem isto a extensão de Java tenta importar o Gradle de lá e acusa erro.
+  // Modo leve = a extensão nem importa projeto; as linhas de baixo ficam de reserva.
+  "java.server.launchMode": "LightWeight",
   "java.import.gradle.enabled": false,
   "java.import.exclusions": [
     "**/node_modules/**",

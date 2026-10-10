@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import type { Personagem as Ficha, Objetivo } from '../../tipos/personagem'
 import ControleMarcos from '../ControleMarcos'
+import BotaoApagar from '../BotaoApagar'
 import { ICONE } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
 
@@ -23,7 +24,6 @@ export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, 
   const { t, tx, nome } = useIdioma()
   const { meta } = ficha
   const [novo, setNovo] = useState('')
-  const [apagando, setApagando] = useState<number | null>(null)
 
   // em andamento primeiro, concluídos no fim — o índice original vai junto (é o que o estado usa)
   const objetivos = ficha.objetivos.map((o, i) => ({ o, i })).sort((a, b) => Number(a.o.concluido) - Number(b.o.concluido))
@@ -78,20 +78,9 @@ export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, 
           <li key={`${i}-${o.nome}`} className={`objetivo${o.concluido ? ' objetivo-concluido' : ''}`}>
             <div className="objetivo-cabeca">
               <span className="objetivo-nome">{o.nome}</span>
-              {apagando === i ? (
-                <span className="rodape-botoes">
-                  <button type="button" className="rodape-botao rodape-perigo" onClick={() => { removerObjetivo(i); setApagando(null) }}>
-                    {t(tx.personagem.apagar)}
-                  </button>
-                  <button type="button" className="rodape-botao" onClick={() => setApagando(null)}>
-                    {t(tx.personagem.manter)}
-                  </button>
-                </span>
-              ) : (
-                <button type="button" className="cr-fechar" aria-label={t(tx.personagem.apagarObjetivoNome, { nome: o.nome })} onClick={() => setApagando(i)}>
-                  {ICONE.fechar}
-                </button>
-              )}
+              <BotaoApagar classe="cr-fechar" rotulo={t(tx.personagem.apagarObjetivoNome, { nome: o.nome })} aoApagar={() => removerObjetivo(i)}>
+                {ICONE.fechar}
+              </BotaoApagar>
             </div>
             <ControleMarcos
               marcos={o.grau}

@@ -37,6 +37,17 @@ describe('importar o Eccho', () => {
     json.characters[0].expertises.push({ id: 'z', type: 'Inventado', name: 'Algo', source: 'manual' })
     expect(() => importarShards(json)).toThrow(ErroImportacao)
   })
+
+  // Campo renomeado no Shards viraria Vida 0/0 ou ficha sem perícias, por cima da ficha boa
+  it.each([
+    ['sem nome', (c: Record<string, any>) => (c.meta.name = '')],
+    ['Vida máxima sumiu', (c: Record<string, any>) => delete c.resources.healthMax],
+    ['perícias sumiram', (c: Record<string, any>) => delete c.skills],
+  ])('recusa ficha %s', (_, estragar) => {
+    const json = structuredClone(eccho) as unknown as { characters: Record<string, any>[] }
+    estragar(json.characters[0])
+    expect(() => importarShards(json)).toThrow(ErroImportacao)
+  })
 })
 
 describe('total de perícia', () => {

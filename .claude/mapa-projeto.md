@@ -45,6 +45,7 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | [`escopo/cosmere-e-a-interface.md`](../escopo/cosmere-e-a-interface.md) | Cosmere × D&D — as diferenças de sistema que mudam a tela. Ler antes de copiar padrão do DDB |
 | [`escopo/personagens.md`](../escopo/personagens.md) | Guia dos personagens da mesa · o Eccho e sua exceção no código |
 | `escopo/jogadores.md` | De-para jogador → personagem e contato da mesa. **Não versionado** — nome de pessoa não vai pro repo público |
+| [`escopo/boas-praticas.md`](../escopo/boas-praticas.md) | Pesquisa de boas práticas (DDB, Roll20, guias de UI e PWA) × o app |
 | [`escopo/notas-do-livro.md`](../escopo/notas-do-livro.md) | Índice das notas `📌 Para o app` da transcrição |
 | [`escopo/conferencia-formulas.md`](../escopo/conferencia-formulas.md) | Verificações das fórmulas contra a ficha real do Eccho (movidas da transcrição) |
 | [`escopo/checklist-shards.md`](../escopo/checklist-shards.md) | Tudo o que o Shards faz × o que o app faz — ✅ 🔶 ❌ ➖ por tela |
@@ -68,6 +69,7 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | `.vscode/settings.json` | Configuração do VS Code deste projeto: a extensão de Java ignora `apk/` |
 | `.claude/settings.local.json` | Configuração local do Claude Code. Não é do app |
 | `.claude/agents/transcritor-livro.md` | Agente que transcreve UM capítulo do Guia de Regras. **Não versionado** — cita o livro |
+| `.claude/agents/revisor.md` | Agente revisor (Fable, só leitura): varre `src/` ou uma lista de arquivos e devolve até 10 sugestões verificadas. Só quando o César pedir |
 | `.claude/agents/arte.md` | Agente de arte (Opus): cria os fundos das abas no estilo do livro, sem copiar ilustração, e confere contraste e tela. **Não versionado** (a pasta `agents/` inteira fica fora) |
 | `.claude/arte/*.py` | Os scripts que desenham cada fundo (SVG → PNG → webp): `python .claude/arte/erudito.py src/assets/fundos/trilha-erudito.webp`. `ferramentas.py` rasteriza e comprime |
 | `.claude/tela.mjs` | Captura o app em tamanho de celular pelo Chrome oculto, sem extensão: `node .claude/tela.mjs <prefixo> '<passos>'`. Precisa do `npm run dev` |

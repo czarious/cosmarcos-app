@@ -32,13 +32,15 @@
 | `public/icone.svg` | Fonte do ícone do PWA (✦ creme sobre vinho) |
 | `public/icones/*.png` | Ícones 192, 512, maskable 512 e apple-touch 180 — gerados de `icone.svg` por `.claude/gerar-icones.mjs` |
 | `src/vite-env.d.ts` | Declara `__VERSAO__` (a do package.json, posta pelo vite.config) |
-| `src/main.tsx` | Ponto de entrada — monta o React no `#raiz`, dentro do `ProvedorIdioma` |
+| `src/main.tsx` | Ponto de entrada — monta o React no `#raiz`, dentro do `ProvedorIdioma` e do `ErroTela` |
 | `src/App.tsx` | Compõe a ficha: cabeçalho fixo (com a engrenagem) + painel de turno + abas + conteúdo + rodapé (estado do save). Liga o `useTurno` ao `usePersonagem` |
 | `src/estado/usePersonagem.ts` | **Estado VIVO** — recursos, escolhas de vaga, `alternarEquipada`, `definirMarcos`, `adicionarItem`/`removerItem`, fabriais, `importarTexto`/`exportarJson`. Carrega do save; o JSON é semente e base da exportação. Semente mais nova que o save → aviso "Importar / Agora não" no topo |
 | `src/estado/useOrdemAbas.ts` | A ordem das abas que a pessoa reordenou no menu (▲▼), guardada no aparelho — vale pro menu e pro arrastar |
 | `src/estado/useTurno.ts` | **Estado do combate** ligado à ficha: o **plano do turno** ("Usar" só planeja), **Confirmar** grava o que `simularPlano` calculou, **Desfazer** volta a última confirmação. Tira Surpreendido no fim do turno. Chave própria no localStorage, fora do save |
-| `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre → **quarentena** (cópia guardada) + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
-| `src/estado/armazenamento.test.ts` | Testes do save: migração sem buraco, quarentena, gravação que falha, backup ida e volta |
+| `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre (ou conversão que quebra) → **quarentena** + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
+| `src/estado/copias.ts` | A **pasta das cópias de segurança** (`cosmarcos:copia:<personagem>:<motivo>:<data>`): save que não abriu, save de antes de converter de versão, ficha de antes de importar (as 3 últimas — "Voltar" desempilha). Limite por motivo |
+| `src/estado/baixarArquivo.ts` | Baixa um texto como .json — exportar, backup e a tela "Algo quebrou" |
+| `src/estado/armazenamento.test.ts` | Testes do save: migração sem buraco, quarentena, gravação que falha, backup ida e volta, pasta das cópias |
 | `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo: foto e fogueira à esquerda; nome, identidade + engrenagem no alto; Vida/Foco/Investidura em linhas (10 quadradinhos na cor do recurso, escudinho da deflexão na Vida, ▲▼ de 1 em 1, o número abre o `ControleRecurso`); faixa de condições embaixo |
 | `src/componentes/PopoverDeflexao.tsx` | A deflexão aberta (de onde vem + como usar no dano) — escudinho do cabeçalho e aba Principal |
 | `src/componentes/FotoPersonagem.tsx` | A foto quadrada do cabeçalho: escolher, recortar (react-easy-crop, hachura fora da janela, zoom) e gravar JPEG 256 px na ficha; trocar/tirar |
@@ -50,7 +52,11 @@
 | `src/componentes/ControleRecurso.tsx` | **Popover de ±**: botões − e + de ±1 + entrada numérica. Serve a qualquer contador atual/máximo — os 3 recursos e as cargas de fabrial. Na Vida, desconta a deflexão do dano (marcado de saída) |
 | `src/componentes/FormularioFabrial.tsx` | Montador de fabrial (novo/editar): padrão ou único, efeito, qualidade, aprimoramentos, revezes e características do livro, com avisos que não bloqueiam |
 | `src/componentes/ControleMarcos.tsx` | As 3 caixas de marco de história + concluir. Serve a Objetivos e Ideais |
-| `src/componentes/Sobreposicao.tsx` | O fundo escurecido de toda janela, desenhado no `<body>` (fora do carrossel das abas, senão abre fora da tela). Só ele escreve `cr-overlay` — o `verificar.mjs` confere |
+| `src/componentes/ErroTela.tsx` | A rede de baixo do app: erro ao desenhar vira "Algo quebrou" com **Baixar meu save** e **Recarregar**, em vez de tela branca |
+| `src/componentes/AvisoCuidado.tsx` | O aviso de borda laranja com a placa de cuidado pintada (`assets/aviso-placa.webp`, gerada por `.claude/arte/placa-cuidado.py`) atrás do texto, antes de ação que troca a ficha (confirmar importar, no menu ⚙ e na faixa da ficha mais nova) |
+| `src/componentes/BotaoApagar.tsx` | A lixeira de toda lista (anotação, item, fabrial, objetivo): 1º toque pergunta "Apagar / Manter" |
+| `src/componentes/Janela.tsx` | **Toda janela** nasce aqui, com características por nome: `fechar` (livre · até salvar · obrigatória), `largura` (normal · média · larga), `tema` (padrão · cuidado), `botoesGrandes`, e o **`tipo`** (comum · **aviso**: obrigatória + tema cuidado + texto na placa de cuidado + Entendi), que muda só o que é dele e usa o resto da configuração. No `base.css`, cada característica só troca as variáveis da janela (`--janela-largura`, `--janela-moldura`, `--janela-fundo`, `--janela-titulo`). O que é só de uma janela fica no arquivo dela (`classe`). O `verificar.mjs` reprova janela montada à mão |
+| `src/componentes/Sobreposicao.tsx` | O fundo escurecido de toda janela, desenhado no `<body>` (fora do carrossel das abas, senão abre fora da tela). Só ele escreve `cr-overlay` — o `verificar.mjs` confere. Usado pela `Janela` e pelo menu de abas |
 | `src/componentes/PopoverDetalhe.tsx` | Popover só-leitura — toca num número calculado e vê de onde vem cada parcela. Reaproveita o visual do `ControleRecurso` |
 | `src/componentes/SeletorSecao.tsx` | Barra de uma linha (ícone + aba aberta + 9 quadradinhos) que abre o menu com todas as abas. Exporta `SECOES` (nome → ícone), `LISTA` (a ordem original; "⇅ Reordenar" troca por ▲▼) e o tipo `Secao` |
 | `src/componentes/CarrosselAbas.tsx` | As abas coladas lado a lado: arrastar o dedo passa pra vizinha (Embla). Desenha só a aberta e as vizinhas; ignora borda, campo e diálogo |
@@ -140,6 +146,7 @@ tipos/personagem.ts  ← a raiz de tudo
 |---|---|---|
 | **`tipos/personagem.ts`** ⚠️ | `regras/` · `estado/` · `componentes/` · `public/personagens/*.json` · [`escopo/dados.md`](escopo/dados.md) | **O de maior alcance.** Todo o resto lê a ficha por ele. Mudou campo → os JSONs viram inválidos |
 | **`estado/importarShards.ts`** (o tradutor) · `deparaShards.ts` · `exportarShards.ts` | `idioma/idioma.ts` (nomes em inglês vêm do de-para) · `tipos/personagem.ts` · `public/personagens/*.json` · [`escopo/dados.md`](escopo/dados.md) · [`.claude/mapa-shards.md`](.claude/mapa-shards.md) | Única porta de entrada de dado. **Quebra calada** quando o Shards mudar — tem que validar e gritar ([premissas](escopo/premissas.md) → "Schema próprio em português + tradutor na entrada") |
+| **Nome de classe** num `.tsx` ou no `base.css` (renomear, tirar, trocar por característica da `Janela`) | `.github/iphone/teste-iphone.mjs` | O teste do iPhone acha janela e botão **pela classe** (`locator('.desc-painel')`). Renomear sem olhar = o teste quebra depois de publicar. O `verificar.mjs` confere, mas só no fim |
 | `regras/ordens.ts` | `secoes/Acoes.tsx` · `Radiante.tsx` · [`escopo/roadmap.md`](escopo/roadmap.md) perguntas 8–9 | As Ações de Luz/Mancha vêm daqui, não do JSON. Regra do livro: conferir contra transcrição |
 | `regras/talentos.ts` | `secoes/Talentos.tsx` · `secoes/Acoes.tsx` · `usePersonagem.ts` · `importarShards.ts` (nome PT do talento de fluxo) · `contagemTalentos.ts` | Nome/efeito/vagas de cada talento — um bloco de trilha por vez |
 | `regras/especialidades.ts` | `usePersonagem.ts` · `secoes/Talentos.tsx` | Um bloco por personagem, chaveado por `meta.nome`. Personagem sem entrada **funciona** — o total cai no `bonusNaoAtribuido` |

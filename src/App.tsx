@@ -5,6 +5,8 @@ import { useTurno } from './estado/useTurno'
 import PainelTurno from './componentes/PainelTurno'
 import MenuEngrenagem from './componentes/MenuEngrenagem'
 import AvisoAtualizacao from './componentes/AvisoAtualizacao'
+import AvisoCuidado from './componentes/AvisoCuidado'
+import Janela from './componentes/Janela'
 import CabecalhoFixo from './componentes/CabecalhoFixo'
 import SeletorSecao, { type Secao } from './componentes/SeletorSecao'
 import { useOrdemAbas } from './estado/useOrdemAbas'
@@ -22,6 +24,7 @@ import Radiante from './componentes/secoes/Radiante'
 import { fundoDaAba } from './fundos'
 import { useIdioma } from './idioma/IdiomaContexto'
 import type { Rotulo } from './idioma/pt'
+import { baixarArquivo } from './estado/baixarArquivo'
 
 // Compõe a ficha: cabeçalho fixo (recursos MUTÁVEIS — item 1.2/1.3) + abas + conteúdo.
 // O estado vivo mora no hook usePersonagem; o cabeçalho recebe o alterarRecurso.
@@ -88,6 +91,10 @@ export default function App() {
    * (escrita no idioma da hora) ou o erro do tradutor, que vem só em português.
    */
   const [avisoRodape, setAvisoRodape] = useState<Rotulo | null>(null)
+  /** "Importar" da faixa da ficha mais nova troca a ficha inteira: pede o 2º toque, como o menu ⚙. */
+  const [confirmandoSemente, setConfirmandoSemente] = useState(false)
+  /** Motivo da importação recusada — abre uma Janela do tipo aviso. */
+  const [falhaImportar, setFalhaImportar] = useState<string | null>(null)
   const seletorArquivo = useRef<HTMLInputElement>(null)
 
   async function aoEscolherArquivo(e: React.ChangeEvent<HTMLInputElement>) {
@@ -95,7 +102,8 @@ export default function App() {
     e.target.value = '' // deixa escolher o mesmo arquivo de novo
     if (!arquivo) return
     const falha = importarTexto(await arquivo.text())
-    setAvisoRodape(falha ?? { texto: (d) => d.geral.importado, vars: { arquivo: arquivo.name } })
+    if (falha) setFalhaImportar(falha)
+    else setAvisoRodape({ texto: (d) => d.geral.importado, vars: { arquivo: arquivo.name } })
   }
 
   function exportar() {
@@ -242,17 +250,35 @@ export default function App() {
         {/* a ficha-semente do repositório ficou mais nova que o save — mesma faixa do aviso de versão */}
         {sementeNova && (
           <div className="aviso-atualizacao" role="status">
-            <span>{t(tx.app.fichaMaisNova, { nome: ficha.meta.nome })}</span>
+            {confirmandoSemente ? <AvisoCuidado>{tx.menu.confirmaImportar}</AvisoCuidado> : <span>{t(tx.app.fichaMaisNova, { nome: ficha.meta.nome })}</span>}
             <span className="turno-botoes">
-              <button className="turno-discreto" onClick={dispensarSementeNova}>
-                {tx.app.agoraNao}
-              </button>
-              <button
-                className="turno-botao turno-primario"
-                onClick={() => setAvisoRodape(atualizarDaSemente() ?? { texto: (d) => d.app.fichaNovaImportada })}
-              >
-                {tx.app.importar}
-              </button>
+              {confirmandoSemente ? (
+                <>
+                  <button className="turno-discreto" onClick={() => setConfirmandoSemente(false)}>
+                    {tx.geral.cancelar}
+                  </button>
+                  <button
+                    className="turno-botao turno-primario"
+                    onClick={() => {
+                      setConfirmandoSemente(false)
+                      const falha = atualizarDaSemente()
+                      if (falha) setFalhaImportar(falha)
+                      else setAvisoRodape({ texto: (d) => d.app.fichaNovaImportada })
+                    }}
+                  >
+                    {tx.app.importar}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button className="turno-discreto" onClick={dispensarSementeNova}>
+                    {tx.app.agoraNao}
+                  </button>
+                  <button className="turno-botao turno-primario" onClick={() => setConfirmandoSemente(true)}>
+                    {tx.app.importar}
+                  </button>
+                </>
+              )}
             </span>
           </div>
         )}
@@ -280,6 +306,11 @@ export default function App() {
       {/* Rodapé: só o estado do save e o resultado da última importação/exportação.
           Os botões moram na engrenagem do topo (MenuEngrenagem). */}
       <input ref={seletorArquivo} type="file" accept=".json,application/json" hidden onChange={aoEscolherArquivo} />
+      {falhaImportar && (
+        <Janela tipo="aviso" titulo={tx.app.naoImportei} nota={tx.app.fichaNaoMudou} aoFechar={() => setFalhaImportar(null)}>
+          {falhaImportar}
+        </Janela>
+      )}
       <footer className="rodape">
         {salvou ? (
           <span className="rodape-estado">{avisoRodape ? rot(avisoRodape) : tx.geral.fichaSalva}</span>
@@ -289,18 +320,4 @@ export default function App() {
       </footer>
     </div>
   )
-}
-
-/** Baixa um texto como arquivo .json — exportar, backup e save descartado usam o mesmo caminho. */
-function baixarArquivo(nome: string, texto: string) {
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(new Blob([texto], { type: 'application/json' }))
-  link.download = nome
-  document.body.appendChild(link)
-  link.click()
-  // revogar na hora cancela o download no Chrome — espera ele começar
-  setTimeout(() => {
-    URL.revokeObjectURL(link.href)
-    link.remove()
-  }, 1000)
 }

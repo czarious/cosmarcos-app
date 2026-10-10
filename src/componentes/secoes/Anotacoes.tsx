@@ -1,9 +1,9 @@
 /* arquivo: Anotacoes.tsx */
 import { useState } from 'react'
 import type { Personagem } from '../../tipos/personagem'
-import { ICONE } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
-import Sobreposicao from '../Sobreposicao'
+import Janela from '../Janela'
+import BotaoApagar from '../BotaoApagar'
 
 // Aba Anotações — blocos livres de título + conteúdo, 100% do app (o Shards
 // não tem esse conceito; nasce vazio na importação — tipos/personagem.ts).
@@ -38,36 +38,27 @@ function FormularioAnotacao({
   }
 
   return (
-    <Sobreposicao aoFechar={aoFechar}>
-      <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
-        <div className="cr-cabeca">
-          <span className="cr-titulo">{tituloInicial ? tx.anotacoes.editarAnotacao : tx.anotacoes.novaAnotacaoTitulo}</span>
-          <button className="cr-fechar" onClick={aoFechar} aria-label={tx.geral.fechar}>
-            {ICONE.fechar}
-          </button>
-        </div>
-
-        <div className="gerenciar-form">
-          <input
-            className="cr-input"
-            placeholder={t(tx.anotacoes.titulo)}
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-            autoFocus
-          />
-          <textarea
-            className="cr-input anotacao-textarea"
-            placeholder={t(tx.anotacoes.conteudo)}
-            value={conteudo}
-            onChange={(e) => setConteudo(e.target.value)}
-            rows={6}
-          />
-          <button className="cr-btn cr-mais" onClick={salvar} disabled={!titulo.trim()}>
-            {tx.geral.salvar}
-          </button>
-        </div>
+    <Janela titulo={tituloInicial ? tx.anotacoes.editarAnotacao : tx.anotacoes.novaAnotacaoTitulo} aoFechar={aoFechar} fechar="ate-salvar">
+      <div className="gerenciar-form">
+        <input
+          className="cr-input"
+          placeholder={t(tx.anotacoes.titulo)}
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+          autoFocus
+        />
+        <textarea
+          className="cr-input anotacao-textarea"
+          placeholder={t(tx.anotacoes.conteudo)}
+          value={conteudo}
+          onChange={(e) => setConteudo(e.target.value)}
+          rows={6}
+        />
+        <button className="cr-btn cr-mais" onClick={salvar} disabled={!titulo.trim()}>
+          {tx.geral.salvar}
+        </button>
       </div>
-    </Sobreposicao>
+    </Janela>
   )
 }
 
@@ -117,13 +108,9 @@ export default function Anotacoes({ ficha, adicionarAnotacao, editarAnotacao, re
                     >
                       ✏️
                     </button>
-                    <button
-                      className="anotacao-botao"
-                      onClick={() => removerAnotacao(a.id)}
-                      aria-label={t(tx.geral.excluirNome, { nome: a.titulo })}
-                    >
+                    <BotaoApagar classe="anotacao-botao" aoApagar={() => removerAnotacao(a.id)} rotulo={t(tx.geral.excluirNome, { nome: a.titulo })}>
                       🗑
-                    </button>
+                    </BotaoApagar>
                   </span>
                 </div>
                 {!recolhida && a.conteudo && <p className="anotacao-conteudo">{a.conteudo}</p>}

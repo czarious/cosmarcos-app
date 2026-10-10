@@ -3,9 +3,8 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import Cropper, { type Area, type Point } from 'react-easy-crop'
 // A biblioteca injeta o próprio <style>, que a política de segurança barra — o CSS vem pelo bundle
 import 'react-easy-crop/react-easy-crop.css'
-import { ICONE } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
-import Sobreposicao from './Sobreposicao'
+import Janela from './Janela'
 
 // O rosto do personagem no cabeçalho: quadrado, tocar põe (ou troca) a foto.
 // Escolhida a imagem, o recorte: janela quadrada limpa no meio, o que fica de
@@ -57,22 +56,14 @@ export default function FotoPersonagem({ foto, definirFoto }: Props) {
       <input ref={seletor} type="file" accept="image/*" hidden onChange={aoEscolher} />
 
       {opcoes && (
-        <Sobreposicao aoFechar={() => setOpcoes(false)}>
-          <div className="cr-painel painel-mesa" onClick={(e) => e.stopPropagation()}>
-            <div className="cr-cabeca">
-              <span className="cr-titulo">{tx.foto.trocarFoto}</span>
-              <button className="cr-fechar" onClick={() => setOpcoes(false)} aria-label={tx.geral.fechar}>
-                {ICONE.fechar}
-              </button>
-            </div>
-            <div className="lesao-acoes">
-              <button type="button" className="rodape-botao" onClick={escolher}>{tx.foto.escolherOutra}</button>
-              <button type="button" className="rodape-botao rodape-perigo" onClick={() => { definirFoto(undefined); setOpcoes(false) }}>
-                {tx.foto.tirar}
-              </button>
-            </div>
+        <Janela titulo={tx.foto.trocarFoto} aoFechar={() => setOpcoes(false)} botoesGrandes>
+          <div className="lesao-acoes">
+            <button type="button" className="rodape-botao" onClick={escolher}>{tx.foto.escolherOutra}</button>
+            <button type="button" className="rodape-botao rodape-perigo" onClick={() => { definirFoto(undefined); setOpcoes(false) }}>
+              {tx.foto.tirar}
+            </button>
           </div>
-        </Sobreposicao>
+        </Janela>
       )}
 
       {original && (
@@ -111,58 +102,50 @@ function Recorte({ src, aoUsar, aoCancelar }: { src: string; aoUsar: (foto: stri
   }
 
   return (
-    <Sobreposicao aoFechar={aoCancelar}>
-      <div className="cr-painel painel-mesa rf-painel" onClick={(e) => e.stopPropagation()}>
-        <div className="cr-cabeca">
-          <span className="cr-titulo">{tx.foto.recortar}</span>
-          <button className="cr-fechar" onClick={aoCancelar} aria-label={tx.geral.fechar}>
-            {ICONE.fechar}
-          </button>
-        </div>
-        <div className="rf-palco" ref={palco}>
-          {lado > 0 && (
-            <Cropper
-              image={src}
-              crop={posicao}
-              zoom={zoom}
-              aspect={1}
-              cropSize={{ width: lado * JANELA, height: lado * JANELA }}
-              objectFit="cover"
-              maxZoom={4}
-              showGrid={false}
-              onCropChange={setPosicao}
-              onZoomChange={setZoom}
-              onCropComplete={(_, px) => setArea(px)}
-              classes={{ cropAreaClassName: 'rf-janela-lib' }}
-              mediaProps={{ onError: () => setFalhou(true) }}
-              disableAutomaticStylesInjection
-            />
-          )}
-          {/* o que sai do recorte fica hachurado; a janela limpa leva o contorno */}
-          <div className="rf-hachura" aria-hidden />
-          <div className="rf-janela" aria-hidden />
-        </div>
-        {falhou ? (
-          <p className="erro">{tx.foto.naoAbriu}</p>
-        ) : (
-          <p className="rf-dica">{tx.foto.comoRecortar}</p>
+    <Janela titulo={tx.foto.recortar} aoFechar={aoCancelar} fechar="ate-salvar" botoesGrandes largura="media">
+      <div className="rf-palco" ref={palco}>
+        {lado > 0 && (
+          <Cropper
+            image={src}
+            crop={posicao}
+            zoom={zoom}
+            aspect={1}
+            cropSize={{ width: lado * JANELA, height: lado * JANELA }}
+            objectFit="cover"
+            maxZoom={4}
+            showGrid={false}
+            onCropChange={setPosicao}
+            onZoomChange={setZoom}
+            onCropComplete={(_, px) => setArea(px)}
+            classes={{ cropAreaClassName: 'rf-janela-lib' }}
+            mediaProps={{ onError: () => setFalhou(true) }}
+            disableAutomaticStylesInjection
+          />
         )}
-        <input
-          className="rf-zoom"
-          type="range"
-          min={1}
-          max={4}
-          step={0.01}
-          value={zoom}
-          onChange={(e) => setZoom(Number(e.target.value))}
-          aria-label={tx.foto.zoom}
-        />
-        <div className="lesao-acoes">
-          <button type="button" className="rodape-botao" disabled={!area || falhou} onClick={usar}>{tx.foto.usar}</button>
-          <button type="button" className="rodape-botao" onClick={aoCancelar}>{tx.geral.cancelar}</button>
-        </div>
+        {/* o que sai do recorte fica hachurado; a janela limpa leva o contorno */}
+        <div className="rf-hachura" aria-hidden />
+        <div className="rf-janela" aria-hidden />
       </div>
-    </Sobreposicao>
+      {falhou ? (
+        <p className="erro">{tx.foto.naoAbriu}</p>
+      ) : (
+        <p className="rf-dica">{tx.foto.comoRecortar}</p>
+      )}
+      <input
+        className="rf-zoom"
+        type="range"
+        min={1}
+        max={4}
+        step={0.01}
+        value={zoom}
+        onChange={(e) => setZoom(Number(e.target.value))}
+        aria-label={tx.foto.zoom}
+      />
+      <div className="lesao-acoes">
+        <button type="button" className="rodape-botao" disabled={!area || falhou} onClick={usar}>{tx.foto.usar}</button>
+        <button type="button" className="rodape-botao" onClick={aoCancelar}>{tx.geral.cancelar}</button>
+      </div>
+    </Janela>
   )
 }
 
