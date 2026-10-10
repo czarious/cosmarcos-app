@@ -1985,6 +1985,17 @@ label.linha-item input[type='checkbox'] {
   padding-left: 0.8rem;
 }
 
+/* pílula empilhada: a linha tem a altura do toque, pra área de uma não invadir a da vizinha */
+.lista-linhas li:has(> .botao-info) {
+  display: flex;
+  align-items: center;
+  min-height: var(--alvo-toque);
+}
+
+.lista-linhas li:has(> .botao-info)::before {
+  top: calc(50% - 0.14rem);
+}
+
 .lista-linhas li::before {
   content: '';
   position: absolute;
