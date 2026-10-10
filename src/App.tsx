@@ -9,6 +9,7 @@ import AvisoCuidado from './componentes/AvisoCuidado'
 import Janela from './componentes/Janela'
 import CabecalhoFixo from './componentes/CabecalhoFixo'
 import SeletorSecao, { type Secao } from './componentes/SeletorSecao'
+import BotaoBackup from './componentes/BotaoBackup'
 import { useOrdemAbas } from './estado/useOrdemAbas'
 import CarrosselAbas from './componentes/CarrosselAbas'
 import Principal from './componentes/secoes/Principal'
@@ -70,6 +71,10 @@ export default function App() {
     desfazerImportacao,
     exportarJson,
     backupJson,
+    editarIdentidade,
+    editarTextoPersonagem,
+    mudouDesdeBackup,
+    marcarBackupFeito,
     salvou,
     alertaSave,
     dispensarAlertaSave,
@@ -121,6 +126,7 @@ export default function App() {
     if (!texto || !ficha) return
     const hoje = new Date().toISOString().slice(0, 10)
     baixarArquivo(`cosmarcos-backup-${ficha.meta.nome.toLowerCase()}-${hoje}.json`, texto)
+    marcarBackupFeito()
     setAvisoRodape({ texto: (d) => d.geral.backupBaixado })
   }
 
@@ -196,6 +202,8 @@ export default function App() {
         alterarObjetivo={alterarObjetivo}
         adicionarObjetivo={adicionarObjetivo}
         removerObjetivo={removerObjetivo}
+        editarIdentidade={editarIdentidade}
+        editarTextoPersonagem={editarTextoPersonagem}
       />
     ) : s === 'Radiante' ? (
       <Radiante ficha={ficha} escolhasTalento={escolhasTalento} alterarIdeal={alterarIdeal} />
@@ -244,7 +252,13 @@ export default function App() {
             />
           }
         />
-        <SeletorSecao ativa={secao} aoTrocar={setSecao} ordem={ordemAbas} aoReordenar={definirOrdemAbas} />
+        <SeletorSecao
+          ativa={secao}
+          aoTrocar={setSecao}
+          ordem={ordemAbas}
+          aoReordenar={definirOrdemAbas}
+          extra={<BotaoBackup mudou={mudouDesdeBackup} aoBaixar={baixarBackup} />}
+        />
         <PainelTurno ficha={ficha} turno={turno} />
         <AvisoAtualizacao />
         {/* a ficha-semente do repositório ficou mais nova que o save — mesma faixa do aviso de versão */}

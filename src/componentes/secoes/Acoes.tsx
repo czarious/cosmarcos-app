@@ -24,6 +24,11 @@ import { ESCALONAMENTO_FLUXO, GUIAS_FLUXO, NOTAS_FLUXO } from '../../regras/flux
 import { ativacaoDoFabrial, fabrialDaArma, usosDoFabrial } from '../../regras/fabriais'
 import type { Turno } from '../../estado/useTurno'
 import PopoverDetalhe from '../PopoverDetalhe'
+import BotaoInfo from '../BotaoInfo'
+import { emTopicos } from '../../idioma/idioma'
+import { tracoPorNome } from '../../regras/tracos'
+import ChipRegra from '../ChipRegra'
+import { notaPeritoDaArma } from '../regraDoLivro'
 import DialogoUso, { precisaDialogo } from '../DialogoUso'
 import ControleRecurso from '../ControleRecurso'
 import { IniciarCombate } from '../PainelTurno'
@@ -96,14 +101,9 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
         {armasEquipadas.length === 0 ? (
           <p className="proximo">{t(tx.acoes.nenhumaArmaEquipadaVa)}</p>
         ) : (
-          // Layout: cabeçalho de 3 colunas (Alcance/Acerto/Dano), cada arma em duas
-          // linhas — nome+categoria, depois os 3 valores alinhados na grade.
+          // Um cartão por arma, no molde do D&D Beyond (pedido 27): nome e munição
+          // no alto, Alcance/Acerto/Dano em colunas, as ações em linhas de lista.
           <div className="tabela-ataques">
-            <div className="tabela-ataques-cabecalho">
-              <span>{t(tx.acoes.alcance)}</span>
-              <span>{t(tx.acoes.acerto)}</span>
-              <span>{t(tx.acoes.dano)}</span>
-            </div>
             {armasEquipadas.map((a) => {
               const pericia = periciaPorNome(a.pericia, ficha)
               if (!pericia) {
@@ -119,44 +119,66 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
               const categoria = a.alcance.startsWith('Corpo a corpo') ? tx.acoes.armaCorpoACorpo : tx.acoes.armaADistancia
               const fab = fabrialDaArma(a.nome, ficha)
               return (
-                <div className="linha-ataque" key={a.nome}>
-                  <div className="linha-ataque-nome">
-                    <span className="ataque-nome">{nome(a.nome)}</span>
-                    <span className="ataque-categoria">{categoria}</span>
+                <div className="ataque-cartao" key={a.nome}>
+                  <div className="ataque-topo">
+                    <div className="linha-ataque-nome">
+                      <span className="ataque-nome">
+                        {/* o que a especialidade muda na arma e não é um traço: o nome abre (regraDoLivro.ts) */}
+                        {notaPeritoDaArma(a.nome, { t, tx, nome }).length > 0 ? (
+                          <BotaoInfo titulo={nome(a.nome)} linhas={notaPeritoDaArma(a.nome, { t, tx, nome })} />
+                        ) : (
+                          nome(a.nome)
+                        )}
+                      </span>
+                      <span className="ataque-categoria">{categoria}</span>
+                    </div>
+                    {/* munição/cargas no alto, à mão (pedido 27) */}
+                    {fab && (
+                      <button className="fab-cargas-botao" onClick={() => setCargasDe(fab.id)} aria-label={t(tx.fabriais.cargasDe, { nome: nome(fab.nome) })}>
+                        {SIMBOLO_RECURSO.cargas} {fab.cargas.atual}
+                        <small>/{fab.cargas.max}</small>
+                      </button>
+                    )}
                   </div>
-                  <div className="linha-ataque-grid">
-                    <span className="dado-futuro">{nome(a.alcance)}</span>
-                    <span className="numero-linha">
-                      <span className="dado-futuro">d20</span>
-                      <button className={`numero-detalhavel${marca('teste')}`} onClick={() => setDetalheAberto({ pericia, uso: 'teste' })}>
-                        {acerto >= 0 ? '+' : ''}
-                        {acerto}
-                      </button>
+                  <div className="ataque-colunas">
+                    <span className="ataque-coluna">
+                      <span className="ataque-coluna-rotulo">{t(tx.acoes.alcance)}</span>
+                      <span className="ataque-coluna-valor">{nome(a.alcance)}</span>
                     </span>
-                    <span className="numero-linha">
-                      <span className="dado-futuro">{a.dano}</span>
-                      <button className={`numero-detalhavel${marca('dano')}`} onClick={() => setDetalheAberto({ pericia, uso: 'dano' })}>
-                        {dano >= 0 ? '+' : ''}
-                        {dano}
-                      </button>
+                    <span className="ataque-coluna">
+                      <span className="ataque-coluna-rotulo">{t(tx.acoes.acerto)}</span>
+                      <span className="numero-linha">
+                        <span className="dado-futuro">d20</span>
+                        <button className={`numero-detalhavel${marca('teste')}`} onClick={() => setDetalheAberto({ pericia, uso: 'teste' })}>
+                          {acerto >= 0 ? '+' : ''}
+                          {acerto}
+                        </button>
+                      </span>
+                    </span>
+                    <span className="ataque-coluna">
+                      <span className="ataque-coluna-rotulo">{t(tx.acoes.dano)}</span>
+                      <span className="numero-linha">
+                        <span className="dado-futuro">{a.dano}</span>
+                        <button className={`numero-detalhavel${marca('dano')}`} onClick={() => setDetalheAberto({ pericia, uso: 'dano' })}>
+                          {dano >= 0 ? '+' : ''}
+                          {dano}
+                        </button>
+                      </span>
                       <span className="tipo-dano">{nome(a.tipoDano)}</span>
                     </span>
                   </div>
                   {(a.tracos.length > 0 || a.tracosPerito.length > 0) && (
+                    // cada traço é um chip que abre a regra dele (regras/tracos.ts)
                     <ul className="lista-chips ataque-tracos">
                       {a.tracos.map((tr) => (
-                        <li className="chip" key={tr}>
-                          {nome(tr)}
-                        </li>
+                        <ChipRegra key={tr} nome={nome(tr)} regra={tracoPorNome(tr)?.resumo} />
                       ))}
                       {a.tracosPerito.map((tr) => (
-                        <li className="chip chip-chave" key={tr}>
-                          {nome(tr)}
-                        </li>
+                        <ChipRegra key={tr} nome={nome(tr)} regra={tracoPorNome(tr)?.resumo} nota={t(tx.acoes.tracoPeritoNota)} destaque />
                       ))}
                     </ul>
                   )}
-                  <div className="fab-botoes ataque-usar">
+                  <ul className="ataque-acoes">
                     {/* uma vez pela mão principal e uma pela inábil (−2 foco, −1 com o traço Mão Inábil) */}
                     {ataquesDaArma(a, fab).map(({ acao, rotulo, mao }) => (
                       <BotaoUsar
@@ -166,15 +188,9 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
                         rotulo={mao === 'inabil' ? `${nome(rotulo)} · ${tx.acoes.maoInabil}` : nome(rotulo)}
                       />
                     ))}
-                  </div>
-                  {fab && (
-                    <div className="fab-botoes ataque-fabrial">
-                      <button className="fab-cargas-botao" onClick={() => setCargasDe(fab.id)} aria-label={t(tx.fabriais.cargasDe, { nome: nome(fab.nome) })}>
-                        {SIMBOLO_RECURSO.cargas} {fab.cargas.atual}
-                        <small>/{fab.cargas.max}</small>
-                      </button>
-                      {/* carga "ao acertar" (Dorial): só depois de um ataque com esta arma, uma por ataque */}
-                      {usosDoFabrial(fab)
+                    {/* carga "ao acertar" (Dorial): só depois de um ataque com esta arma, uma por ataque */}
+                    {fab &&
+                      usosDoFabrial(fab)
                         .filter((u) => u.tipo === 'aoAcertar')
                         .map((u) => (
                           <BotaoUsar
@@ -192,8 +208,7 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
                             rotulo={nome(u.rotulo)}
                           />
                         ))}
-                    </div>
-                  )}
+                  </ul>
                 </div>
               )
             })}
@@ -268,7 +283,9 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
                     <p className="acao-padrao-resumo">
                       {SIMBOLO_RECURSO.cargas} {f.cargas.atual}/{f.cargas.max} — {t(tx.acoes.detalheAbaFabriais)}
                     </p>
-                    <BotaoUsar ctx={ctx} acao={usavel} />
+                    <ul className="ataque-acoes">
+                      <BotaoUsar ctx={ctx} acao={usavel} />
+                    </ul>
                   </div>
                 </li>
               )
@@ -328,10 +345,10 @@ type Ctx = {
 }
 
 /**
- * Botão de ação: o custo SEMPRE à esquerda, no mesmo bloco e na mesma ordem
- * (tipo da ação · Foco · Vida · Investidura, zero apagado) — botões empilhados
- * alinham. Já com o Focado aplicado. Carga de fabrial vem depois do nome, só se houver.
- * O motivo aparece embaixo quando não dá.
+ * O "Usar" de toda ação da aba — linha de lista, no molde do D&D Beyond
+ * (pedido 27): o tipo da ação grande à esquerda, o nome, e à direita SÓ o custo
+ * que existe (já com o Focado aplicado; carga de fabrial por último). O motivo
+ * aparece embaixo quando não dá. Sempre dentro de um <ul className="ataque-acoes">.
  */
 function BotaoUsar({ ctx, acao, rotulo }: { ctx: Ctx; acao: AcaoUsavel; rotulo?: string }) {
   const { ficha, turno, tocarUsar } = ctx
@@ -339,24 +356,29 @@ function BotaoUsar({ ctx, acao, rotulo }: { ctx: Ctx; acao: AcaoUsavel; rotulo?:
   const av = avaliar(acao, turno.simulacao?.estado ?? null, turno.simulacao?.ficha ?? ficha)
   const c = custoEfetivo(acao, ficha)
   const custo = { foco: c.foco ?? 0, vida: 0, investidura: c.investidura ?? 0 }
+  const custos = RECURSOS_DO_CUSTO.filter((r) => custo[r] > 0)
   return (
-    <span className="usar">
-      <button className="usar-botao" disabled={!av.pode} onClick={() => tocarUsar(acao)}>
-        <span className="usar-custo" aria-hidden>
-          <span className="custo-ativacao">{SIMBOLO_ATIVACAO[acao.ativacao]}</span>
-          {RECURSOS_DO_CUSTO.map((r) => (
-            <span key={r} className={`custo-recurso custo-${r}${custo[r] ? '' : ' custo-zero'}`}>
-              {SIMBOLO_RECURSO[r]}
-              {custo[r]}
-            </span>
-          ))}
+    <li className="usar-linha-item">
+      <button className="usar-linha" disabled={!av.pode} onClick={() => tocarUsar(acao)}>
+        <span className="usar-linha-ativacao" aria-hidden>
+          {SIMBOLO_ATIVACAO[acao.ativacao]}
         </span>
-        <span className="usar-nome">{rotulo ?? tx.acoes.usar}</span>
-        {acao.cargas && <small>−{acao.cargas.qtd} {SIMBOLO_RECURSO.cargas}</small>}
+        <span className="usar-linha-nome">{rotulo ?? tx.acoes.usar}</span>
+        {custos.map((r) => (
+          <span key={r} className={`usar-linha-custo custo-${r}`}>
+            {SIMBOLO_RECURSO[r]}
+            {custo[r]}
+          </span>
+        ))}
+        {acao.cargas && (
+          <span className="usar-linha-custo custo-cargas">
+            −{acao.cargas.qtd} {SIMBOLO_RECURSO.cargas}
+          </span>
+        )}
       </button>
       {!av.pode && av.motivo && <small className="usar-motivo">{msg(av.motivo)}</small>}
       {av.daPreparada && <small className="usar-motivo">{t(tx.acoes.daPreparada)}</small>}
-    </span>
+    </li>
   )
 }
 
@@ -369,15 +391,19 @@ function LinhaAcao({ ctx, acao, grupo, extra }: { ctx: Ctx; acao: EntradaAcao; g
     // o tipo da ação (▶ ↻ ▷) aparece no bloco de custo do botão — não repete na linha
     <li className={apagada ? 'acao-padrao acao-apagada' : 'acao-padrao'}>
       <div className="acao-corpo">
-        <span className="acao-padrao-nome">{nome(acao.nome)}</span>
+        {/* a descrição mora no nome (botão de informação): a tela mostra o nome e o Usar */}
+        <span className="acao-padrao-nome">
+          <BotaoInfo titulo={nome(acao.nome)} linhas={emTopicos(acao.resumo)} />
+        </span>
         {extra && <span className="talento-fonte"> · {nome(extra)}</span>}
-        <p className="acao-padrao-resumo">{acao.resumo}</p>
         {acao.efeito === 'inspirar' && ficha.marcos < 3 * ficha.recursos.investidura.max && (
           <p className="acao-padrao-resumo acao-aviso">
             {t(tx.acoes.peloLivroMenosN, { n: 3 * ficha.recursos.investidura.max })}
           </p>
         )}
-        <BotaoUsar ctx={ctx} acao={usavel} />
+        <ul className="ataque-acoes">
+          <BotaoUsar ctx={ctx} acao={usavel} />
+        </ul>
       </div>
     </li>
   )
@@ -386,16 +412,17 @@ function LinhaAcao({ ctx, acao, grupo, extra }: { ctx: Ctx; acao: EntradaAcao; g
 function CartaoFluxo({ ctx, fluxo: f }: { ctx: Ctx; fluxo: Fluxo }) {
   const { ficha, escolhasTalento, abrirDetalhe } = ctx
   const { t, tx, nome, msg } = useIdioma()
-  const [aberto, setAberto] = useState(false)
   const guia = GUIAS_FLUXO[f.id]
   const d = detalhePericia(fluxoComoPericia(f), ficha, escolhasTalento)
   const esc = ESCALONAMENTO_FLUXO[Math.max(1, Math.min(5, f.graduacao))]
   const usavel: AcaoUsavel = { chave: `fluxo:${f.id}`, nome: f.nome, ativacao: f.ativacao, custo: guia?.custoAoUsar }
+  const guiaDoFluxo = <GuiaFluxo guia={guia} />
   return (
-    <li className="ataque">
+    <li className="ataque-cartao">
       <div className="ataque-cabeca">
         <span className="ataque-nome">
-          {nome(f.nome)}
+          {/* o guia do livro (passos, tabela de CD, notas) mora no nome */}
+          <BotaoInfo titulo={nome(f.nome)} conteudo={guiaDoFluxo} largura="larga" />
         </span>
         <button className="numero-detalhavel" onClick={() => abrirDetalhe(fluxoComoPericia(f))}>
           {d.total >= 0 ? '+' : ''}
@@ -407,7 +434,7 @@ function CartaoFluxo({ ctx, fluxo: f }: { ctx: Ctx; fluxo: Fluxo }) {
       </p>
       {/* primeiro o "Usar" do fluxo (e o que se paga depois dele); as habilidades vêm embaixo */}
       {(!guia?.habilidadesNoLugarDoUsar || (guia?.pagamentos(f.graduacao).length ?? 0) > 0) && (
-        <div className="fab-botoes">
+        <ul className="ataque-acoes acoes-lado">
           {!guia?.habilidadesNoLugarDoUsar && <BotaoUsar ctx={ctx} acao={usavel} />}
           {guia?.pagamentos(f.graduacao).map((p) => (
             <BotaoUsar
@@ -417,71 +444,74 @@ function CartaoFluxo({ ctx, fluxo: f }: { ctx: Ctx; fluxo: Fluxo }) {
               rotulo={msg(p.rotulo)}
             />
           ))}
-        </div>
+        </ul>
       )}
       {guia?.habilidades && (
-        <ul className="lista-acoes-padrao fluxo-habilidades">
+        <ul className="fluxo-habilidades">
           {guia.habilidades.map((h) => (
-            <li className="acao-padrao" key={h.id}>
-              <div className="acao-corpo">
-                <span className="acao-padrao-nome">{nome(h.nome)}</span>
-                <p className="acao-padrao-resumo">{h.resumo}</p>
-                {h.ativacao !== 'sempre' && (
+            <li className="fluxo-habilidade" key={h.id}>
+              <span className="acao-padrao-nome">
+                <BotaoInfo titulo={nome(h.nome)} linhas={emTopicos(h.resumo)} />
+              </span>
+              {h.ativacao !== 'sempre' && (
+                <ul className="ataque-acoes">
                   <BotaoUsar
                     ctx={ctx}
                     acao={{ chave: `fluxo:${f.id}:${h.id}`, nome: h.nome, ativacao: h.ativacao, custo: h.custo, repetivel: h.repetivel }}
                   />
-                )}
-              </div>
+                </ul>
+              )}
             </li>
           ))}
         </ul>
       )}
-      <button className="fluxo-guia-botao" onClick={() => setAberto(!aberto)} aria-expanded={aberto}>
-        {aberto ? '▾' : '▸'} {t(tx.acoes.comoUsar)}
-      </button>
-      {aberto && (
-        <div className="fluxo-guia">
-          {guia ? (
-            <ol>
-              {guia.passos.map((p) => (
-                <li key={p}>{p}</li>
-              ))}
-            </ol>
-          ) : (
-            <p className="proximo">{t(tx.acoes.guiaDesteFluxoAinda)}</p>
-          )}
-          {guia?.tabelaCD && (
-            <table className="fluxo-tabela">
-              <caption>{msg(guia.tabelaCD.titulo)}</caption>
-              <thead>
-                <tr>
-                  <th />
-                  {guia.tabelaCD.colunas.map((c) => (
-                    <th key={msg(c)}>{msg(c)}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {guia.tabelaCD.linhas.map((l) => (
-                  <tr key={msg(l.rotulo)}>
-                    <th>{msg(l.rotulo)}</th>
-                    {l.cds.map((cd, k) => (
-                      <td key={k}>{cd ?? '—'}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-          {guia?.tabelaCD && <p className="proximo">{t(tx.acoes.chamasSoTalentoTransmutar)}</p>}
-          {NOTAS_FLUXO.map((n) => (
-            <p className="proximo" key={n}>
-              {n}
-            </p>
-          ))}
-        </div>
-      )}
     </li>
+  )
+}
+
+/** O guia do livro de um fluxo: passos, tabela de CD (Transformação) e as notas gerais. */
+function GuiaFluxo({ guia }: { guia: (typeof GUIAS_FLUXO)[string] | undefined }) {
+  const { t, tx, msg } = useIdioma()
+  return (
+    <div className="fluxo-guia">
+      {guia ? (
+        <ol>
+          {guia.passos.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ol>
+      ) : (
+        <p className="proximo">{t(tx.acoes.guiaDesteFluxoAinda)}</p>
+      )}
+      {guia?.tabelaCD && (
+        <table className="fluxo-tabela">
+          <caption>{msg(guia.tabelaCD.titulo)}</caption>
+          <thead>
+            <tr>
+              <th />
+              {guia.tabelaCD.colunas.map((c) => (
+                <th key={msg(c)}>{msg(c)}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {guia.tabelaCD.linhas.map((l) => (
+              <tr key={msg(l.rotulo)}>
+                <th>{msg(l.rotulo)}</th>
+                {l.cds.map((cd, k) => (
+                  <td key={k}>{cd ?? '—'}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {guia?.tabelaCD && <p className="proximo">{t(tx.acoes.chamasSoTalentoTransmutar)}</p>}
+      {NOTAS_FLUXO.map((n) => (
+        <p className="proximo" key={n}>
+          {n}
+        </p>
+      ))}
+    </div>
   )
 }

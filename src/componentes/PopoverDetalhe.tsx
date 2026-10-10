@@ -1,4 +1,5 @@
 /* arquivo: PopoverDetalhe.tsx */
+import type { ReactNode } from 'react'
 import type { DetalhePericia } from '../regras/calculos'
 import { useIdioma } from '../idioma/IdiomaContexto'
 import Janela from './Janela'
@@ -10,8 +11,8 @@ import Janela from './Janela'
 type Props = {
   detalhe: DetalhePericia
   aoFechar: () => void
-  /** Como usar o número — um parágrafo embaixo do total (a deflexão usa). */
-  nota?: string
+  /** Como usar o número, embaixo do total: frase solta ou tópicos e conta (a deflexão). */
+  nota?: ReactNode
 }
 
 export default function PopoverDetalhe({ detalhe, aoFechar, nota }: Props) {
@@ -37,7 +38,7 @@ export default function PopoverDetalhe({ detalhe, aoFechar, nota }: Props) {
           {detalhe.total}
         </span>
       </div>
-      {nota && <p className="detalhe-nota">{nota}</p>}
+      {nota && <div className="detalhe-nota">{nota}</div>}
     </Janela>
   )
 }

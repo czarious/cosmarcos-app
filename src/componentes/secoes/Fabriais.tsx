@@ -14,6 +14,7 @@ import { useIdioma } from '../../idioma/IdiomaContexto'
 import ControleRecurso from '../ControleRecurso'
 import FormularioFabrial from '../FormularioFabrial'
 import BotaoApagar from '../BotaoApagar'
+import ListaLinhas from '../ListaLinhas'
 
 // Aba Fabriais (item 3.2) — um cartão por fabrial: cargas com o mesmo
 // popover de ± dos recursos, recarga pelas regras do livro (descanso curto
@@ -111,9 +112,7 @@ function CartaoFabrial({ f, ficha, props, aoEditar }: { f: Fabrial; ficha: Perso
             </div>
           )}
 
-          {(f.gema || f.material) && (
-            <p className="fab-regra">{[f.gema && t(tx.fabriais.gema, { gema: f.gema }), f.material && t(tx.fabriais.material, { material: f.material })].filter(Boolean).join(' · ')}</p>
-          )}
+          <ListaLinhas classe="fab-regra" itens={[f.gema && t(tx.fabriais.gema, { gema: f.gema }), f.material && t(tx.fabriais.material, { material: f.material })].filter(Boolean)} />
           {f.notas && <p className="fab-notas">{f.notas}</p>}
 
           {avisos.length > 0 && (

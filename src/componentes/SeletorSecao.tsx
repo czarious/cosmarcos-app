@@ -1,33 +1,19 @@
 /* arquivo: SeletorSecao.tsx */
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { ICONE } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
 import Sobreposicao from './Sobreposicao'
+import Icone from './Icone'
 import { mover } from '../estado/useOrdemAbas'
 
 // As abas — padrão DDB (interface.md → "Uma seção por vez"): UMA linha com o
 // ícone e o nome da aba aberta + o botão dos 9 quadradinhos. Tocar abre o menu
 // com todas as abas; escolher uma fecha o menu.
 
-/** Nome da aba → glifo do menu. O `︎` pede a versão TEXTO do símbolo —
- *  sem ele o Android desenha ⚔ ⚙ como emoji colorido. */
-export const SECOES = {
-  Principal: '◈',
-  Perícias: '✧',
-  Ações: '⚔︎',
-  Fabriais: '⚙︎',
-  Condições: '✚',
-  Radiante: '☼',
-  Inventário: '▣',
-  Talentos: '❖',
-  Personagem: '♙',
-  Anotações: '✎',
-} as const
+/** As abas, na ordem ORIGINAL — a pessoa pode arrumar outra no menu (estado/useOrdemAbas.ts). O ícone de cada uma: Icone.tsx. */
+export const LISTA = ['Principal', 'Perícias', 'Ações', 'Fabriais', 'Condições', 'Radiante', 'Inventário', 'Talentos', 'Personagem', 'Anotações'] as const
 
-export type Secao = keyof typeof SECOES
-
-/** A ordem ORIGINAL das abas — a pessoa pode arrumar outra no menu (estado/useOrdemAbas.ts). */
-export const LISTA = Object.keys(SECOES) as Secao[]
+export type Secao = (typeof LISTA)[number]
 
 type Props = {
   ativa: Secao
@@ -35,9 +21,11 @@ type Props = {
   /** A ordem arrumada pela pessoa (estado/useOrdemAbas.ts). */
   ordem: Secao[]
   aoReordenar: (nova: Secao[]) => void
+  /** Botão ao lado da barra (o do backup). */
+  extra?: ReactNode
 }
 
-export default function SeletorSecao({ ativa, aoTrocar, ordem, aoReordenar }: Props) {
+export default function SeletorSecao({ ativa, aoTrocar, ordem, aoReordenar, extra }: Props) {
   const { t, tx } = useIdioma()
   const [aberto, setAberto] = useState(false)
   // "Reordenar": a lista vira lista com ▲▼; tocar no nome não troca de aba
@@ -61,7 +49,7 @@ export default function SeletorSecao({ ativa, aoTrocar, ordem, aoReordenar }: Pr
         aria-label={t(tx.abas.abaAbaAbrirMenu, { aba: tx.nomesAbas[ativa] })}
       >
         <span className="ss-icone" aria-hidden>
-          {SECOES[ativa]}
+          <Icone nome={ativa} />
         </span>
         <span className="ss-nome">{tx.nomesAbas[ativa]}</span>
         <span className="ss-grade" aria-hidden>
@@ -70,6 +58,7 @@ export default function SeletorSecao({ ativa, aoTrocar, ordem, aoReordenar }: Pr
           ))}
         </span>
       </button>
+      {extra}
 
       {aberto && (
         <Sobreposicao aoFechar={() => setAberto(false)} classe="ss-overlay">
@@ -91,7 +80,7 @@ export default function SeletorSecao({ ativa, aoTrocar, ordem, aoReordenar }: Pr
               ? ordem.map((s, i) => (
                   <div key={s} className="ss-item ss-item-reordenando">
                     <span className="ss-icone" aria-hidden>
-                      {SECOES[s]}
+                      <Icone nome={s} />
                     </span>
                     <span className="ss-nome-reordenando">{tx.nomesAbas[s]}</span>
                     <button
@@ -123,7 +112,7 @@ export default function SeletorSecao({ ativa, aoTrocar, ordem, aoReordenar }: Pr
                     }}
                   >
                     <span className="ss-icone" aria-hidden>
-                      {SECOES[s]}
+                      <Icone nome={s} />
                     </span>
                     {tx.nomesAbas[s]}
                   </button>

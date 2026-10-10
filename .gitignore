@@ -56,4 +56,6 @@ apk/*
 # a imagem final que o app usa mora em src/assets/fundos/
 .claude/arte/*.png
 .claude/arte/*.svg
+# ícones das abas: os SVGs são a fonte do IconeAba.tsx e sobem; as capturas da prévia, não
+.claude/arte/icones-abas/*.png
 __pycache__/

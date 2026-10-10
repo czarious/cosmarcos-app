@@ -5,6 +5,22 @@
 > Código e documentação vivem juntos nesta pasta, fora do Drive ([premissas](escopo/premissas.md) → "Código e documentação na mesma pasta, fora do Drive").
 > O [.claude/mapa-projeto.md](.claude/mapa-projeto.md) cuida da raiz do projeto e só aponta pra cá — **mudança no código atualiza este mapa, não aquele.**
 
+## Como se localizar no projeto — qual doc abrir, e quando
+
+O `CLAUDE.md` (lido sozinho em toda sessão) só aponta pra cá. Cada assunto tem **um doc dono** — se está num, não está no outro. A coluna "Abrir quando" é o gatilho: chegou nesse momento do trabalho, abre o doc.
+
+| Doc | Responde | Abrir quando |
+|---|---|---|
+| [escopo/melhorias.md](escopo/melhorias.md) | Os pedidos do César, o estado de cada um, a próxima conversa | Ao abrir a conversa · ao fechar uma entrega (mudar o estado) · ao receber pedido novo (entra na lista) |
+| [escopo/premissas.md](escopo/premissas.md) | **Por quê** de cada decisão, o que custa, o que foi descartado | Antes de propor funcionalidade, stack, dependência ou visual · ao mudar uma decisão (sobrescreve a linha, sem histórico) |
+| [escopo/roadmap.md](escopo/roadmap.md) | Fases, critério de pronto, **perguntas em aberto** | Antes de propor funcionalidade · quando a regra não está no livro |
+| [escopo/](escopo/README.md) | O quê: [visão](escopo/visao.md) · [dados](escopo/dados.md) · [interface](escopo/interface.md) · [Cosmere × D&D](escopo/cosmere-e-a-interface.md) · [boas práticas](escopo/boas-praticas.md) · [checklist Shards](escopo/checklist-shards.md) | Ao desenhar tela ou mexer no formato da ficha |
+| `referencia/livro/transcricao/00-sumario.md` | **O livro** (fora do Git) | **Antes de toda regra do sistema** — e o conteúdo do livro entra junto, pra qualquer personagem |
+| **Este arquivo** (seções abaixo) | Onde, **no código** · versionamento · o que depende do quê | Antes de mexer em `src/` · **escrever aqui** ao criar, mover ou apagar arquivo |
+| [.claude/mapa-projeto.md](.claude/mapa-projeto.md) | Onde, **na raiz** (agentes, testes do iPhone, arte, scripts) | Antes de criar arquivo fora de `src/` · idem pra escrever |
+| [.claude/mapa-shards.md](.claude/mapa-shards.md) | Onde, **no site do Shards** | Antes de mexer no tradutor ou editar ficha no navegador |
+| [.claude/organizacao.md](.claude/organizacao.md) | Como a estrutura se mantém | Ao sentir atrito: regra esquecida, busca longa, doc duplicado |
+
 ## Versionamento — simplificado (decidido em 17/Jul/2026)
 
 **Uma versão só: a do `package.json`.** Nada de versão por arquivo.
@@ -36,17 +52,29 @@
 | `src/App.tsx` | Compõe a ficha: cabeçalho fixo (com a engrenagem) + painel de turno + abas + conteúdo + rodapé (estado do save). Liga o `useTurno` ao `usePersonagem` |
 | `src/estado/usePersonagem.ts` | **Estado VIVO** — recursos, escolhas de vaga, `alternarEquipada`, `definirMarcos`, `adicionarItem`/`removerItem`, fabriais, `importarTexto`/`exportarJson`. Carrega do save; o JSON é semente e base da exportação. Semente mais nova que o save → aviso "Importar / Agora não" no topo |
 | `src/estado/useOrdemAbas.ts` | A ordem das abas que a pessoa reordenou no menu (▲▼), guardada no aparelho — vale pro menu e pro arrastar |
+| `src/estado/useTamanhoLetra.ts` | O tamanho da letra (Pequeno · Médio · Grande), guardado no aparelho; põe `data-letra` no `<html>` antes do primeiro desenho |
+| `src/estado/espaco.ts` | Quanto do espaço o site já usa (o banco + o localStorage) contra a cota que o navegador informa (sem banco: ~5 MB); "quase cheio" a partir de 80% |
+| `src/estado/espaco.test.ts` | Testes do medidor: conta chave + valor, outros projetos do site, quase cheio, armazenamento bloqueado |
+| `src/estado/marcaBackup.ts` | A impressão digital da ficha no último backup baixado — diferente = "mudou desde o último backup" |
 | `src/estado/useTurno.ts` | **Estado do combate** ligado à ficha: o **plano do turno** ("Usar" só planeja), **Confirmar** grava o que `simularPlano` calculou, **Desfazer** volta a última confirmação. Tira Surpreendido no fim do turno. Chave própria no localStorage, fora do save |
-| `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre (ou conversão que quebra) → **quarentena** + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
+| `src/estado/armazenamento.ts` | **Persistência** (no banco — `banco.ts`). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre (ou conversão que quebra) → **quarentena** + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
+| `src/estado/banco.ts` | **Onde a ficha mora: IndexedDB** (idb-keyval). Abre antes do 1º desenho e traz tudo pra memória; grava logo depois e avisa se falhar; na 1ª vez, muda a ficha e as cópias do localStorage (conferindo antes de apagar). Sem IndexedDB, usa o localStorage |
+| `src/estado/banco.test.ts` | Testes do banco: a mudança do localStorage, cópia que não confere, gravação que falha, sem IndexedDB |
 | `src/estado/copias.ts` | A **pasta das cópias de segurança** (`cosmarcos:copia:<personagem>:<motivo>:<data>`): save que não abriu, save de antes de converter de versão, ficha de antes de importar (as 3 últimas — "Voltar" desempilha). Limite por motivo |
 | `src/estado/baixarArquivo.ts` | Baixa um texto como .json — exportar, backup e a tela "Algo quebrou" |
 | `src/estado/armazenamento.test.ts` | Testes do save: migração sem buraco, quarentena, gravação que falha, backup ida e volta, pasta das cópias |
-| `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo: foto e fogueira à esquerda; nome, identidade + engrenagem no alto; Vida/Foco/Investidura em linhas (10 quadradinhos na cor do recurso, escudinho da deflexão na Vida, ▲▼ de 1 em 1, o número abre o `ControleRecurso`); faixa de condições embaixo |
+| `src/componentes/CabecalhoFixo.tsx` | Cabeçalho fixo: foto e fogueira à esquerda; nome, identidade + engrenagem no alto; Vida/Foco/Investidura em linhas (10 quadradinhos na cor do recurso, escudinho da deflexão na Vida, ▲▼ de 1 em 1, o número abre o `ControleRecurso`); embaixo, as condições ativas em duas caixinhas (negativas vermelha, positivas azul) com o número |
+| `src/componentes/ResumoCondicoes.tsx` | Janela das condições ativas, aberta pelas caixinhas do topo: negativas e positivas, o efeito de cada uma em tópicos, atalho pra aba Condições |
 | `src/componentes/PopoverDeflexao.tsx` | A deflexão aberta (de onde vem + como usar no dano) — escudinho do cabeçalho e aba Principal |
 | `src/componentes/FotoPersonagem.tsx` | A foto quadrada do cabeçalho: escolher, recortar (react-easy-crop, hachura fora da janela, zoom) e gravar JPEG 256 px na ficha; trocar/tirar |
 | `src/componentes/Fogueira.tsx` | O botão de descanso embaixo da foto (desenho próprio): painel com descanso curto e longo — o único lugar que descansa |
 | `src/componentes/AvisoAtualizacao.tsx` | Registra o service worker, procura versão nova ao voltar pra tela e mostra "Atualizar" — o jogador escolhe a hora |
-| `src/componentes/MenuEngrenagem.tsx` | A ⚙ do topo: importar (com confirmação), exportar pro Shards, baixar backup, idioma PT/EN |
+| `src/componentes/MenuEngrenagem.tsx` | A ⚙ do topo (Configurações): importar (com confirmação), exportar pro Shards, baixar backup, espaço usado no aparelho, idioma PT/EN, tamanho da letra. Acende com save que falhou ou espaço quase cheio |
+| `src/componentes/BotaoBackup.tsx` | O botão do backup ao lado da barra das abas: verde = em dia, vinho com ponto = a ficha mudou desde o último; tocar abre a explicação com o Baixar dentro |
+| `src/componentes/ListaLinhas.tsx` | Coisas diferentes, uma por linha, com pontinho vinho — no lugar de juntar com "·" |
+| `src/componentes/BotaoInfo.tsx` | **O botão de informação**: o próprio nome (pílula de borda vinho) abre a regra do livro ou a explicação numa janela — o padrão de "tem onde tocar, explica" do app inteiro |
+| `src/componentes/ChipRegra.tsx` | Um traço como chip: com regra no catálogo, é um `BotaoInfo` |
+| `src/componentes/regraDoLivro.ts` | **A regra do livro de cada coisa** (traço, arma, item, armadura, ancestralidade, cultura, trilha, kit, ordem), em tópicos pro `BotaoInfo` — num lugar só: mudar aqui muda toda tela |
 | `src/componentes/PainelTurno.tsx` | Faixa do turno no topo fixo, minimizável (▴ ou toque no fundo encolhe, tocar abre; lembrado no aparelho): rodada, ▶ (restantes, planejadas, gastas), ↻, preparada; o **plano** com ✕, custo, Confirmar/Limpar/Desfazer; turno rápido/lento, encerrar, fim do combate. Exporta `IniciarCombate`, que fica no alto da aba Ações (fora de combate) |
 | `src/componentes/DialogoUso.tsx` | Pergunta o dado rolado antes de usar Restaurar (1d6), Recuperar (dado de recuperação) e quantas ▶ o Preparar reserva |
 | `src/componentes/ControleRecurso.tsx` | **Popover de ±**: botões − e + de ±1 + entrada numérica. Serve a qualquer contador atual/máximo — os 3 recursos e as cargas de fabrial. Na Vida, desconta a deflexão do dano (marcado de saída) |
@@ -57,8 +85,9 @@
 | `src/componentes/BotaoApagar.tsx` | A lixeira de toda lista (anotação, item, fabrial, objetivo): 1º toque pergunta "Apagar / Manter" |
 | `src/componentes/Janela.tsx` | **Toda janela** nasce aqui, com características por nome: `fechar` (livre · até salvar · obrigatória), `largura` (normal · média · larga), `tema` (padrão · cuidado), `botoesGrandes`, e o **`tipo`** (comum · **aviso**: obrigatória + tema cuidado + texto na placa de cuidado + Entendi), que muda só o que é dele e usa o resto da configuração. No `base.css`, cada característica só troca as variáveis da janela (`--janela-largura`, `--janela-moldura`, `--janela-fundo`, `--janela-titulo`). O que é só de uma janela fica no arquivo dela (`classe`). O `verificar.mjs` reprova janela montada à mão |
 | `src/componentes/Sobreposicao.tsx` | O fundo escurecido de toda janela, desenhado no `<body>` (fora do carrossel das abas, senão abre fora da tela). Só ele escreve `cr-overlay` — o `verificar.mjs` confere. Usado pela `Janela` e pelo menu de abas |
-| `src/componentes/PopoverDetalhe.tsx` | Popover só-leitura — toca num número calculado e vê de onde vem cada parcela. Reaproveita o visual do `ControleRecurso` |
-| `src/componentes/SeletorSecao.tsx` | Barra de uma linha (ícone + aba aberta + 9 quadradinhos) que abre o menu com todas as abas. Exporta `SECOES` (nome → ícone), `LISTA` (a ordem original; "⇅ Reordenar" troca por ▲▼) e o tipo `Secao` |
+| `src/componentes/PopoverDetalhe.tsx` | Popover só-leitura — toca num número calculado e vê de onde vem cada parcela; embaixo, a nota (tópicos e conta, na deflexão). Reaproveita o visual do `ControleRecurso` |
+| `src/componentes/SeletorSecao.tsx` | Barra de uma linha (ícone + aba aberta + 9 quadradinhos) que abre o menu com todas as abas. Recebe ao lado o botão do backup (`extra`). Exporta `LISTA` (a ordem original; "⇅ Reordenar" troca por ▲▼) e o tipo `Secao` |
+| `src/componentes/Icone.tsx` | Os ícones do app: os 10 das abas, a engrenagem e o backup (gerado por `.claude/arte/icone-aba-tsx.mjs` — não editar à mão) |
 | `src/componentes/CarrosselAbas.tsx` | As abas coladas lado a lado: arrastar o dedo passa pra vizinha (Embla). Desenha só a aberta e as vizinhas; ignora borda, campo e diálogo |
 | `src/componentes/CarrosselAbas.test.ts` | Testes do carrossel: quais abas desenha, quando o arrasto vale |
 | `src/componentes/secoes/Principal.tsx` | Aba Principal — o "Abilities, Saves, Senses" do DDB: 3 cartões [atributo·DEFESA·atributo], Deflexão, movimento/sentidos/recuperação/carga/levantamento, com o efeito das condições |
@@ -67,7 +96,10 @@
 | `src/componentes/secoes/Acoes.tsx` | Aba Ações — tudo que o personagem pode fazer, cada item com "Usar" ligado ao turno: ataques (Golpear, mão inábil), fluxos (total, pagar Investidura, guia "Como usar"), Luz, talentos de ação (▶ ▷ ↻) do personagem, as 17 padrão, fabriais de combate, espreno |
 | `src/componentes/secoes/Condicoes.tsx` | Aba Condições — "Agora" (ações/reação/movimento/lembretes), as 14 com checkbox e valor entre colchetes, lesões (rolagem guiada, dias, curar). Exporta `rotuloCondicao` pro cabeçalho |
 | `src/componentes/secoes/Fabriais.tsx` | Aba Fabriais — cartão por fabrial: cargas (± de ajuste), recarga com Investidura e grantormenta, efeito/aprimoramentos/revezes e avisos. **Usar** o fabrial é pelo plano da aba Ações |
-| `src/componentes/secoes/Personagem.tsx` | Aba Personagem — "Na mesa" no alto (especialidades e o que está equipado), objetivos (marcos, concluir, adicionar, apagar), identidade e o texto de interpretação do Shards |
+| `src/componentes/secoes/Personagem.tsx` | Aba Personagem — "Na mesa" no alto (especialidades e o que está equipado), objetivos (marcos, concluir, adicionar, apagar), identidade e textos de interpretação — ✎ Editar em cada um |
+| `src/componentes/EditarIdentidade.tsx` | Janela de editar a identidade: jogador e nível digitados; ancestralidade, culturas, kit, trilha e ordem escolhidos do catálogo do Shards (pra exportação valer) |
+| `src/componentes/JanelaTexto.tsx` | Janela de editar um texto livre do jogador (propósito, obstáculo…); só fecha salvando ou cancelando |
+| `src/componentes/JanelaConexao.tsx` | Janela de uma conexão (nova ou editada): nome e quem ela é — volta como a linha "Nome — descrição" do Shards |
 | `src/componentes/secoes/Radiante.tsx` | Aba Radiante — vínculo, Ideais (marcos, Palavras, jurar) e fluxos com total via `detalhePericia` |
 | `src/componentes/secoes/Inventario.tsx` | Aba Inventário — peso carregado/máximo, marcos editável, armas (equipar), itens por categoria, "Gerenciar Inventário" (add/remover), Pertences (texto livre do Shards) |
 | `src/componentes/secoes/Anotacoes.tsx` | Aba Anotações — blocos livres título+conteúdo, 100% do app (Shards não tem isso). Cabeçalho recolhe/expande o corpo |
@@ -79,8 +111,11 @@
 | `src/regras/contagemTalentos.ts` | Talentos usados × previstos pela tabela do livro, por categoria (por nível, inclusive os de fluxo · bônus de ancestralidade) |
 | `src/regras/contagemTalentos.test.ts` | Testes da contagem (Eccho = −1, Cantor, patamar novo, talento de fluxo) |
 | `src/regras/especialidades.ts` | **Vínculo talento→concessão, POR PERSONAGEM** (`vinculosDe`) — o Shards não expõe essa ligação. Só o valor INICIAL das vagas; quem não tem entrada nasce com vagas vazias |
-| `src/regras/especialidadesCulturais.ts` | As 13 especialidades culturais do livro (Cap. 2) — lista fechada, completa dropdown; `indicesDaCultura()` (as culturais fixas, que nascem da cultura) |
+| `src/regras/especialidadesCulturais.test.ts` | Testes de cultura → especialidade cultural: trocar e tirar cultura |
+| `src/regras/especialidadesCulturais.ts` | As 13 especialidades culturais do livro (Cap. 2) — lista fechada, completa dropdown; `indicesDaCultura()` (as culturais fixas, que nascem da cultura); `especialidadesComCulturas()` (trocou a cultura, troca a especialidade) |
 | `src/regras/especialidadesUtilidadePerito.ts` | Rótulo das 5 categorias de especialidade + exemplos do livro (Cap. 3) pra Utilidade/Perito — o livro não fecha essas duas, por isso o dropdown tem "Outra" |
+| `src/regras/ideais.ts` | Jurar Ideais (cap. 5): o talento de cada Ideal da ordem (sem ele, o objetivo não existe), o que ele destrava; o Quinto se perdeu |
+| `src/regras/ideais.test.ts` | Testes dos Ideais: id do talento como o Shards, Eccho nível 3 sem o 2º, texto dos 4 Ideais de toda ordem |
 | `src/regras/pericias.ts` | Teto de graduação por patamar (2/3/4/5/5) + a exceção da Erudição. Consumido pela aba Perícias |
 | `src/regras/calculos.ts` | `totalPericia`/`detalhePericia` + `bonusNaoAtribuido` (o bônus que o Shards mandou e ninguém atribuiu) + `pesoCarregado`/`pesoEmKg` + `periciaPorNome` |
 | `src/regras/condicoes.ts` | **Condições e lesões** (Cap. 9): as 14 condições, efeitos d8 de lesão, gravidade, rolagem de lesão — e o que muda na ficha (perícia, movimento, ações no turno, lembretes). Lesão com efeito vira condição por `condicoesEfetivas`, sem gravar duas vezes |
@@ -92,6 +127,13 @@
 | `src/regras/turno.test.ts` | Testes do turno com os casos do livro |
 | `src/regras/turno.cenarios.test.ts` | 20 turnos de jogador (10 lentos, 10 rápidos): a fala do jogador + o plano que ele montaria, conferidos contra o livro |
 | `src/regras/armadura.ts` | **Armadura** (Cap. 7): deflexão total (a da ficha + a vestida, a maior), Desajeitada [X] com traço de perito → Lento e desvantagem em Velocidade |
+| `src/regras/tracos.ts` | **Traços de arma e armadura** (Cap. 7): o que cada um faz, em resumo — os do Shards e os das armas fractais; `tracoPorNome` aceita o valor entre colchetes |
+| `src/regras/armas.ts` | **As 29 armas do livro**: categoria, perícia, dano, alcance, traços, traços de perito, peso, preço |
+| `src/regras/armaduras.ts` | **As 8 armaduras do livro**: deflexão, traços, peso, preço |
+| `src/regras/equipamentos.ts` | **Equipamentos** (Cap. 7): os 68 da tabela (peso, preço; regra resumida dos que têm), alojamento, montarias e veículos |
+| `src/regras/kits.ts` | **Conjuntos iniciais**: o que cada um dos 6 dá (armas, armadura, equipamento, esferas, extras) |
+| `src/regras/origens.ts` | **Origens e trilhas** (Cap. 2, 4, 5): ancestralidades, as 13 culturas (o que a especialidade dá), as 6 trilhas heroicas e as 9 ordens (espreno, fluxos, Ideais) |
+| `src/regras/tracos.test.ts` · `armas.test.ts` · `equipamentos.test.ts` · `kits.test.ts` · `origens.test.ts` | Todo nome que o Shards manda (de-para) tem texto do livro no catálogo |
 | `src/regras/armadura.test.ts` | Testes da armadura: deflexão, Desajeitada, perito, tradutor, volta pro Shards, migração |
 | `src/regras/fluxos.ts` | Guia de uso dos 10 fluxos (Cap. 6): escalonamento, passos, custos, CD da Transformação, notas gerais; `habilidades` com "Usar" próprio (Transporte, Progressão, Abrasão; id do Shards) |
 | `src/estado/importarShards.ts` | **O TRADUTOR** — JSON do Shards → schema. **Grita** no que não reconhecer. Unidades pelos números do livro, inclusive com o Shards em métrico |
@@ -102,7 +144,7 @@
 | `src/idioma/pt.ts` | **Toda palavra de tela em português**, uma variável por texto, por tela. Dá o formato (`Dicionario`) que todo idioma cumpre. Regra: [premissas](escopo/premissas.md) → "Textos em variáveis, um arquivo por idioma" |
 | `src/idioma/en.ts` | As mesmas variáveis, em inglês |
 | `src/idioma/nomes.ts` | Nome de jogo PT → EN: de-para do tradutor invertido + o `nomeEn` dos catálogos de regra |
-| `src/idioma/idioma.ts` | Preencher lacuna, plural (`Intl.PluralRules`), nome de jogo, mensagem de regra, número no formato do idioma |
+| `src/idioma/idioma.ts` | Preencher lacuna, plural (`Intl.PluralRules`), nome de jogo, mensagem de regra, número no formato do idioma, texto corrido em tópicos (`emTopicos`) |
 | `src/idioma/IdiomaContexto.tsx` | `ProvedorIdioma` + `useIdioma()` → `tx` (as palavras), `t`, `tn`, `nome`, `msg`, `num`; escolha salva no aparelho |
 | `src/idioma/idioma.test.ts` | Reprova palavra escrita no componente, lacuna diferente entre idiomas, nome sem inglês e mensagem de regra incompleta |
 | `src/variaveis.ts` | **Símbolos, ícones e estrutura** da tela (sem palavra). Critério: [premissas](escopo/premissas.md) → "O que vira variável" |

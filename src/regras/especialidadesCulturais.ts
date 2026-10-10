@@ -1,5 +1,5 @@
 /* arquivo: especialidadesCulturais.ts */
-import type { Personagem } from '../tipos/personagem'
+import type { Personagem, Especializacao } from '../tipos/personagem'
 import { CULTURA, ESPECIALIDADE_CULTURAL } from '../estado/deparaShards'
 
 /**
@@ -44,10 +44,29 @@ export const ESPECIALIDADES_CULTURAIS: EspecialidadeCultural[] = [
 export function indicesDaCultura(ficha: Personagem): Set<number> {
   const fixos = new Set<number>()
   for (const cultura of ficha.meta.culturas) {
-    const en = Object.keys(CULTURA).find((k) => CULTURA[k] === cultura) ?? cultura
-    const nome = ESPECIALIDADE_CULTURAL[en] ?? en
+    const nome = especialidadeDaCultura(cultura)
     const i = ficha.especializacoes.findIndex((e, k) => !fixos.has(k) && e.tipo === 'cultural' && e.nome === nome)
     if (i >= 0) fixos.add(i)
   }
   return fixos
+}
+
+/** A especialidade cultural que a cultura concede (livro, cap. 2): "Thayleno" → "Thaylena". */
+export function especialidadeDaCultura(cultura: string): string {
+  const en = Object.keys(CULTURA).find((k) => CULTURA[k] === cultura) ?? cultura
+  return ESPECIALIDADE_CULTURAL[en] ?? en
+}
+
+/**
+ * Trocou as culturas na aba Personagem: sai a especialidade cultural das
+ * antigas, entra a das novas (cada cultura concede a sua — cap. 2). As outras
+ * especialidades ficam; a que já existia por outro motivo (talento) não duplica.
+ */
+export function especialidadesComCulturas(ficha: Personagem, novas: string[]): Especializacao[] {
+  const fixos = indicesDaCultura(ficha)
+  const resto = ficha.especializacoes.filter((_, i) => !fixos.has(i))
+  const daCultura = novas
+    .map((c) => ({ tipo: 'cultural' as const, nome: especialidadeDaCultura(c) }))
+    .filter((e) => !resto.some((r) => r.tipo === 'cultural' && r.nome === e.nome))
+  return [...daCultura, ...resto]
 }

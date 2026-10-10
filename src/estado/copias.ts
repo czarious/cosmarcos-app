@@ -1,7 +1,7 @@
 /* arquivo: copias.ts */
 
 /**
- * A "pasta" das cópias de segurança do save, no localStorage.
+ * A "pasta" das cópias de segurança do save, no mesmo lugar da ficha (banco.ts).
  *
  * Toda cópia mora em `cosmarcos:copia:<personagem>:<motivo>:<data ISO>` —
  * uma pasta por personagem, uma subpasta por motivo, ordenada pela data.
@@ -11,6 +11,8 @@
  * Quem grava: armazenamento.ts (save que não abriu; save de antes da
  * atualização de esquema) e usePersonagem.ts (ficha de antes de importar).
  */
+
+import { armazem } from './banco'
 
 export type MotivoCopia =
   /** O save existia mas não abriu (corrompido, ou de versão mais nova que o app). */
@@ -32,7 +34,7 @@ const pasta = (id: string, motivo: MotivoCopia) => `cosmarcos:copia:${id}:${moti
 function chaves(id: string, motivo: MotivoCopia): string[] {
   moverAntigas(id)
   const prefixo = pasta(id, motivo)
-  return Object.keys(localStorage).filter((k) => k.startsWith(prefixo)).sort()
+  return Object.keys(armazem()).filter((k) => k.startsWith(prefixo)).sort()
 }
 
 /**
@@ -41,16 +43,16 @@ function chaves(id: string, motivo: MotivoCopia): string[] {
  */
 function moverAntigas(id: string): void {
   try {
-    const descartados = Object.keys(localStorage).filter((k) => k.startsWith(`cosmarcos:descartado:${id}:`))
+    const descartados = Object.keys(armazem()).filter((k) => k.startsWith(`cosmarcos:descartado:${id}:`))
     for (const k of descartados) {
       const data = k.slice(`cosmarcos:descartado:${id}:`.length)
-      localStorage.setItem(pasta(id, 'nao-abriu') + data, localStorage.getItem(k) ?? '')
-      localStorage.removeItem(k)
+      armazem().setItem(pasta(id, 'nao-abriu') + data, armazem().getItem(k) ?? '')
+      armazem().removeItem(k)
     }
-    const antes = localStorage.getItem(`cosmarcos:antes-importar:${id}`)
+    const antes = armazem().getItem(`cosmarcos:antes-importar:${id}`)
     if (antes !== null) {
-      localStorage.setItem(pasta(id, 'antes-de-importar') + '0000-antiga', antes)
-      localStorage.removeItem(`cosmarcos:antes-importar:${id}`)
+      armazem().setItem(pasta(id, 'antes-de-importar') + '0000-antiga', antes)
+      armazem().removeItem(`cosmarcos:antes-importar:${id}`)
     }
   } catch {
     // storage cheio ou bloqueado: as chaves antigas ficam onde estão, sem perda
@@ -62,14 +64,14 @@ export function guardarCopia(id: string, motivo: MotivoCopia, texto: string): bo
   try {
     // duas cópias no mesmo milissegundo não se sobrescrevem: "+" ordena depois da data pura
     let k = pasta(id, motivo) + new Date().toISOString()
-    while (localStorage.getItem(k) !== null) k += '+'
-    localStorage.setItem(k, texto)
+    while (armazem().getItem(k) !== null) k += '+'
+    armazem().setItem(k, texto)
   } catch (e) {
     console.warn(`[cosmarcos] não consegui guardar a cópia (${motivo}):`, e)
     return false
   }
   try {
-    for (const velha of chaves(id, motivo).slice(0, -LIMITE[motivo])) localStorage.removeItem(velha)
+    for (const velha of chaves(id, motivo).slice(0, -LIMITE[motivo])) armazem().removeItem(velha)
   } catch {
     // poda falhou: sobra uma cópia a mais, nada se perde
   }
@@ -80,7 +82,7 @@ export function guardarCopia(id: string, motivo: MotivoCopia, texto: string): bo
 export function ultimaCopia(id: string, motivo: MotivoCopia): string | null {
   try {
     const ultima = chaves(id, motivo).at(-1)
-    return ultima ? localStorage.getItem(ultima) : null
+    return ultima ? armazem().getItem(ultima) : null
   } catch {
     return null
   }
@@ -91,8 +93,8 @@ export function retirarUltimaCopia(id: string, motivo: MotivoCopia): string | nu
   try {
     const ultima = chaves(id, motivo).at(-1)
     if (!ultima) return null
-    const texto = localStorage.getItem(ultima)
-    localStorage.removeItem(ultima)
+    const texto = armazem().getItem(ultima)
+    armazem().removeItem(ultima)
     return texto
   } catch {
     return null

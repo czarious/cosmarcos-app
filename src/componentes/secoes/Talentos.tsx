@@ -5,13 +5,14 @@ import {
   entradaTalento,
   talentosDeFluxo,
   chaveVaga,
+  escolhidasNasOutras,
   type EscolhaVaga,
   type TipoVaga,
   type VagaTalento,
 } from '../../regras/talentos'
 import { bonusDeEscolhas } from '../../regras/calculos'
 import { contarTalentos } from '../../regras/contagemTalentos'
-import { ICONE, SIMBOLO_ATIVACAO } from '../../variaveis'
+import { ICONE, SIMBOLO_ATIVACAO, ORDEM_ESPECIALIDADES } from '../../variaveis'
 import { vinculosDe } from '../../regras/especialidades'
 import { ESPECIALIDADES_CULTURAIS, indicesDaCultura } from '../../regras/especialidadesCulturais'
 import { ARMA_NOME, ARMADURA_NOME } from '../../estado/deparaShards'
@@ -21,6 +22,8 @@ import {
 } from '../../regras/especialidadesUtilidadePerito'
 import { useIdioma } from '../../idioma/IdiomaContexto'
 import PopoverDetalhe from '../PopoverDetalhe'
+import BotaoInfo from '../BotaoInfo'
+import { emTopicos } from '../../idioma/idioma'
 
 // Aba Talentos — cruza 4 fontes pra cada talento do personagem carregado:
 //  1. ficha.talentos          → o que o Shards diz que ele TEM (dado), mais
@@ -49,8 +52,6 @@ const GRUPOS: Array<{ origem: Talento['origem']; titulo: 'heroicos' | 'radiantes
 ]
 
 const OUTRA = '__outra__'
-
-const CATEGORIAS: TipoEspecializacao[] = ['arma', 'armadura', 'cultural', 'utilidade', 'perito']
 
 /** Sugestões do campo de nome, por categoria — o livro não fecha a lista (só a cultural), então digitar outra vale. */
 function sugestoesDe(tipo: TipoEspecializacao): string[] {
@@ -110,24 +111,32 @@ function Especialidades({ ficha, adicionar, remover }: { ficha: Personagem; adic
           aoFechar={() => setVerConta(false)}
         />
       )}
-      <ul className="lista-especialidades">
-        {lista.map((e, i) => (
-          <li key={`${e.tipo}:${e.nome}:${i}`}>
-            <span className="esp-categoria">{tx.categoriaEspecialidade[e.tipo]}</span>
-            <span className="esp-nome">{nome(e.nome)}</span>
-            {fixos.has(i) ? (
-              <span className="esp-fixa">{tx.talentos.daCultura}</span>
-            ) : (
-              <button className="esp-remover" aria-label={t(tx.talentos.removerEspecialidade, { nome: nome(e.nome) })} onClick={() => remover(i)}>
-                {ICONE.fechar}
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
+      {/* um grupo por tipo; o índice original vai junto (é o que o remover usa) */}
+      {ORDEM_ESPECIALIDADES.filter((c) => lista.some((e) => e.tipo === c)).map((c) => (
+        <div key={c}>
+          <h3 className="esp-grupo-titulo">{tx.categoriaEspecialidade[c]}</h3>
+          <ul className="lista-especialidades">
+            {lista
+              .map((e, i) => ({ e, i }))
+              .filter(({ e }) => e.tipo === c)
+              .map(({ e, i }) => (
+                <li key={`${e.tipo}:${e.nome}:${i}`}>
+                  <span className="esp-nome">{nome(e.nome)}</span>
+                  {fixos.has(i) ? (
+                    <span className="esp-fixa">{tx.talentos.daCultura}</span>
+                  ) : (
+                    <button className="esp-remover" aria-label={t(tx.talentos.removerEspecialidade, { nome: nome(e.nome) })} onClick={() => remover(i)}>
+                      {ICONE.fechar}
+                    </button>
+                  )}
+                </li>
+              ))}
+          </ul>
+        </div>
+      ))}
       <form className="esp-nova" onSubmit={enviar}>
         <select value={tipo} onChange={(ev) => setTipo(ev.target.value as TipoEspecializacao)} aria-label={tx.talentos.especialidades}>
-          {CATEGORIAS.map((c) => (
+          {ORDEM_ESPECIALIDADES.map((c) => (
             <option key={c} value={c}>
               {tx.categoriaEspecialidade[c]}
             </option>
@@ -201,7 +210,9 @@ function CampoVaga({
 
   if (vaga.tipo === 'pericia') {
     const bonus = valorAtual ? bonusDeEscolhas(valorAtual, escolhasTalento) : 0
-    const opcoes = ficha.pericias.filter((p) => (vaga.filtroPericia ? vaga.filtroPericia(p) : true))
+    // livro: duas vagas de perícia são duas perícias diferentes — a outra vaga já escolheu, sai da lista
+    const usadas = escolhidasNasOutras(talentoId, vaga, escolhasTalento)
+    const opcoes = ficha.pericias.filter((p) => (vaga.filtroPericia ? vaga.filtroPericia(p) : true) && !usadas.has(p.id))
     return (
       <label className="talento-vaga">
         <span className="talento-vaga-rotulo">{nome(vaga.rotulo)}</span>
@@ -222,19 +233,21 @@ function CampoVaga({
     )
   }
 
-  // tipo === 'especialidade' — mescla o que já está na ficha + catálogo do livro
+  // tipo === 'especialidade' — o livro: "uma especialidade (dos tipos que o talento aceita) que
+  // ainda não possui". Sai o que a ficha já tem e o que outra vaga escolheu; a escolha atual fica
+  // (o Shards costuma listar a especialidade concedida junto das outras)
+  const aceita = (tipo: TipoEspecializacao) => !vaga.tiposEspecialidade || vaga.tiposEspecialidade.includes(tipo)
+  const usadasEsp = escolhidasNasOutras(talentoId, vaga, escolhasTalento)
   const nomesExistentes = new Set(ficha.especializacoes.map((e) => e.nome))
-  const culturais = [
-    ...ficha.especializacoes.filter((e) => e.tipo === 'cultural').map((e) => e.nome),
-    ...ESPECIALIDADES_CULTURAIS.filter((c) => !nomesExistentes.has(c.nome)).map((c) => c.nome),
-  ]
-  const utilidadePerito = [
-    ...ficha.especializacoes.filter((e) => e.tipo === 'utilidade' || e.tipo === 'perito').map((e) => e.nome),
-    ...[...ESPECIALIDADES_UTILIDADE_EXEMPLO, ...ESPECIALIDADES_PERITO_EXEMPLO].filter(
-      (n) => !nomesExistentes.has(n),
-    ),
-  ]
-  const todasOpcoes = [...culturais, ...utilidadePerito]
+  const doTipo = (tipo: TipoEspecializacao, exemplos: string[]) => {
+    if (!aceita(tipo)) return []
+    const atual = valorAtual && (exemplos.includes(valorAtual) || ficha.especializacoes.some((e) => e.tipo === tipo && e.nome === valorAtual)) ? [valorAtual] : []
+    return [...atual, ...exemplos.filter((n) => n !== valorAtual && !nomesExistentes.has(n) && !usadasEsp.has(n))]
+  }
+  const culturais = doTipo('cultural', ESPECIALIDADES_CULTURAIS.map((c) => c.nome))
+  const utilidade = doTipo('utilidade', ESPECIALIDADES_UTILIDADE_EXEMPLO)
+  const perito = doTipo('perito', ESPECIALIDADES_PERITO_EXEMPLO)
+  const todasOpcoes = [...culturais, ...utilidade, ...perito]
   const [modoTexto, setModoTexto] = useState(() => valorAtual !== '' && !todasOpcoes.includes(valorAtual))
 
   return (
@@ -255,20 +268,21 @@ function CampoVaga({
         }}
       >
         <option value="">{tx.geral.nenhuma}</option>
-        <optgroup label={tx.talentos.grupoCulturais}>
-          {culturais.map((esp) => (
-            <option key={esp} value={esp}>
-              {nome(esp)}
-            </option>
+        {[
+          [tx.talentos.grupoCulturais, culturais],
+          [tx.talentos.grupoUtilidade, utilidade],
+          [tx.talentos.grupoPerito, perito],
+        ]
+          .filter(([, lista]) => lista.length > 0)
+          .map(([rotulo, lista]) => (
+            <optgroup key={rotulo as string} label={rotulo as string}>
+              {(lista as string[]).map((esp) => (
+                <option key={esp} value={esp}>
+                  {nome(esp)}
+                </option>
+              ))}
+            </optgroup>
           ))}
-        </optgroup>
-        <optgroup label={tx.talentos.grupoUtilidadePerito}>
-          {utilidadePerito.map((esp) => (
-            <option key={esp} value={esp}>
-              {nome(esp)}
-            </option>
-          ))}
-        </optgroup>
         <option value={OUTRA}>{tx.talentos.outraDigitar}</option>
       </select>
       {modoTexto && (
@@ -376,7 +390,9 @@ export default function Talentos({ ficha, escolhasTalento, definirEscolhaVaga, a
                   <li className="talento" key={tal.id || tal.nome}>
                     <div className="talento-cabeca">
                       <span className="talento-nome">
-                        {tal.chave && <i className="talento-chave-marca">{ICONE.talentoChave}</i>} {nomeExibido}
+                        {tal.chave && <i className="talento-chave-marca">{ICONE.talentoChave}</i>}{' '}
+                        {/* o texto do livro mora no nome (botão de informação) */}
+                        {info?.descricao ? <BotaoInfo titulo={nomeExibido} linhas={emTopicos(info.descricao)} /> : nomeExibido}
                         {!info && <i className="talento-sem-traducao"> {tx.talentos.semTraducao}</i>}
                       </span>
                       {info?.fonte && <span className="talento-fonte">{nome(info.fonte)}</span>}
@@ -390,11 +406,7 @@ export default function Talentos({ ficha, escolhasTalento, definirEscolhaVaga, a
                       </p>
                     )}
 
-                    {info?.descricao ? (
-                      <p className="talento-desc">{info.descricao}</p>
-                    ) : (
-                      <p className="talento-desc talento-desc-vazia">{tx.talentos.semEntradaCatalogo}</p>
-                    )}
+                    {!info?.descricao && <p className="talento-desc talento-desc-vazia">{tx.talentos.semEntradaCatalogo}</p>}
 
                     {info?.vagas ? (
                       <VagasTalento

@@ -15,6 +15,8 @@ import {
 } from '../../regras/condicoes'
 import { ORDEM_ATRIBUTOS } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
+import ListaLinhas from '../ListaLinhas'
+import { emTopicos } from '../../idioma/idioma'
 
 // Aba Condições (itens 1.5 e 3.3) — condições e lesões juntas, porque se
 // amarram: efeito de lesão É condição. O descanso (que reduz Exausto e cura
@@ -63,20 +65,25 @@ function Agora({ ficha }: { ficha: Personagem }) {
   return (
     <div className="cond-agora">
       <h2 className="titulo-secao">{t(tx.condicoes.agora)}</h2>
-      <p>
-        <b>{t(tx.condicoes.turnoRapido)}:</b> {turno.rapido === null ? t(tx.condicoes.naoPode) : `${turno.rapido} ▶`} · <b>{t(tx.condicoes.lento)}:</b> {turno.lento} ▶ ·{' '}
-        <b>{t(tx.condicoes.reacao)}:</b> {turno.reacao ? '1 ↻' : t(tx.condicoes.nenhuma)}
-        {turno.motivos.length > 0 && <span className="proximo"> ({turno.motivos.map((m) => msg(m)).join('; ')})</span>}
-      </p>
-      <p>
-        <b>{t(tx.condicoes.movimento)}:</b> {idioma.distancia(mov.metros)}
-        {mov.motivos.length > 0 && <span className="proximo"> ({mov.motivos.map((m) => nome(m)).join(' · ')})</span>}
-      </p>
-      {avisos.length > 0 && (
-        <ul className="cond-lembretes">
-          {avisos.map((a) => <li key={msg(a)}>{msg(a)}</li>)}
-        </ul>
-      )}
+      <ListaLinhas
+        itens={[
+          <>
+            <b>{t(tx.condicoes.turnoRapido)}:</b> {turno.rapido === null ? t(tx.condicoes.naoPode) : `${turno.rapido} ▶`}
+          </>,
+          <>
+            <b>{t(tx.condicoes.lento)}:</b> {turno.lento} ▶
+          </>,
+          <>
+            <b>{t(tx.condicoes.reacao)}:</b> {turno.reacao ? '1 ↻' : t(tx.condicoes.nenhuma)}
+          </>,
+          <>
+            <b>{t(tx.condicoes.movimento)}:</b> {idioma.distancia(mov.metros)}
+            <ListaLinhas classe="proximo" itens={mov.motivos.map((m) => nome(m))} />
+          </>,
+        ]}
+      />
+      <ListaLinhas classe="proximo" itens={turno.motivos.map((m) => msg(m))} />
+      <ListaLinhas classe="cond-lembretes" itens={avisos.map((a) => msg(a))} />
       <p className="proximo">{t(tx.condicoes.periciasJaMostramAprimorado)}</p>
     </div>
   )
@@ -157,7 +164,7 @@ function ListaCondicoes({ efetivas, adicionarCondicao, removerCondicao }: Props 
                   cancelar={() => setPedindo(null)}
                 />
               )}
-              <p className="cond-resumo">{def.resumo}</p>
+              <ListaLinhas classe="cond-resumo" itens={emTopicos(def.resumo)} />
             </li>
           )
         })}
@@ -272,10 +279,8 @@ function NovaLesao({ ficha, salvar, cancelar }: { ficha: Personagem; salvar: (l:
     <div className="lesao-nova">
       <p>
         {t(tx.condicoes.role1d20SinalN, { sinal: mod.total >= 0 ? '+' : '−', n: Math.abs(mod.total) })}{' '}
-        <span className="proximo">
-          {t(tx.condicoes.linhasSomeTalentoMao, { linhas: mod.linhas.map((l) => `${rot(l.origem)} ${l.valor >= 0 ? '+' : ''}${l.valor}`).join(' · ') })}
-        </span>
       </p>
+      <ListaLinhas classe="proximo" itens={[...mod.linhas.map((l) => `${rot(l.origem)} ${l.valor >= 0 ? '+' : ''}${l.valor}`), t(tx.condicoes.somarTalentoMao)]} />
       <label>
         {t(tx.condicoes.d20Rolado)} <input className="cr-input cond-numero" type="number" min={1} max={20} value={d20} onChange={(e) => aoRolar(e.target.value)} />
       </label>

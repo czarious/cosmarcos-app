@@ -6,6 +6,7 @@ import { condicoesEfetivas, bonusAprimorado, movimentoComCondicoes } from '../..
 import { useState } from 'react'
 import { deflexaoTotal } from '../../regras/armadura'
 import PopoverDeflexao from '../PopoverDeflexao'
+import ListaLinhas from '../ListaLinhas'
 
 // Aba Principal — o "Abilities, Saves, Senses" do DDB com as regras do Cosmere
 // (cosmere-e-a-interface.md): o atributo JÁ é o modificador (sem o número de
@@ -34,9 +35,9 @@ export default function Principal({ ficha }: Props) {
     )
   }
 
-  const motivoMov = mov.motivos.map((m) => nome(m)).join(' · ')
-  const derivadosLinhas: { rotulo: string; valor: string; motivo?: string }[] = [
-    { rotulo: tx.principal.movimento, valor: motivoMov ? distancia(mov.metros) : medidas(derivados.movimento), motivo: motivoMov || undefined },
+  const motivoMov = mov.motivos.map((m) => nome(m))
+  const derivadosLinhas: { rotulo: string; valor: string; motivo?: string[] }[] = [
+    { rotulo: tx.principal.movimento, valor: motivoMov.length ? distancia(mov.metros) : medidas(derivados.movimento), motivo: motivoMov.length ? motivoMov : undefined },
     { rotulo: tx.principal.alcanceSentidos, valor: medidas(derivados.alcanceSentidos) },
     { rotulo: tx.principal.dadoRecuperacao, valor: derivados.dadoRecuperacao },
     { rotulo: tx.principal.capacidadeCarga, valor: medidas(derivados.capacidadeCarga) },
@@ -79,11 +80,11 @@ export default function Principal({ ficha }: Props) {
       <h2 className="titulo-secao">{t(tx.principal.deslocamentoSentidos)}</h2>
       <ul className="pr-derivados">
         {derivadosLinhas.map((d) => (
-          <li key={d.rotulo} title={d.motivo}>
+          <li key={d.rotulo} title={d.motivo?.join(', ')}>
             <b className={d.motivo ? 'numero-alterado' : undefined}>{d.valor}</b>
             <span>
               {d.rotulo}
-              {d.motivo && <i className="pr-motivo">{d.motivo}</i>}
+              {d.motivo && <ListaLinhas classe="pr-motivo" itens={d.motivo} />}
             </span>
           </li>
         ))}

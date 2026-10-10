@@ -36,10 +36,11 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 
 | Arquivo | O que faz |
 |---|---|
-| [`CLAUDE.md`](../CLAUDE.md) | **Briefing de sessão.** Só o que se usa em TODA sessão: quem é o César, como trabalhar, convenções, o índice dos docs e o estado atual. O resto é referência |
+| [`CLAUDE.md`](../CLAUDE.md) | **Briefing de sessão.** Só o que vale em toda sessão: o projeto, quem é o César, como trabalhar, convenções — e dois ponteiros: [escopo/melhorias.md](../escopo/melhorias.md) (pedidos e próxima conversa) e [mapa-app.md](../mapa-app.md) → "Como se localizar no projeto" (qual doc abrir e quando) |
 | [`escopo/README.md`](../escopo/README.md) | **Sumário** do escopo — o índice de tudo abaixo |
 | [`escopo/visao.md`](../escopo/visao.md) | O que o app é · não é · princípios |
 | [`escopo/roadmap.md`](../escopo/roadmap.md) | Fases 1–5 · backlog · perguntas em aberto |
+| [`escopo/melhorias.md`](../escopo/melhorias.md) | Os pedidos do César, o estado de cada um e a próxima conversa |
 | [`escopo/interface.md`](../escopo/interface.md) | Requisitos de tela · padrões do DDB · tela de dados |
 | [`escopo/dados.md`](../escopo/dados.md) | Schema · tradutor do Shards · FIXO × PROVISÓRIO |
 | [`escopo/cosmere-e-a-interface.md`](../escopo/cosmere-e-a-interface.md) | Cosmere × D&D — as diferenças de sistema que mudam a tela. Ler antes de copiar padrão do DDB |
@@ -60,7 +61,7 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | [`.claude/mapa-shards.md`](mapa-shards.md) | **Onde, no site do Shards:** telas, catálogos, banco do navegador, defeitos conhecidos e como exportar |
 | `.claude/gerar-icones.mjs` | Gera os PNG do PWA a partir de `public/icone.svg`. Usa `sharp`, instalado na hora (`--no-save`) — não é dependência do projeto |
 | `.github/workflows/deploy.yml` | Push em main → testes → build → GitHub Pages (Fase 2.4) |
-| `.github/workflows/iphone.yml` · `.github/iphone/teste-iphone.mjs` | O app publicado num iPhone: roteiro no motor do Safari em Linux, sozinho depois de cada publicação; foto do Safari real no simulador da Apple só quando mandado (`gh workflow run iphone.yml -f mac=true`). Como conferir barato: topo do `iphone.yml` |
+| `.github/workflows/iphone.yml` · `.github/iphone/teste-iphone.mjs` · `medir-toque.mjs` | O app publicado num iPhone: roteiro no motor do Safari em Linux, sozinho depois de cada publicação, que também mede os alvos de toque (44px); foto do Safari real no simulador da Apple só quando mandado (`gh workflow run iphone.yml -f mac=true`). Como conferir barato: topo do `iphone.yml` |
 | `apk/twa-manifest.json` | Receita do APK (TWA/Bubblewrap). O resto de `apk/` é gerado e fica fora do Git |
 | [`.claude/apk.md`](apk.md) | Como gerar o APK, onde mora a chave de assinatura (fora do repo), conferência de segurança |
 | `.claude/verificar.mjs` | A revisão de organização executável: `node .claude/verificar.mjs`. Links, mapas × disco, versão copiada |
@@ -72,6 +73,7 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | `.claude/agents/revisor.md` | Agente revisor (Fable, só leitura): varre `src/` ou uma lista de arquivos e devolve até 10 sugestões verificadas. Só quando o César pedir |
 | `.claude/agents/arte.md` | Agente de arte (Opus): cria os fundos das abas no estilo do livro, sem copiar ilustração, e confere contraste e tela. **Não versionado** (a pasta `agents/` inteira fica fora) |
 | `.claude/arte/*.py` | Os scripts que desenham cada fundo (SVG → PNG → webp): `python .claude/arte/erudito.py src/assets/fundos/trilha-erudito.webp`. `ferramentas.py` rasteriza e comprime |
+| `.claude/arte/icones-abas.py` · `icones-abas/` · `icone-aba-tsx.mjs` | Os 10 ícones das abas: o .py desenha os SVGs e a prévia (`previa.html`); o .mjs gera `src/componentes/IconeAba.tsx` a partir dos SVGs |
 | `.claude/tela.mjs` | Captura o app em tamanho de celular pelo Chrome oculto, sem extensão: `node .claude/tela.mjs <prefixo> '<passos>'`. Precisa do `npm run dev` |
 | `src/` · `public/` · `package.json` · `vite.config.ts` · `index.html` | **TODO O CÓDIGO DO APP**, na mesma pasta que a documentação ([premissas](../escopo/premissas.md) → "Código e documentação na mesma pasta, fora do Drive"). Mapa próprio: [`mapa-app.md`](../mapa-app.md). **Mudança no código atualiza o mapa-app, não este** |
 
@@ -93,10 +95,10 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 |---|---|---|
 | **Qualquer decisão de arquitetura** | `escopo/premissas.md` — **sobrescrever a linha vigente** | Página única, sem histórico. Recusou uma ideia? A linha vai pra "Descartado — não repropor" |
 | `escopo/cosmere-e-a-interface.md` | `escopo/interface.md` · `escopo/dados.md` · `src/variaveis.ts` | Regra do sistema muda o que a tela mostra, que campo existe e que símbolo se usa |
-| `escopo/roadmap.md` | `CLAUDE.md` → "Roadmap" | Lá só tem ponteiro + estado atual; confirmar que o estado ainda bate |
+| `escopo/roadmap.md` | `escopo/melhorias.md` | O estado de cada pedido mora lá; confirmar que ainda bate com o roadmap |
 | **Qualquer arquivo criado/movido/apagado** | **este mapa** | Regra de manutenção — ver "Checklist" |
 | **Estrutura, pastas, onde um doc mora** | [`.claude/organizacao.md`](organizacao.md) | É lá que moram a regra do CLAUDE.md, os gatilhos de refatoração e a revisão periódica |
-| **Um iPhone entrar na mesa** | [premissas](../escopo/premissas.md) → "PWA, sem loja de apps" · [premissas](../escopo/premissas.md) → "localStorage, sem servidor" | No iPhone só vale o app instalado na Tela de Início (o site no Safari perde o save em ~7 dias) — detalhe na premissa |
+| **Um iPhone entrar na mesa** | [premissas](../escopo/premissas.md) → "PWA, sem loja de apps" · [premissas](../escopo/premissas.md) → "IndexedDB, sem servidor" | No iPhone só vale o app instalado na Tela de Início (o site no Safari perde o save em ~7 dias) — detalhe na premissa |
 
 ### Dependências do código
 

@@ -22,7 +22,7 @@
 | Build automático | GitHub Actions | Grátis (ilimitado em repo público) |
 | Hospedagem | GitHub Pages | Grátis (repo público) |
 | Instalar no celular | PWA → "Adicionar à tela inicial" | Grátis — **sem loja de apps** |
-| Banco de dados | localStorage (no próprio celular) | Grátis — sem servidor |
+| Banco de dados | IndexedDB (no próprio celular) | Grátis — sem servidor |
 | Login / conta | Não tem | — |
 
 **O que está sendo evitado de propósito:** Google Play US$ 25 (uma vez) e Apple Developer US$ 99/ano → evitados pelo PWA · servidor e banco → evitados pelo localStorage · GitHub Pages em repo privado (exige plano pago) → por isso o repo é público.
@@ -49,10 +49,12 @@ O app é **orientado a dados**: lê um JSON de terceiro e desenha o que vier. O 
 
 - ⚠️ Toolchain que os outros projetos do César não têm. E **não dá pra abrir o arquivo no Live Server**: quem serve é o `npm run dev`.
 
-### localStorage, sem servidor
+### IndexedDB, sem servidor
 O estado mora no próprio celular. Funciona offline, custo zero de verdade — ausência de dependência, não "grátis enquanto uma empresa quiser".
 
-- ⚠️ **Limpar o navegador apaga a ficha.** Backup manual segue no backlog.
+- **A ficha e as cópias de segurança moram no IndexedDB** (pedido do César, 10/Out/2026): o localStorage tem teto de ~5 MB por site — a foto e as cópias pesam, e no GitHub Pages o teto é dividido com os outros projetos. O IndexedDB vai até a cota do site (GBs). Biblioteca **idb-keyval** (Apache-2.0, sem dependência, mantida). Preferência pequena (idioma, letra, ordem das abas) continua no localStorage.
+- Ao abrir, o banco vem inteiro pra memória e o resto do código lê como lia; gravar vai pro banco logo depois, e falha vira "não salvou" na tela. Na 1ª abertura, a ficha muda do localStorage pra lá — conferida antes de apagar a antiga. Sem IndexedDB, tudo fica no localStorage como antes. Como: `estado/banco.ts`.
+- ⚠️ **Limpar o navegador ou desinstalar ainda apaga a ficha** — o IndexedDB é do aparelho igual. A rede é o backup (o botão que muda de cor).
 - ⚠️ **Preso a um aparelho**, e **ninguém mais enxerga** — o Mestre não vê a Vida do César.
 - 🔥 **Em disputa:** a [Fase 5](roadmap.md) (mesa inteira, painel do mestre, tempo real) precisa de servidor. Ao reabrir, atenção: o motivo do enterro do servidor foi *"localStorage resolve — é ficha de uma pessoa"*, e **essa frase deixou de ser verdade** quando a mesa entrou no escopo. Candidato na mesa: **Google Drive API + OAuth** (o César já integrou no `ficha-imovel`) — resolve 4 dos 5 itens, **não resolve tempo real**.
 
@@ -133,6 +135,14 @@ Vida, Foco e Investidura ficam visíveis em qualquer seção **e em qualquer rol
 - 📌 **No topo fica só o que muda na mesa:** os três recursos e as condições ativas. Atributos, defesas e derivados moram na aba Principal — o César pediu o topo enxuto, como o do DDB.
 - 📌 **Exceção pedida pelo César (30/Set/2026):** a foto do personagem, a fogueira do descanso e a deflexão (escudinho na Vida) também moram no topo. O descanso vive **só** ali, não na aba Condições.
 
+### O app se explica sozinho
+Quem nunca usou o app tem que entender sem perguntar (César, 10/Out/2026: "não sei o que é isso, eu clico"). **O padrão: o próprio nome é o botão** — pílula de borda vinho, a mesma do número que abre janela — e tocar abre a explicação numa janela (peça `BotaoInfo`; o texto vem de `regraDoLivro.ts`). Nada de texto de regra aberto na tela nem de "▸ ver mais" recolhido: economiza espaço. O `verificar.mjs` reprova `<details>`. Botão só de ícone mostra o que faz e o que cada variação quer dizer (ex.: o do backup). **Padrão de app não se explica** — menu de quadradinhos, ✕, ⚙, lixeira, lápis; **o que é do jogo, sim** (condições, setas de Vida/Foco, cores do backup). Explicação em tópicos, uma coisa por linha, e conta como conta (parcelas e total) — peça `ListaLinhas`.
+
+### Letra maior e alvo de toque: o conteúdo cresce, o topo não
+- **Tamanho da letra** (Configurações: Pequeno · Médio · Grande = 100 · 115 · 130%) aumenta com `zoom` o conteúdo das abas e das janelas. O topo fixo e o título da janela ficam como estão: com o topo maior, os quadradinhos sumiam e o número da Vida saía da tela (medido em 393px, 10/Out/2026).
+- **Para em 130%**, abaixo dos 150–200% da pesquisa ([boas-praticas](boas-praticas.md) item 11): a 150% a largura útil do iPhone cai pra ~250px e a aba Ações quebra palavra por palavra.
+- **Alvo de toque de 44px em tudo, menos no topo.** Lá a área de toque é invisível e vai até a metade do vão do vizinho (~26×38px, acima do mínimo de 24 da WCAG). Chegar a 44 dobraria a altura do topo, que o César quis baixo. O teste do iPhone (`medir-toque.mjs`) cobra os dois limites.
+
 ### Arrastar entre abas: Embla
 Arrastar o dedo troca de aba com as abas coladas lado a lado. O arrasto é do **Embla Carousel** (`embla-carousel-react`): MIT, ~7 KB, sem dependência de terceiros, entra no próprio app (nada de CDN). Escolhido em 30/Set/2026 porque o arrasto feito à mão travava — falta física (inércia, trava de direção). Custa: uma dependência a mais pra manter atualizada.
 
@@ -147,6 +157,7 @@ O recorte quadrado da foto (arrastar, zoom com dois dedos) é do **react-easy-cr
 ### Tema Shards fiel — claro, pergaminho
 Fundo pergaminho, texto marrom-escuro, painéis creme com borda dupla, títulos serifados em versalete, destaque vinho. Fonte **serifada do sistema (Georgia)** — webfont quebraria o offline-primeiro e adicionaria dependência. Escolhido pelo César com as paletas lado a lado, contra um híbrido escuro que o Claude recomendava.
 
+- **Hierarquia de letra** (César, 10/Out/2026): título > subtítulo > texto > nota, nos tokens `--letra-*` do `base.css`. Rótulo de grupo nunca é menor que o texto que ele classifica. O topo fixo fica à parte (é compacto de propósito).
 - ⚠️ **Na mesa à noite, tela clara ofusca.** Se incomodar na prática, a saída registrada é um **alternador claro/escuro** como incremento — **não** trocar o tema inteiro de novo.
 
 ### Textos em variáveis, um arquivo por idioma
@@ -180,7 +191,7 @@ Os **símbolos** e a **estrutura** da tela, sem palavra nenhuma: ícones de inte
 | **App em loja** (Play · App Store) | US$ 25 + US$ 99/ano. Fura o custo zero |
 | **HTML/CSS/JS puro** | Perdia a tipagem do schema, que é a espinha de um app orientado a dados. O motivo original ("toolchain que não agrega") não estava errado, estava **incompleto** |
 | **Live Server** | Consequência do Vite: quem serve é o `npm run dev` |
-| **Servidor + banco de dados** | Custo recorrente ⚠️ *o motivo original caducou — ver localStorage acima* |
+| **Servidor + banco de dados** | Custo recorrente ⚠️ *o motivo original caducou — ver "IndexedDB, sem servidor" acima* |
 | **Login / contas** | Sem servidor não há o que autenticar ⚠️ *contestado pela Fase 5* |
 | **Espelhar o formato do Shards, em inglês** | Importar viraria `JSON.parse`, mas violava "código em português" e trazia as esquisitices do Shards pra dentro da tela |
 | **Cabeçalho que rola pra fora** (como o DDB) | No Cosmere os vitais mudam o tempo todo |

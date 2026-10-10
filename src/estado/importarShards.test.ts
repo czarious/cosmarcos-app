@@ -184,3 +184,28 @@ describe('bônus que o Shards não soma no exportado', () => {
     expect(importarShards(json)[0].deflect).toBe(3)
   })
 })
+
+describe('identidade e textos editados na aba Personagem (pedido 19)', () => {
+  const exporta = (f: ReturnType<typeof ficha>) => JSON.parse(exportarShards(f, structuredClone(cru) as Record<string, unknown>)).characters[0]
+
+  it('sem edição, os campos voltam byte a byte', () => {
+    const volta = exporta(ficha())
+    for (const k of ['player', 'level', 'ancestry', 'culture1', 'culture2', 'startingKit', 'purpose', 'obstacle', 'personality', 'appearance', 'connections'])
+      expect(volta.meta[k], k).toEqual((cru.meta as Record<string, unknown>)[k])
+    expect(volta.heroic.startingPath).toBe((cru.heroic as Record<string, unknown>).startingPath)
+    expect(volta.radiant.order).toBe((cru.radiant as Record<string, unknown>).order)
+  })
+
+  it('o que mudou volta no texto do Shards e reimporta igual', () => {
+    const f = ficha()
+    f.meta = { ...f.meta, jogador: 'Outro', nivel: 4, culturas: ['Alethiano'], kitInicial: 'Militar', trilhaHeroica: 'Guerreiro', trilhaRadiante: 'Corredor dos Ventos' }
+    f.proposito = 'Proteger a cidade'
+    const volta = exporta(f)
+    expect(volta.meta).toMatchObject({ player: 'Outro', level: 4, culture1: 'Alethi', culture2: '', startingKit: 'Military', purpose: 'Proteger a cidade' })
+    expect(volta.heroic.startingPath).toBe('Warrior')
+    expect(volta.radiant.order).toBe('Windrunner')
+    const de = importarShards({ characters: [volta] })[0]
+    expect(de.meta).toMatchObject({ jogador: 'Outro', nivel: 4, culturas: ['Alethiano'], kitInicial: 'Militar', trilhaHeroica: 'Guerreiro', trilhaRadiante: 'Corredor dos Ventos' })
+    expect(de.proposito).toBe('Proteger a cidade')
+  })
+})

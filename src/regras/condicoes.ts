@@ -30,11 +30,18 @@ type DefCondicao = {
   cumulativa: boolean
 }
 
+/**
+ * As condições que ajudam (as outras atrapalham) — pro topo separar em duas
+ * caixinhas, negativas e positivas. O livro NÃO separa (cap. 9): a divisão é do
+ * César (10/Out/2026), pelo efeito que o livro descreve de cada uma.
+ */
+export const CONDICOES_POSITIVAS: ReadonlySet<IdCondicao> = new Set<IdCondicao>(['aprimorado', 'determinado', 'focado', 'potencializado'])
+
 export const CONDICOES: DefCondicao[] = [
   { id: 'afligido', nome: 'Afligido', parametro: 'dano', cumulativa: true,
     resumo: 'Sofre o dano entre colchetes ao fim de cada turno seu (fora de combate, a cada 10 s e a cada tentativa de remover).' },
   { id: 'aprimorado', nome: 'Aprimorado', parametro: 'atributo', cumulativa: true,
-    resumo: 'Um atributo sobe pelo valor entre colchetes: testes, talentos e movimento. NÃO mexe em defesas nem em Vida/Foco/Investidura máximos.' },
+    resumo: 'Um atributo sobe pelo valor entre colchetes. Vale em testes, talentos e no que ele deriva (ex.: movimento). Não muda as defesas. Não muda Vida, Foco nem Investidura máximos.' },
   { id: 'atordoado', nome: 'Atordoado', cumulativa: false,
     resumo: 'Perde reações; no seu turno ganha 2 ▶ a menos e nenhuma reação.' },
   { id: 'desorientado', nome: 'Desorientado', cumulativa: false,

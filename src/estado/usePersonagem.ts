@@ -1,5 +1,5 @@
 /* arquivo: usePersonagem.ts */
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import type { Personagem, Item, Anotacao, Fabrial, Condicao, Lesao, Objetivo, Ideal, Especializacao } from '../tipos/personagem'
 import { descansoCurto, descansoLongo } from '../regras/descanso'
 import { importarShards, ErroImportacao } from './importarShards'
@@ -8,6 +8,9 @@ import { CATALOGO_TALENTOS, chaveVaga, type EscolhaVaga, type TipoVaga } from '.
 import { vinculosDe } from '../regras/especialidades'
 import { lerFicha, salvarFicha, lerBackup, lerDescartado, montarPacote, sementeMaisNova } from './armazenamento'
 import { guardarCopia, retirarUltimaCopia, temCopia } from './copias'
+import { especialidadesComCulturas } from '../regras/especialidadesCulturais'
+import { aoFalharGravacao } from './banco'
+import { impressao, lerMarca, gravarMarca } from './marcaBackup'
 
 // O estado VIVO da ficha — e quem decide de ONDE ela vem (item 2.3):
 // localStorage primeiro, JSON do Shards só como SEMENTE. Depois da primeira
@@ -15,6 +18,10 @@ import { guardarCopia, retirarUltimaCopia, temCopia } from './copias'
 // JSON é ato explícito, o `importarTexto` (arquivo que o jogador escolhe).
 
 export type NomeRecurso = keyof Personagem['recursos']
+
+/** O que a aba Personagem edita da identidade (o nome fica fora: é o do Shards). */
+export type IdentidadeEditavel = Pick<Personagem['meta'], 'jogador' | 'nivel' | 'ancestralidade' | 'culturas' | 'kitInicial' | 'trilhaHeroica' | 'trilhaRadiante'>
+export type TextoPersonagem = 'proposito' | 'obstaculo' | 'personalidade' | 'aparencia' | 'conexoes'
 
 type Retorno = {
   ficha: Personagem | null
@@ -54,6 +61,10 @@ type Retorno = {
   alterarObjetivo: (indice: number, muda: Partial<Objetivo>) => void
   adicionarObjetivo: (nome: string) => void
   removerObjetivo: (indice: number) => void
+  /** Identidade editada na aba Personagem. Trocar as culturas troca as especialidades culturais (cap. 2). */
+  editarIdentidade: (muda: Partial<IdentidadeEditavel>) => void
+  /** Propósito, obstáculo, personalidade, aparência ou conexões, editados na aba Personagem. */
+  editarTextoPersonagem: (campo: TextoPersonagem, valor: string) => void
   alterarIdeal: (n: Ideal['n'], muda: Partial<Ideal>) => void
   /** Soma `delta` às cargas de um fabrial, travando entre 0 e o máximo. */
   alterarCargas: (idFabrial: string, delta: number) => void
@@ -90,6 +101,10 @@ type Retorno = {
   fazerDescansoLongo: () => void
   /** Backup COMPLETO do app (ficha + escolhas + semente) — volta pelo `importarTexto`. */
   backupJson: () => string | null
+  /** A ficha mudou desde o último backup baixado (ou nunca houve backup) — marcaBackup.ts. */
+  mudouDesdeBackup: boolean
+  /** Chamar depois de baixar o backup: a ficha de agora vira a marca. */
+  marcarBackupFeito: () => void
   /** `false` = a última gravação falhou. A tela não pode dizer "salva". */
   salvou: boolean
   /** O save deste aparelho não abriu e foi pra quarentena — aviso fixo até o jogador dispensar. */
@@ -167,7 +182,7 @@ export function usePersonagem(caminhoJson: string): Retorno {
   const [salvou, setSalvou] = useState(true)
   const [alertaSave, setAlertaSave] = useState<string | null>(null)
 
-  // CARGA — o localStorage manda; o JSON é o plano B (ver escopo/premissas.md).
+  // CARGA — o save manda (banco.ts); o JSON é o plano B (ver escopo/premissas.md).
   useEffect(() => {
     podeSalvar.current = false
 
@@ -220,8 +235,11 @@ export function usePersonagem(caminhoJson: string): Retorno {
     }
   }, [caminhoJson, id])
 
+  // O banco (IndexedDB) grava depois do salvarFicha: se ele recusar, a tela tem que dizer
+  useEffect(() => aoFalharGravacao(() => setSalvou(false)), [])
+
   // GRAVA a cada mudança de ficha ou de escolha. A ficha do Eccho dá ~10 KB
-  // — localStorage é sincrono, mas nessa ordem de grandeza não pesa.
+  // — grava na memória na hora e o banco (IndexedDB) logo depois (banco.ts).
   useEffect(() => {
     if (!podeSalvar.current || !ficha) return
     setSalvou(salvarFicha(id, ficha, escolhasTalento, semente))
@@ -438,6 +456,18 @@ export function usePersonagem(caminhoJson: string): Retorno {
     setFicha((atual) => (atual ? { ...atual, objetivos: atual.objetivos.filter((_, i) => i !== indice) } : atual))
   }, [])
 
+  const editarIdentidade = useCallback((muda: Partial<IdentidadeEditavel>) => {
+    setFicha((atual) => {
+      if (!atual) return atual
+      const especializacoes = muda.culturas ? especialidadesComCulturas(atual, muda.culturas) : atual.especializacoes
+      return { ...atual, meta: { ...atual.meta, ...muda }, especializacoes }
+    })
+  }, [])
+
+  const editarTextoPersonagem = useCallback((campo: TextoPersonagem, valor: string) => {
+    setFicha((atual) => (atual ? { ...atual, [campo]: valor } : atual))
+  }, [])
+
   // Ideal = objetivo especial (livro, "Jurando Ideais"): 3 marcos → dizer as
   // Palavras. Jurou? Abre o próximo Ideal, até o 5º.
   const alterarIdeal = useCallback((n: Ideal['n'], muda: Partial<Ideal>) => {
@@ -446,7 +476,10 @@ export function usePersonagem(caminhoJson: string): Retorno {
       let ideais = atual.radiante.ideais.map((i) => (i.n === n ? { ...i, ...muda } : i))
       const jurou = muda.jurado === true && n < 5 && !ideais.some((i) => i.n === n + 1)
       if (jurou) ideais = [...ideais, { n: (n + 1) as Ideal['n'], jurado: false, texto: '', marcos: 0 }]
-      return { ...atual, radiante: { ...atual.radiante, ideais } }
+      // Livro (cap. 5): jurar um Ideal deixa Potencializado até o fim da cena
+      const potencializa = muda.jurado === true && !atual.condicoes.some((c) => c.id === 'potencializado')
+      const condicoes = potencializa ? [...atual.condicoes, { id: 'potencializado' as const, uid: crypto.randomUUID() }] : atual.condicoes
+      return { ...atual, condicoes, radiante: { ...atual.radiante, ideais } }
     })
   }, [])
 
@@ -541,6 +574,16 @@ export function usePersonagem(caminhoJson: string): Retorno {
     (): string | null => (ficha ? JSON.stringify(montarPacote(ficha, escolhasTalento, semente), null, 2) : null),
     [ficha, escolhasTalento, semente],
   )
+  const impressaoAtual = useMemo(
+    () => (ficha ? impressao(JSON.stringify({ ficha, escolhasTalento, semente })) : null),
+    [ficha, escolhasTalento, semente],
+  )
+  const [marcaBackup, setMarcaBackup] = useState(() => lerMarca(id))
+  const marcarBackupFeito = useCallback(() => {
+    if (!impressaoAtual) return
+    gravarMarca(id, impressaoAtual)
+    setMarcaBackup(impressaoAtual)
+  }, [id, impressaoAtual])
   const dispensarAlertaSave = useCallback(() => setAlertaSave(null), [])
 
   const [sementeNova, setSementeNova] = useState<{ texto: string; data: string } | null>(null)
@@ -583,6 +626,8 @@ export function usePersonagem(caminhoJson: string): Retorno {
     alterarObjetivo,
     adicionarObjetivo,
     removerObjetivo,
+    editarIdentidade,
+    editarTextoPersonagem,
     alterarIdeal,
     alterarCargas,
     recarregarTodos,
@@ -600,6 +645,8 @@ export function usePersonagem(caminhoJson: string): Retorno {
     desfazerImportacao: temAntes ? desfazerImportacao : null,
     exportarJson,
     backupJson,
+    mudouDesdeBackup: impressaoAtual !== null && impressaoAtual !== marcaBackup,
+    marcarBackupFeito,
     salvou,
     alertaSave,
     dispensarAlertaSave,

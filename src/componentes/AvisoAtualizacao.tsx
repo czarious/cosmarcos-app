@@ -4,7 +4,7 @@ import { useIdioma } from '../idioma/IdiomaContexto'
 
 // Registra o service worker e avisa quando há versão nova. A versão nova baixa
 // sozinha, mas só entra quando o jogador toca em "Atualizar" — nunca no meio
-// do combate. A ficha fica no localStorage, então recarregar não perde nada.
+// do combate. A ficha fica salva no aparelho (banco.ts), então recarregar não perde nada.
 //
 // Por que procurar de novo ao voltar pra tela: no celular o app quase nunca
 // fecha de verdade (fica parado na memória), e o navegador só procura versão

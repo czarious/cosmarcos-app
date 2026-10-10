@@ -15,11 +15,13 @@
  * aprimoramentos, revezes, novos/removidos) · anotações (→ campo NOTES) ·
  * objetivos (marcos, concluído, novos/removidos) · ideais (marcos, jurado, texto) ·
  * equipamento em texto livre (→ campo EQUIPMENT) · condições (valor no `detail`) ·
- * lesões (tipo, dias; o efeito d8 no começo da descrição).
+ * lesões (tipo, dias; o efeito d8 no começo da descrição) · identidade e textos
+ * da aba Personagem (jogador, nível, ancestralidade, culturas, kit, trilha, ordem,
+ * propósito, obstáculo, personalidade, aparência, conexões).
  */
 
 import type { Personagem, Fabrial, Ideal } from '../tipos/personagem'
-import { APRIMORAMENTO_ID, REVES_ID, QUALIDADE_FABRIAL, FABRIAL_PADRAO_ID, CONDICAO_ID, GRAVIDADE_LESAO, ATRIBUTO, TIPO_ESPECIALIDADE, ARMA_NOME, ARMADURA_NOME } from './deparaShards'
+import { APRIMORAMENTO_ID, REVES_ID, QUALIDADE_FABRIAL, FABRIAL_PADRAO_ID, CONDICAO_ID, GRAVIDADE_LESAO, ATRIBUTO, TIPO_ESPECIALIDADE, ARMA_NOME, ARMADURA_NOME, ANCESTRALIDADE, CULTURA, CONJUNTO_INICIAL, TRILHA_HEROICA, ORDEM } from './deparaShards'
 import { indicesDaCultura } from '../regras/especialidadesCulturais'
 import { EFEITOS_LESAO } from '../regras/condicoes'
 import { ID_NOTAS_SHARDS, NOTAS_DE_TRILHA } from './importarShards'
@@ -43,6 +45,21 @@ const ATRIBUTO_EN = inverte(ATRIBUTO)
 const TIPO_ESPECIALIDADE_EN = inverte(TIPO_ESPECIALIDADE)
 const ARMA_EN = inverte(ARMA_NOME)
 const ARMADURA_EN = inverte(ARMADURA_NOME)
+
+/**
+ * Campo que o app traduz do Shards (cultura, trilha…): se o valor em português
+ * não mudou, volta o original byte a byte; mudou, volta o texto do Shards dele.
+ */
+function campoTraduzido(original: unknown, atual: string, mapa: Record<string, string>): unknown {
+  const cru = typeof original === 'string' ? original.trim() : ''
+  if ((mapa[cru] ?? cru) === atual) return original
+  return inverte(mapa)[atual] ?? atual
+}
+
+/** Texto livre: igual ao original (sem contar espaço nas pontas) volta o original. */
+function campoTexto(original: unknown, atual: string): unknown {
+  return (typeof original === 'string' ? original.trim() : '') === atual.trim() ? original : atual
+}
 
 /**
  * Especialidades → `expertises`, menos as culturais fixas (o Shards as tira da
@@ -262,7 +279,31 @@ export function exportarShards(ficha: Personagem, semente: Obj): string {
   c.notes = notasShards(ficha)
   // cartão "Path Notes": cada bloco volta pro seu campo; bloco apagado no app volta vazio
   const [trilha, talentos] = NOTAS_DE_TRILHA.map((n) => ficha.anotacoes.find((a) => a.id === n.id)?.conteudo ?? '')
-  c.meta = { ...(c.meta as Obj), paths: trilha }
+  const meta = c.meta as Obj
+  const [cultura1, cultura2] = ficha.meta.culturas
+  c.meta = {
+    ...meta,
+    paths: trilha,
+    player: campoTexto(meta.player, ficha.meta.jogador),
+    level: meta.level === ficha.meta.nivel ? meta.level : ficha.meta.nivel,
+    ancestry: campoTraduzido(meta.ancestry, ficha.meta.ancestralidade, ANCESTRALIDADE),
+    culture1: campoTraduzido(meta.culture1, cultura1 ?? '', CULTURA),
+    culture2: campoTraduzido(meta.culture2, cultura2 ?? '', CULTURA),
+    startingKit: campoTraduzido(meta.startingKit, ficha.meta.kitInicial, CONJUNTO_INICIAL),
+    purpose: campoTexto(meta.purpose, ficha.proposito),
+    obstacle: campoTexto(meta.obstacle, ficha.obstaculo),
+    personality: campoTexto(meta.personality, ficha.personalidade),
+    appearance: campoTexto(meta.appearance, ficha.aparencia),
+    connections: campoTexto(meta.connections, ficha.conexoes),
+  }
+  if (c.heroic && typeof c.heroic === 'object') {
+    const h = c.heroic as Obj
+    c.heroic = { ...h, startingPath: campoTraduzido(h.startingPath, ficha.meta.trilhaHeroica, TRILHA_HEROICA) }
+  }
+  if (c.radiant && typeof c.radiant === 'object') {
+    const r = c.radiant as Obj
+    c.radiant = { ...r, order: campoTraduzido(r.order, ficha.meta.trilhaRadiante ?? '', ORDEM) }
+  }
   c.talents = talentos
   c.equipment = ficha.equipamentoTexto
   c.expertises = especialidadesShards(ficha, lista(c.expertises))

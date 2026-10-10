@@ -1,5 +1,6 @@
 /* arquivo: acoes.ts */
 import type { Ativacao } from '../tipos/personagem'
+import { ORDEM } from '../estado/deparaShards'
 
 /**
  * CATÁLOGO DE AÇÕES — Cap. 10 (Ações e Reações). Paráfrase própria, nunca
@@ -82,39 +83,49 @@ export const ACOES_PADRAO: EntradaAcao[] = [
 ]
 
 /**
+ * As 3 ações de Luz das Tempestades. Livro (cap. 5, "Jogando como um
+ * Radiante"): o talento de Primeiro Ideal de QUALQUER ordem dá as três.
+ */
+const ACOES_LUZ: EntradaAcao[] = [
+  {
+    nome: 'Inspirar Luz das Tempestades',
+    nomeEn: 'Breathe Stormlight',
+    ativacao: '2acoes',
+    efeito: 'inspirar',
+    mesmoInconsciente: true,
+    resumo: 'Drena esferas infundidas a até 1,5 m e recupera Investidura até o máximo. Funciona mesmo Inconsciente.',
+  },
+  {
+    nome: 'Aprimorar',
+    nomeEn: 'Enhance',
+    ativacao: '1acao',
+    custo: { investidura: 1 },
+    efeito: 'aprimorar',
+    resumo: 'Gasta 1 Investidura pra ficar Aprimorado [+1 Força] e [+1 Velocidade] até o fim do próximo turno; manter depois custa 1 Investidura como ação livre por turno.',
+  },
+  {
+    nome: 'Restaurar',
+    nomeEn: 'Regenerate',
+    ativacao: 'livre',
+    custo: { investidura: 1 },
+    efeito: 'restaurar',
+    mesmoInconsciente: true,
+    resumo: 'Gasta 1 Investidura pra recuperar 1d6 + patamar de vida. Funciona mesmo Inconsciente.',
+  },
+]
+
+/**
  * Ações que um talento específico desbloqueia — chave é o `id` do talento
  * (mesma convenção de regras/talentos.ts). Só entra aqui o que já foi
- * conferido contra a transcrição do livro.
+ * conferido contra a transcrição do livro. O 1º Ideal de cada ordem dá as de
+ * Luz — a chave segue o Shards ("windrunner::first-ideal-windrunner-key").
  */
-export const ACOES_CONCEDIDAS: Record<string, EntradaAcao[]> = {
-  'elsecaller::first-ideal-elsecaller-key': [
-    {
-      nome: 'Inspirar Luz das Tempestades',
-      nomeEn: 'Breathe Stormlight',
-      ativacao: '2acoes',
-      efeito: 'inspirar',
-      mesmoInconsciente: true,
-      resumo: 'Drena esferas infundidas a até 1,5 m e recupera Investidura até o máximo. Funciona mesmo Inconsciente.',
-    },
-    {
-      nome: 'Aprimorar',
-      nomeEn: 'Enhance',
-      ativacao: '1acao',
-      custo: { investidura: 1 },
-      efeito: 'aprimorar',
-      resumo: 'Gasta 1 Investidura pra ficar Aprimorado [+1 Força] e [+1 Velocidade] até o fim do próximo turno; manter depois custa 1 Investidura como ação livre por turno.',
-    },
-    {
-      nome: 'Restaurar',
-      nomeEn: 'Regenerate',
-      ativacao: 'livre',
-      custo: { investidura: 1 },
-      efeito: 'restaurar',
-      mesmoInconsciente: true,
-      resumo: 'Gasta 1 Investidura pra recuperar 1d6 + patamar de vida. Funciona mesmo Inconsciente.',
-    },
-  ],
-}
+export const ACOES_CONCEDIDAS: Record<string, EntradaAcao[]> = Object.fromEntries(
+  Object.keys(ORDEM).map((en) => {
+    const o = en.toLowerCase()
+    return [`${o}::first-ideal-${o}-key`, ACOES_LUZ]
+  }),
+)
 
 /**
  * Habilidades de Espreno — Cap. 5 (Jogando como um Radiante). Valem pra

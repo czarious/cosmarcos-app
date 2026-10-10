@@ -5,7 +5,7 @@ import type { Personagem, Condicao, IdCondicao } from '../tipos/personagem'
 import { importarShards } from '../estado/importarShards'
 import { PT, type Mensagem, type Plural } from './pt'
 import { EN } from './en'
-import { mensagem, nome, plural, rotulo, distancia, medidas, pesoNumero, pesoDigitadoEmKg } from './idioma'
+import { mensagem, nome, plural, rotulo, distancia, medidas, pesoNumero, pesoDigitadoEmKg, emTopicos } from './idioma'
 import { NOMES_EN } from './nomes'
 import { CONDICOES, acoesNoTurno, lembretes, modificadorRolagemLesao, movimentoComCondicoes } from '../regras/condicoes'
 import { detalhePericia } from '../regras/calculos'
@@ -170,5 +170,20 @@ describe('medidas: a ficha guarda metro/kg, o inglês mostra pé/libra pela cont
 
   it('o nome de jogo já sai convertido (alcance de arma)', () => {
     expect(nome('Corpo a corpo (1,5 m)', 'en')).toContain('5 ft')
+  })
+})
+
+describe('emTopicos — texto corrido vira um efeito por linha', () => {
+  it('corta no ";" e no fim de frase, com maiúscula no começo', () => {
+    expect(emTopicos('Sem reações; sentidos obscurecidos; desvantagem em Percepção.')).toEqual(['Sem reações', 'Sentidos obscurecidos', 'Desvantagem em Percepção.'])
+    expect(emTopicos('Cada descanso longo reduz 1; some no 0. Duas aplicações somam.')).toEqual(['Cada descanso longo reduz 1', 'Some no 0.', 'Duas aplicações somam.'])
+  })
+
+  it('não corta dentro de parênteses nem em número', () => {
+    expect(emTopicos('Sem ações (exceto Inspirar; Restaurar). Levantar tira 1,5 m.')).toEqual(['Sem ações (exceto Inspirar; Restaurar).', 'Levantar tira 1,5 m.'])
+  })
+
+  it('toda condição do livro vira ao menos um tópico, sem pedaço vazio', () => {
+    for (const c of CONDICOES) for (const t of emTopicos(c.resumo)) expect(t.length, c.id).toBeGreaterThan(2)
   })
 })

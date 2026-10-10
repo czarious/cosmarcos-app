@@ -27,11 +27,19 @@
   --cor-vida: #a03b2e;         /* vinho, o mesmo do destaque — quadradinhos do cabeçalho */
   --cor-foco: #3d5d8f;         /* azul-ardósia, parente do --cor-titulo */
   --cor-investidura: #9c7322;  /* âmbar de gema, escuro o bastante pro creme */
+  --cor-condicao-negativa: #a03b2e; /* vinho — caixinha das condições que atrapalham (topo) */
+  --cor-condicao-positiva: #3d5d8f; /* azul — das que ajudam */
   --cor-cuidado: #e08a12;      /* laranja de placa de cuidado — só no aviso ⚠️ (AvisoCuidado) */
   --cor-hachura-escura: rgba(20, 16, 12, 0.72); /* o que sai do recorte da foto */
   --cor-hachura-clara: rgba(20, 16, 12, 0.42);
 
   /* ── tipografia ────────────────────────────────── */
+  /* Hierarquia (César, 10/Out/2026): título > subtítulo > texto > nota — rótulo
+     de grupo nunca menor que o texto que ele classifica. O topo fixo é à parte. */
+  --letra-titulo: 1.15rem;
+  --letra-subtitulo: 0.95rem;
+  --letra-texto: 0.9rem;
+  --letra-nota: 0.8rem;
   /* Serifada do sistema: sem webfont — offline primeiro (princípio 3) */
   --fonte: Georgia, 'Times New Roman', serif;
 
@@ -42,10 +50,63 @@
 
   /* ── toque ─────────────────────────────────────── */
   --alvo-toque: 44px; /* mínimo pra dedo, celular primeiro */
+
+  /* ── tamanho da letra (ver "TAMANHO DA LETRA") ── */
+  --letra-escala: 1;
+}
+
+/* ── TAMANHO DA LETRA (Configurações → useTamanhoLetra.ts) ──
+   Zoom no conteúdo das abas e das janelas; o topo fixo não cresce.
+   Por quê, e por que para em 130%: premissas.md → "Letra maior e alvo de toque". */
+:root[data-letra='medio'] {
+  --letra-escala: 1.15;
+}
+
+:root[data-letra='grande'] {
+  --letra-escala: 1.3;
+}
+
+/* o título da janela (.cr-cabeca) fica como o topo: encosta na borda do painel */
+.carrossel-aba > *,
+.cr-painel > :not(.cr-cabeca) {
+  zoom: var(--letra-escala);
 }
 
 html {
   -webkit-text-size-adjust: 100%;
+}
+
+/* ── ÁREA DE TOQUE INVISÍVEL ─────────────────────────
+   Botão que fica pequeno de propósito ganha em volta uma área de toque de
+   --alvo-toque (o ::before), sem mudar o desenho. O teste do iPhone mede essa
+   área. O topo fixo não chega a 44 (ver "TOPO: área de toque" mais abaixo). */
+.engrenagem,
+.numero-detalhavel,
+.botao-info,
+.cf-seta,
+.cf-escudo,
+.cf-valor,
+.cf-fogueira,
+.cf-condicoes,
+.turno-plano-x {
+  position: relative;
+}
+
+.engrenagem::before,
+.numero-detalhavel::before,
+.botao-info::before,
+.cf-seta::before,
+.cf-escudo::before,
+.cf-valor::before,
+.cf-fogueira::before,
+.cf-condicoes::before,
+.turno-plano-x::before {
+  content: '';
+  position: absolute;
+  top: min(0px, calc((100% - var(--alvo-toque)) / 2));
+  bottom: min(0px, calc((100% - var(--alvo-toque)) / 2));
+  left: min(0px, calc((100% - var(--alvo-toque)) / 2));
+  right: min(0px, calc((100% - var(--alvo-toque)) / 2));
 }
 
 body {
@@ -98,6 +159,9 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  /* iPhone instalado: o fim da página não fica embaixo da barrinha de voltar ao início
+     (o viewport-fit=cover do index.html deixa a página ir até a borda) */
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* ── topo fixo: cabeçalho + abas grudados juntos (premissas.md → "Os vitais grudam no topo") ── */
@@ -305,6 +369,39 @@ body {
   cursor: default;
 }
 
+/* TOPO: área de toque até a metade do vão do vizinho, não mais — senão o toque
+   cai no botão do lado. Por que não 44: premissas.md → "Letra maior e alvo de toque". */
+.cf-seta::before,
+.cf-escudo::before,
+.cf-valor::before {
+  top: calc((100% - var(--cf-linha-recurso)) / 2 - 0.1rem);
+  bottom: calc((100% - var(--cf-linha-recurso)) / 2 - 0.1rem);
+  left: -0.125rem;
+  right: -0.125rem;
+}
+
+.cf-valor::before {
+  right: -0.4rem; /* até a borda da linha */
+}
+
+/* a fogueira desce até o fim do topo; com condições, a faixa delas fica embaixo
+   e as duas dividem o vão entre elas (a fogueira fica em ~38px) */
+.cf-fogueira::before {
+  top: 0;
+  bottom: -0.55rem;
+}
+
+.cabecalho-fixo:has(.cf-condicoes) .cf-fogueira::before {
+  bottom: -0.175rem;
+}
+
+.cf-condicoes::before {
+  top: -0.175rem;
+  bottom: -0.55rem;
+  left: 0;
+  right: 0;
+}
+
 .cf-recurso.cf-vazio {
   opacity: 0.5; /* Investidura 0/0 — recurso que o personagem ainda não destravou */
 }
@@ -395,18 +492,63 @@ body {
   cursor: pointer;
 }
 
+/* a palavra antes das caixinhas: o app se explica sozinho */
+.cf-condicoes-rotulo {
+  align-self: center;
+  font-size: 0.75rem;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  color: var(--cor-texto-suave);
+}
+
+/* duas caixinhas, negativas e positivas, com o número — não cresce quando acumula */
 .cf-condicao {
   font-family: var(--fonte);
   font-size: 0.66rem;
   font-weight: bold;
   padding: 0.1rem 0.4rem;
   color: var(--cor-painel);
-  background: var(--cor-destaque);
+  background: var(--cor-condicao-negativa);
   border-radius: 4px;
+}
+
+.cf-condicao-positiva {
+  background: var(--cor-condicao-positiva);
+}
+
+/* a janela das condições ativas (ResumoCondicoes) */
+.resumo-grupo + .resumo-grupo {
+  margin-top: 0.8rem;
+}
+
+.resumo-grupo-titulo {
+  font-size: var(--letra-subtitulo);
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+}
+
+.resumo-negativa .resumo-grupo-titulo {
+  color: var(--cor-condicao-negativa);
+}
+
+.resumo-positiva .resumo-grupo-titulo {
+  color: var(--cor-condicao-positiva);
+}
+
+.resumo-condicao {
+  margin-top: 0.35rem;
+}
+
+.resumo-abrir-aba {
+  width: 100%;
+  margin-top: 0.9rem;
+  text-align: center;
 }
 
 /* ── barra de abas: UMA linha — ícone + nome da aba aberta + os 9 quadradinhos (menu) ── */
 .seletor-secao {
+  display: flex;
+  gap: 0.4rem;
   padding: 0.35rem 0.5rem;
   background: var(--cor-fundo-pagina);
   border-bottom: 1px solid var(--cor-borda);
@@ -416,7 +558,8 @@ body {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   min-height: var(--alvo-toque);
   padding: 0 0 0 0.75rem;
   font-family: var(--fonte);
@@ -428,12 +571,72 @@ body {
   text-align: left;
 }
 
+/* o backup ao lado da barra das abas (BotaoBackup): verde = em dia,
+   vinho com ponto = a ficha mudou desde o último backup */
+.botao-backup {
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--alvo-toque);
+  min-height: var(--alvo-toque);
+  padding: 0;
+  color: var(--cor-ok);
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.botao-backup:active {
+  background: var(--cor-fundo-pagina);
+}
+
+/* a janela do backup: o estado em cima, o Baixar embaixo */
+.backup-estado {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--cor-ok);
+}
+
+.backup-estado-mudou {
+  color: var(--cor-destaque);
+}
+
+.backup-baixar {
+  width: 100%;
+  margin-top: 0.8rem;
+  text-align: center;
+}
+
+.backup-mudou {
+  color: var(--cor-destaque);
+  border-color: var(--cor-destaque);
+}
+
+.backup-ponto {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cor-destaque);
+}
+
 .ss-icone {
+  display: grid;
+  place-items: center;
   width: 1.4rem;
   flex-shrink: 0;
-  text-align: center;
   color: var(--cor-destaque);
-  font-size: 1.1rem;
+}
+
+/* os ícones do app (Icone.tsx): a cor é a do lugar (currentColor) */
+.icone {
+  display: block;
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .ss-nome {
@@ -639,7 +842,7 @@ body {
   color: var(--cor-titulo);
   font-variant: small-caps;
   letter-spacing: 0.06em;
-  font-size: 1rem;
+  font-size: var(--letra-titulo);
   margin-bottom: 0.6rem;
 }
 
@@ -684,13 +887,22 @@ body {
 }
 
 .na-mesa dt {
-  font-size: 0.75rem;
+  font-size: var(--letra-subtitulo);
   font-variant: small-caps;
   color: var(--cor-texto-suave);
 }
 
 .na-mesa dd {
-  font-size: 0.9rem;
+  font-size: var(--letra-texto);
+}
+
+/* dentro de "Especialidades", o tipo vem em itálico pra não parecer outro rótulo */
+.na-mesa .esp-grupo-titulo {
+  font-size: var(--letra-texto);
+  margin-top: 0.15rem;
+  font-variant: normal;
+  font-style: italic;
+  letter-spacing: 0;
 }
 
 /* Contagem da aba Talentos: usados × previstos por categoria; saldo em cor neutra (o "-1" do Eccho é decisão do César) */
@@ -722,6 +934,16 @@ body {
   vertical-align: middle;
 }
 
+/* especialidades por tipo (Cultural, Utilidade…): o tipo é o título do grupo — aba Talentos e "Na mesa" */
+.esp-grupo-titulo {
+  margin-top: 0.5rem;
+  font-size: var(--letra-subtitulo);
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  color: var(--cor-texto-suave);
+}
+
 .lista-especialidades {
   list-style: none;
 }
@@ -733,13 +955,6 @@ body {
   min-height: var(--alvo-toque);
   border-bottom: 1px solid var(--cor-borda);
   font-size: 0.9rem;
-}
-
-.esp-categoria {
-  flex: 0 0 5.5rem;
-  font-size: 0.75rem;
-  font-variant: small-caps;
-  color: var(--cor-texto-suave);
 }
 
 .esp-nome {
@@ -812,17 +1027,6 @@ body {
 }
 
 /* ════════ LISTA DE TALENTOS (padrão DDB Features & Traits) ════════ */
-
-.aviso-placeholder {
-  background: var(--cor-campo);
-  border: 1px dashed var(--cor-borda);
-  border-radius: 6px;
-  padding: 0.5rem 0.7rem;
-  margin-bottom: 1rem;
-  color: var(--cor-texto-suave);
-  font-size: 0.78rem;
-  font-style: italic;
-}
 
 .lista-talentos {
   list-style: none;
@@ -954,58 +1158,27 @@ body {
    ponta a ponta da tela (margem negativa cancela o padding do .conteudo). */
 .inv-topo {
   background: var(--cor-campo);
-  margin: 0 -0.9rem 1.1rem;
+  margin: 0 calc(-0.9rem / var(--letra-escala)) 1.1rem; /* até a borda da aba (o recuo dela não cresce com a letra) */
   padding: 0.75rem 0.9rem 0.9rem;
   border-bottom: 2px solid var(--cor-destaque);
 }
 
 .inv-resumo {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.6rem;
   margin-bottom: 0.7rem;
 }
 
-.inv-resumo-bloco {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+/* limite e situação do peso, embaixo de "Peso carregado" */
+.inv-status {
+  font-variant: normal;
+  letter-spacing: 0;
+  font-size: var(--letra-nota);
+  color: var(--cor-ok);
 }
 
-.inv-resumo-marcos {
-  align-items: flex-end;
-  text-align: right;
-}
-
-.inv-resumo-rotulo {
-  color: var(--cor-texto-suave);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.inv-resumo-valor {
-  color: var(--cor-texto);
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-.inv-resumo-valor i {
+.pr-derivados b i {
   font-style: normal;
   font-size: 0.75rem;
   color: var(--cor-texto-suave);
-}
-
-.inv-peso-max {
-  font-size: 0.75rem;
-  font-weight: normal;
-  color: var(--cor-texto-suave);
-}
-
-.inv-status {
-  font-size: 0.68rem;
-  color: var(--cor-ok);
-  text-transform: uppercase;
 }
 
 .inv-status-alerta {
@@ -1040,7 +1213,6 @@ body {
   min-height: var(--alvo-toque);
 }
 
-/* cor, borda e letra: "Botão de ação" (perto do .turno-primario) */
 .botao-gerenciar {
   display: block;
   width: 100%;
@@ -1057,7 +1229,7 @@ body {
 .inv-categoria-titulo {
   color: var(--cor-titulo);
   font-variant: small-caps;
-  font-size: 0.85rem;
+  font-size: var(--letra-subtitulo);
   letter-spacing: 0.04em;
   margin-bottom: 0.35rem;
 }
@@ -1091,6 +1263,7 @@ body {
 
 /* quando a linha é um <label> (Armas, com checkbox de equipar) */
 label.linha-item {
+  min-height: var(--alvo-toque);
   cursor: pointer;
 }
 
@@ -1193,6 +1366,7 @@ label.linha-item input[type='checkbox'] {
 
 .anotacao-alternar {
   flex: 1;
+  min-height: var(--alvo-toque);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1231,8 +1405,8 @@ label.linha-item input[type='checkbox'] {
   border: none;
   font-size: 0.95rem;
   cursor: pointer;
-  min-width: 2rem;
-  min-height: 2rem;
+  min-width: var(--alvo-toque);
+  min-height: var(--alvo-toque);
 }
 
 .anotacao-conteudo {
@@ -1263,23 +1437,6 @@ label.linha-item input[type='checkbox'] {
   flex-direction: column;
 }
 
-.tabela-ataques-cabecalho {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.4rem;
-  padding-bottom: 0.3rem;
-  border-bottom: 1px solid var(--cor-borda);
-  color: var(--cor-texto-suave);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.linha-ataque {
-  padding: 0.55rem 0;
-  border-bottom: 1px solid var(--cor-borda);
-}
-
 .linha-ataque-nome {
   display: flex;
   flex-direction: column;
@@ -1291,20 +1448,6 @@ label.linha-item input[type='checkbox'] {
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-}
-
-.linha-ataque-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.4rem;
-  align-items: center;
-}
-
-.ataque {
-  background: var(--cor-painel);
-  border: 1px solid var(--cor-borda);
-  border-radius: 8px;
-  padding: 0.6rem 0.75rem;
 }
 
 .ataque-erro {
@@ -1326,31 +1469,11 @@ label.linha-item input[type='checkbox'] {
   font-size: 0.95rem;
 }
 
-.ataque-alcance {
-  color: var(--cor-texto-suave);
-  font-size: 0.75rem;
-}
-
-.ataque-numeros {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  margin-top: 0.35rem;
-  font-size: 0.85rem;
-}
-
 .numero-linha {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.4rem;
-}
-
-.ataque-numeros i {
-  font-style: normal;
-  color: var(--cor-texto-suave);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  width: 3.2rem; /* alinha Acerto/Dano numa coluna */
 }
 
 /* dado (d20, 1d6...) — hoje é só texto; vira botão quando a rolagem existir */
@@ -1364,8 +1487,7 @@ label.linha-item input[type='checkbox'] {
 }
 
 /* número que abre detalhamento (PopoverDetalhe) — só o valor, não a linha toda.
-   ⚠️ Exceção consciente aos 44px de --alvo-toque: é um alvo SECUNDÁRIO (abre um
-   detalhe, não uma ação principal) — errar o toque só reabre o mesmo popover. */
+   A pílula é menor que 44px; o toque usa a área invisível ("ÁREA DE TOQUE INVISÍVEL"). */
 /* O PADRÃO de "número que abre janela" (César, 07/Out/2026): pílula de borda vinho.
    Todo número tocável usa esta classe — perícias, fluxos, acerto/dano, deflexão, especialidades. */
 .numero-detalhavel {
@@ -1422,8 +1544,56 @@ label.linha-item input[type='checkbox'] {
   padding-top: 0.3rem;
 }
 
+/* o exemplo como conta (PopoverDeflexao): caixinha própria, menor que as parcelas de cima */
+.detalhe-exemplo {
+  margin-top: 0.7rem;
+  font-size: var(--letra-subtitulo);
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+}
+
+.detalhe-conta {
+  margin: 0.2rem 0 0;
+  padding: 0.45rem 0.6rem;
+  gap: 0.25rem;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+}
+
+.detalhe-conta li {
+  font-size: 0.82rem;
+  color: var(--cor-texto);
+  padding-bottom: 0.2rem;
+}
+
+.detalhe-conta .detalhe-conta-total {
+  font-weight: bold;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
 .ataque-tracos {
-  margin-top: 0.45rem;
+  margin-top: 0.9rem; /* as áreas de toque das pílulas de cima e dos chips não se encostam */
+}
+
+/* botão de informação (BotaoInfo): o próprio nome, com a borda de pílula vinho — o mesmo
+   padrão do número que abre janela (.numero-detalhavel). Tocar abre a regra do livro */
+.botao-info {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.6rem;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: var(--cor-campo);
+  border: 1.5px solid var(--cor-destaque);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.botao-info:active {
+  background: var(--cor-fundo-pagina);
 }
 
 .lista-acoes-padrao {
@@ -1433,29 +1603,35 @@ label.linha-item input[type='checkbox'] {
   gap: 0.5rem;
 }
 
+/* cada ação é um cartão, como o de ataque: nome, resumo e a linha do Usar */
 .acao-padrao {
-  display: flex;
-  gap: 0.5rem;
-  align-items: baseline;
-  padding: 0.35rem 0;
-  border-bottom: 1px solid var(--cor-borda);
+  padding: 0.55rem 0.7rem 0.2rem;
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+/* habilidades de um fluxo, dentro do cartão dele */
+.fluxo-habilidades {
+  list-style: none;
+}
+
+.fluxo-habilidade {
+  margin-top: 0.5rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--cor-borda);
 }
 
 /* o botão de ação embaixo da descrição, alinhado à esquerda (Acoes.tsx → LinhaAcao) */
-.acao-corpo .usar {
-  align-items: flex-start;
-  margin-top: 0.3rem;
-}
-
 .acao-padrao-nome {
   color: var(--cor-titulo);
   font-weight: bold;
-  font-size: 0.85rem;
+  font-size: var(--letra-subtitulo);
 }
 
 .acao-padrao-resumo {
   color: var(--cor-texto-suave);
-  font-size: 0.78rem;
+  font-size: var(--letra-nota);
   margin-top: 0.1rem;
 }
 
@@ -1489,7 +1665,7 @@ label.linha-item input[type='checkbox'] {
 .pr-grupo-nome {
   color: var(--cor-titulo);
   font-variant: small-caps;
-  font-size: 0.85rem;
+  font-size: var(--letra-subtitulo);
   letter-spacing: 0.08em;
   text-align: center;
   margin-bottom: 0.3rem;
@@ -1544,7 +1720,8 @@ label.linha-item input[type='checkbox'] {
   gap: 0.4rem;
 }
 
-.pr-derivados li {
+/* > : só o cartão; a lista do motivo (Lento…) dentro dele não vira cartão */
+.pr-derivados > li {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -1554,7 +1731,7 @@ label.linha-item input[type='checkbox'] {
   padding: 0.3rem 0.6rem 0.3rem 0.3rem;
 }
 
-.pr-derivados b {
+.pr-derivados > li > b {
   min-width: 4.4rem;
   text-align: center;
   font-size: 1.15rem;
@@ -1565,7 +1742,7 @@ label.linha-item input[type='checkbox'] {
   padding: 0.2rem 0.4rem;
 }
 
-.pr-derivados span {
+.pr-derivados > li > span {
   display: flex;
   flex-direction: column;
   font-variant: small-caps;
@@ -1721,6 +1898,55 @@ label.linha-item input[type='checkbox'] {
   text-align: right;
 }
 
+/* valor com vários itens (Culturas): a lista encosta à direita, mas os pontinhos alinham numa coluna */
+.pg-dados .lista-linhas {
+  width: fit-content;
+  margin-left: auto;
+  text-align: left;
+}
+
+/* título de seção com o ✎ Editar à direita (aba Personagem) */
+.titulo-com-acao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.titulo-com-acao .titulo-secao {
+  margin-bottom: 0;
+}
+
+.botao-editar {
+  min-height: var(--alvo-toque);
+  padding: 0 0.6rem;
+  font-family: var(--fonte);
+  font-size: 0.85rem;
+  color: var(--cor-titulo);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* escolha dentro da janela de editar identidade: rótulo em cima, campo embaixo */
+.ident-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ident-campo span {
+  font-size: var(--letra-subtitulo);
+  color: var(--cor-texto-suave);
+}
+
+.ident-campo .cr-input {
+  margin-bottom: 0;
+  font-size: 1rem;
+  text-align: left;
+}
+
 .pg-texto p {
   background: var(--cor-painel);
   border: 1px solid var(--cor-borda);
@@ -1736,11 +1962,47 @@ label.linha-item input[type='checkbox'] {
 }
 
 .pg-conexoes li {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
   background: var(--cor-painel);
   border: 1px solid var(--cor-borda);
   border-radius: 6px;
   padding: 0.4rem 0.75rem;
   font-size: 0.92rem;
+}
+
+/* coisas diferentes, uma por linha (ListaLinhas) — com um pontinho vinho na frente */
+.lista-linhas {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.lista-linhas li {
+  position: relative;
+  padding-left: 0.8rem;
+}
+
+.lista-linhas li::before {
+  content: '';
+  position: absolute;
+  left: 0.1rem;
+  top: calc(0.75em - 0.14rem); /* no meio da 1ª linha */
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 50%;
+  background: var(--cor-destaque);
+}
+
+/* lista que já traz o próprio símbolo na frente (legenda das Perícias): sem o pontinho */
+.lista-sem-ponto li {
+  padding-left: 0;
+}
+
+.lista-sem-ponto li::before {
+  display: none;
 }
 
 /* ════════ CONTROLE DE RECURSO — popover de dano/cura (item 1.2/1.3) ════════ */
@@ -1888,6 +2150,7 @@ label.linha-item input[type='checkbox'] {
 /* entrada numérica + aplicar */
 .cr-input {
   width: 100%;
+  min-height: var(--alvo-toque);
   font-family: var(--fonte);
   font-size: 1.2rem;
   text-align: center;
@@ -1975,6 +2238,7 @@ label.linha-item input[type='checkbox'] {
 }
 
 .rodape-botao {
+  min-height: var(--alvo-toque);
   font-family: var(--fonte);
   font-size: 0.75rem;
   padding: 0.35rem 0.6rem;
@@ -2015,14 +2279,13 @@ label.linha-item input[type='checkbox'] {
   margin-top: 0.3rem;
 }
 
-.cond-lembretes li::before {
-  content: '• ';
-  color: var(--cor-destaque);
-}
-
+/* cada condição é um cartão: o nome e os efeitos ficam juntos mesmo com a página rolada */
 .cond-item {
-  padding: 0.45rem 0;
-  border-bottom: 1px solid var(--cor-borda);
+  margin-bottom: 0.4rem;
+  padding: 0.2rem 0.6rem 0.5rem;
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
 }
 
 .cond-linha {
@@ -2049,7 +2312,7 @@ label.linha-item input[type='checkbox'] {
 }
 
 .cond-resumo {
-  margin: 0.15rem 0 0 1.8rem;
+  margin: 0 0 0 1.8rem;
   font-size: 0.78rem;
   color: var(--cor-texto-suave);
 }
@@ -2062,7 +2325,8 @@ label.linha-item input[type='checkbox'] {
 
 .cond-x {
   margin-left: 0.4rem;
-  min-width: 2rem;
+  min-width: var(--alvo-toque);
+  min-height: var(--alvo-toque);
   background: none;
   border: none;
   color: var(--cor-destaque);
@@ -2142,7 +2406,7 @@ label.linha-item input[type='checkbox'] {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  font-size: 0.75rem;
+  font-size: var(--letra-subtitulo);
   font-variant: small-caps;
   letter-spacing: 0.03em;
   color: var(--cor-texto-suave);
@@ -2351,10 +2615,12 @@ label.linha-item input[type='checkbox'] {
 
 /* O número que se soma ao d20 rolado na mão: maior que o padrão, de propósito */
 .pericia-total {
+  order: -1; /* pedido 20: o número em caixinha à esquerda, como o Movimento da aba Principal */
   flex: none;
-  font-size: 1.1rem;
-  min-width: 2.6rem;
+  font-size: 1.15rem;
+  min-width: 3.2rem;
   min-height: var(--alvo-toque);
+  border-radius: 6px;
   text-align: center;
 }
 
@@ -2451,7 +2717,7 @@ label.linha-item input[type='checkbox'] {
 .fab-lista h4 {
   color: var(--cor-titulo);
   font-variant: small-caps;
-  font-size: 0.8rem;
+  font-size: var(--letra-subtitulo);
   margin: 0.5rem 0 0.2rem;
 }
 
@@ -2488,14 +2754,6 @@ label.linha-item input[type='checkbox'] {
 
 .fab-botoes-edicao {
   justify-content: flex-end;
-}
-
-.ataque-fabrial {
-  align-items: center;
-}
-
-.ataque-fabrial .fab-cargas-botao {
-  cursor: default;
 }
 
 .fab-tipo {
@@ -2551,6 +2809,7 @@ label.linha-item input[type='checkbox'] {
 
 .fab-opcao {
   display: flex;
+  min-height: var(--alvo-toque);
   gap: 0.5rem;
   align-items: flex-start;
   padding: 0.3rem 0;
@@ -2675,7 +2934,7 @@ label.linha-item input[type='checkbox'] {
 .turno-botao {
   font-family: var(--fonte);
   font-size: 0.8rem;
-  min-height: 36px;
+  min-height: var(--alvo-toque);
   padding: 0.3rem 0.7rem;
   background: var(--cor-campo);
   border: 1px solid var(--cor-borda);
@@ -2684,11 +2943,10 @@ label.linha-item input[type='checkbox'] {
   cursor: pointer;
 }
 
-/* Botão de ação — o mesmo visual em todo o app (turno, Usar, Gerenciar):
+/* Botão de ação — o mesmo visual no turno e no Gerenciar (o Usar da aba Ações é linha: .usar-linha):
    creme, borda fina, texto azul em versalete como o "Descansar" do topo;
    só o símbolo (▶ ↻) leva o vinho. Vinho no texto inteiro é só "perigo" (.rodape-perigo). */
 .turno-primario,
-.usar-botao,
 .botao-gerenciar {
   font-family: var(--fonte);
   font-variant: small-caps;
@@ -2702,7 +2960,6 @@ label.linha-item input[type='checkbox'] {
 }
 
 .turno-primario:active:not(:disabled),
-.usar-botao:active:not(:disabled),
 .botao-gerenciar:active {
   background: var(--cor-fundo-pagina);
 }
@@ -2712,41 +2969,8 @@ label.linha-item input[type='checkbox'] {
   cursor: default;
 }
 
-.botao-simbolo,
-.usar-botao small {
+.botao-simbolo {
   color: var(--cor-destaque);
-}
-
-/* Botão de ação: [▶ ◆0 ♥0 ✦0 │ Nome] — o bloco de custo tem largura fixa pra
-   botões empilhados alinharem; cada recurso na cor do cabeçalho, zero apagado */
-.usar-botao {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-
-.usar-custo {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.15rem;
-  padding-right: 0.4rem;
-  border-right: 1px solid var(--cor-borda);
-  font-variant: normal;
-  letter-spacing: 0;
-}
-
-/* colado nos recursos: botões empilhados costumam ter o mesmo tipo (os golpes são todos ▶), e aí alinham igual */
-.custo-ativacao {
-  margin-right: 0.1rem;
-  font-size: 1.05em;
-  text-align: left;
-  color: var(--cor-destaque);
-}
-
-.custo-recurso {
-  min-width: 1.85em; /* vaga fixa: na Georgia o 1 é mais estreito que o 0 e desalinhava o traço */
-  font-size: 1.05em;
-  white-space: nowrap;
 }
 
 .custo-foco {
@@ -2761,10 +2985,6 @@ label.linha-item input[type='checkbox'] {
   color: var(--cor-investidura);
 }
 
-.custo-zero {
-  opacity: 0.35;
-}
-
 /* Início do turno: Rápido e Lento lado a lado, metade cada */
 .turno-escolha {
   display: grid;
@@ -2774,7 +2994,7 @@ label.linha-item input[type='checkbox'] {
 
 /* Fim do combate: raro — texto pequeno, sem caixa */
 .turno-discreto {
-  min-height: 36px;
+  min-height: var(--alvo-toque);
   padding: 0 0.2rem;
   font-family: var(--fonte);
   font-size: 0.72rem;
@@ -2797,8 +3017,8 @@ label.linha-item input[type='checkbox'] {
 
 /* ▴ minimiza / ▾ abre a faixa do turno */
 .turno-alternar {
-  min-width: 26px;
-  min-height: 36px;
+  min-width: var(--alvo-toque);
+  min-height: var(--alvo-toque);
   padding: 0;
   font-size: 0.9rem;
   color: var(--cor-texto-suave);
@@ -2839,36 +3059,12 @@ label.linha-item input[type='checkbox'] {
   min-width: 0;
 }
 
-.usar {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  flex-shrink: 0;
-  gap: 0.1rem;
-}
-
-/* cor, borda e letra: "Botão de ação" (perto do .turno-primario) */
-.usar-botao {
-  font-size: 0.8rem;
-  min-height: 36px;
-  padding: 0.25rem 0.6rem;
-  white-space: nowrap;
-}
-
-.usar-botao small {
-  font-weight: normal;
-}
-
-.usar-botao:disabled {
-  opacity: 0.4;
-  border-color: var(--cor-borda);
-  color: var(--cor-texto-suave);
-  cursor: default;
-}
-
+/* por que o Usar não dá agora — embaixo da linha */
 .usar-motivo {
+  display: block;
+  padding: 0 0 0.3rem 1.9rem;
   color: var(--cor-texto-suave);
-  font-size: 0.68rem;
+  font-size: var(--letra-nota);
 }
 
 /* não dá pra usar agora: continua legível, só recua */
@@ -2879,25 +3075,6 @@ label.linha-item input[type='checkbox'] {
 
 .acao-aviso {
   color: var(--cor-destaque);
-}
-
-.ataque-usar {
-  justify-content: flex-start;
-}
-
-.ataque-usar .usar {
-  align-items: flex-start;
-}
-
-.fluxo-guia-botao {
-  font-family: var(--fonte);
-  font-size: 0.8rem;
-  margin-top: 0.4rem;
-  background: none;
-  border: none;
-  color: var(--cor-titulo);
-  cursor: pointer;
-  padding: 0.2rem 0;
 }
 
 .fluxo-guia {
@@ -2963,13 +3140,19 @@ label.linha-item input[type='checkbox'] {
   flex-shrink: 0;
   min-width: 36px;
   min-height: 36px;
-  font-size: 1.25rem;
-  line-height: 1;
+  display: grid;
+  place-items: center;
   background: none;
   border: none;
   color: var(--cor-titulo);
   cursor: pointer;
   align-self: center;
+}
+
+/* a área de toque sobe até a borda da tela, não desce: embaixo está o número da Vida */
+.engrenagem::before {
+  top: -0.45rem;
+  bottom: -0.05rem;
 }
 
 /* save falhou: a engrenagem avisa, porque o backup mora nela */
@@ -2984,7 +3167,7 @@ label.linha-item input[type='checkbox'] {
 }
 
 .menu-grupo {
-  font-size: 0.75rem;
+  font-size: var(--letra-subtitulo);
   font-variant: small-caps;
   color: var(--cor-texto-suave);
   margin-top: 0.3rem;
@@ -3068,14 +3251,17 @@ label.linha-item input[type='checkbox'] {
   line-height: 1.45;
 }
 
-.menu-idioma {
+/* uma escolha entre poucas (idioma, tamanho da letra): botões lado a lado */
+.menu-opcoes {
   display: flex;
   gap: 0.4rem;
 }
 
-.menu-idioma .menu-item {
+.menu-opcoes .menu-item {
   flex: 1;
   text-align: center;
+  min-width: 0;
+  padding-inline: 0.3rem; /* três lado a lado cabem com a letra Grande */
 }
 
 .menu-ativo {
@@ -3095,6 +3281,49 @@ label.linha-item input[type='checkbox'] {
   border-bottom: 1px solid var(--cor-borda);
   font-size: 0.8rem;
   color: var(--cor-titulo);
+}
+
+/* tela "Algo quebrou" (ErroTela): o erro técnico fica recolhido */
+.erro-detalhe summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--alvo-toque);
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+  cursor: pointer;
+}
+
+/* quanto do espaço do aparelho a ficha usa (estado/espaco.ts) */
+.menu-espaco {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+}
+
+.menu-espaco-barra {
+  height: 6px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.menu-espaco-barra i {
+  display: block;
+  min-width: 2px; /* a ficha sempre ocupa algo: a barra nunca parece vazia */
+  height: 100%;
+  background: var(--cor-ok);
+}
+
+.menu-espaco-cheio {
+  color: var(--cor-destaque);
+  font-weight: bold;
+}
+
+.menu-espaco-cheio .menu-espaco-barra i {
+  background: var(--cor-destaque);
 }
 
 .menu-versao {
@@ -3164,4 +3393,208 @@ label.linha-item input[type='checkbox'] {
   display: block;
   font-size: 0.72rem;
   color: var(--cor-texto-suave);
+}
+
+/* conexões: o texto ocupa a linha, editar e apagar à direita; o adicionar embaixo */
+.pg-conexao-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.pg-conexao-nova {
+  margin-top: 0.4rem;
+}
+
+/* ════════ CARTÃO DE ATAQUE — molde do D&D Beyond (pedido 27, Acoes.tsx) ════════
+   Um cartão por arma: no alto o nome e a munição; uma linha com Alcance, Acerto
+   e Dano (rótulo em cima, valor embaixo, como as colunas do Beyond); embaixo, as
+   ações em linhas de lista — sem caixinha, só o custo que existe. */
+.ataque-cartao {
+  margin-bottom: 0.6rem;
+  padding: 0.55rem 0.7rem 0.2rem;
+  background: var(--cor-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.ataque-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ataque-topo .ataque-nome {
+  font-size: var(--letra-subtitulo);
+}
+
+.ataque-topo .fab-cargas-botao {
+  margin-right: 0;
+  font-size: 1.15rem;
+}
+
+.ataque-colunas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.2fr);
+  gap: 0.6rem;
+  margin-top: 0.45rem;
+  align-items: start;
+}
+
+.ataque-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.ataque-coluna-rotulo {
+  font-size: var(--letra-nota);
+  color: var(--cor-texto-suave);
+}
+
+.ataque-coluna-valor {
+  font-size: var(--letra-texto);
+}
+
+.ataque-acoes {
+  list-style: none;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.usar-linha-item + .usar-linha-item {
+  border-top: 1px solid var(--cor-campo);
+}
+
+.usar-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: var(--alvo-toque);
+  padding: 0 0.15rem;
+  font-family: var(--fonte);
+  font-size: var(--letra-texto);
+  text-align: left;
+  color: var(--cor-titulo);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.usar-linha:active:not(:disabled) {
+  background: var(--cor-fundo-pagina);
+}
+
+.usar-linha:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.usar-linha-ativacao {
+  min-width: 1.3rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+  letter-spacing: -0.05em;
+  font-size: 1.2rem;
+  text-align: center;
+  color: var(--cor-destaque);
+}
+
+.usar-linha-nome {
+  flex: 1;
+  min-width: 0;
+  font-weight: bold;
+}
+
+.usar-linha-custo {
+  flex-shrink: 0;
+  font-size: 1rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.usar-linha-custo.custo-cargas {
+  color: var(--cor-texto);
+}
+
+/* a dica das setas ▲▼ no topo: aparece no 1º toque, some no Entendi */
+.cf-dica {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  font-size: var(--letra-nota);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+}
+
+.cf-dica span {
+  flex: 1;
+}
+
+/* fluxo: Usar e pagamento lado a lado — o cartão fica do tamanho do conteúdo */
+.acoes-lado {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.acoes-lado .usar-linha-item {
+  flex: 1 1 45%;
+  min-width: 0;
+}
+
+.acoes-lado .usar-linha-item + .usar-linha-item {
+  border-top: none;
+  border-left: 1px solid var(--cor-campo);
+  padding-left: 0.4rem;
+}
+
+/* "Regra do livro" das origens (aba Personagem): um bloco por origem */
+.regra-bloco + .regra-bloco {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.regra-bloco p {
+  margin: 0.15rem 0;
+}
+
+/* o símbolo enquanto a ficha abre (index.html, antes do React) */
+.abrindo {
+  margin-top: 40vh;
+  text-align: center;
+  font-size: 2rem;
+  color: var(--cor-destaque);
+}
+
+/* ════════ SUBTÍTULO — o rótulo de um grupo, entre o título e o texto ════════
+   Negrito, sem versalete: no versalete as minúsculas saem do tamanho de letra
+   pequena, e o rótulo parecia menor que o texto que ele classifica (César,
+   10/Out/2026). Fica no fim do arquivo pra valer sobre a regra de cada peça. */
+.na-mesa dt,
+.esp-grupo-titulo,
+.inv-categoria-titulo,
+.detalhe-exemplo,
+.pr-grupo-nome,
+.desc-campo,
+.fab-lista h4,
+.menu-grupo,
+.resumo-grupo-titulo,
+.ident-campo span {
+  font-size: var(--letra-subtitulo);
+  font-variant: normal;
+  font-weight: bold;
+  letter-spacing: 0;
+}
+
+/* dentro de "Especialidades" no Na mesa, o tipo (Cultural…) é um nível abaixo: itálico */
+.na-mesa .esp-grupo-titulo {
+  font-size: var(--letra-texto);
+  font-weight: normal;
+  font-style: italic;
 }

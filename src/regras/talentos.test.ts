@@ -1,7 +1,7 @@
 /* arquivo: talentos.test.ts */
 import { describe, it, expect } from 'vitest'
 import { importarShards } from '../estado/importarShards'
-import { CATALOGO_TALENTOS, acoesDeTalentos, entradaTalento, talentosDeFluxo, chaveTalentoFluxo } from './talentos'
+import { CATALOGO_TALENTOS, acoesDeTalentos, entradaTalento, talentosDeFluxo, chaveTalentoFluxo, escolhidasNasOutras } from './talentos'
 import { usavelDe } from './turno'
 import eccho from '../../public/personagens/eccho.json'
 
@@ -51,5 +51,22 @@ describe('catálogo de talentos', () => {
       .filter(([, e]) => !e.descricao.trim() || e.descricao.includes('não encontrado na transcrição'))
       .map(([k]) => k)
     expect(vazias).toEqual([])
+  })
+})
+
+describe('vagas de talento — restrições do livro', () => {
+  it('a outra vaga do mesmo tipo já escolheu: não pode repetir (Erudição: duas perícias diferentes)', () => {
+    const id = 'scholar::key::erudition'
+    const escolhas = {
+      [`${id}#pericia#0`]: { talentoId: id, tipo: 'pericia' as const, indice: 0, valor: 'crafting' },
+      [`${id}#especialidade#0`]: { talentoId: id, tipo: 'especialidade' as const, indice: 0, valor: 'Mineralogia/Gemas' },
+    }
+    expect([...escolhidasNasOutras(id, { tipo: 'pericia', indice: 1 }, escolhas)]).toEqual(['crafting'])
+    expect(escolhidasNasOutras(id, { tipo: 'pericia', indice: 0 }, escolhas).size).toBe(0) // a própria escolha não conta
+  })
+
+  it('a especialidade da Erudição é só cultural ou de utilidade (livro: 05-erudito.md)', () => {
+    const vaga = CATALOGO_TALENTOS['scholar::key::erudition'].vagas?.find((v) => v.tipo === 'especialidade')
+    expect(vaga?.tiposEspecialidade).toEqual(['cultural', 'utilidade'])
   })
 })

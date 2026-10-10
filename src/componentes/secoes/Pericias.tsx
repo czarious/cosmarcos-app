@@ -13,6 +13,7 @@ import { tetoPericiaNormal } from '../../regras/pericias'
 import { efeitoCondicoesPericia } from '../../regras/condicoes'
 import { ICONE, ORDEM_ATRIBUTOS } from '../../variaveis'
 import PopoverDetalhe from '../PopoverDetalhe'
+import ListaLinhas from '../ListaLinhas'
 import { useIdioma } from '../../idioma/IdiomaContexto'
 
 // Aba Perícias (item 1.4) — as 18 com a bolinha de graduação e o total
@@ -120,11 +121,17 @@ export default function Pericias({ ficha, escolhasTalento }: Props) {
         )
       })}
 
-      <p className="proximo legenda-pericias">
-        {ICONE.graduacaoCheia} {t(tx.pericias.graduacao)} · {ICONE.graduacaoVazia} {t(tx.pericias.vagaAteTetoTeto, { teto, nivel: ficha.meta.nivel })} ·{' '}
-        {ICONE.graduacaoTalento} {t(tx.pericias.graduacaoTalentoIsentaTeto)} · <i className="grad-sem-origem">{ICONE.graduacaoTalento}</i>{' '}
-        {t(tx.pericias.veioShardsTalentoAinda)}
-      </p>
+      <ListaLinhas
+        classe="proximo legenda-pericias lista-sem-ponto"
+        itens={[
+          `${ICONE.graduacaoCheia} ${t(tx.pericias.graduacao)}`,
+          `${ICONE.graduacaoVazia} ${t(tx.pericias.vagaAteTetoTeto, { teto, nivel: ficha.meta.nivel })}`,
+          `${ICONE.graduacaoTalento} ${t(tx.pericias.graduacaoTalentoIsentaTeto)}`,
+          <>
+            <i className="grad-sem-origem">{ICONE.graduacaoTalento}</i> {t(tx.pericias.veioShardsTalentoAinda)}
+          </>,
+        ]}
+      />
 
       {detalheAberto && (
         <PopoverDetalhe

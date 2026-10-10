@@ -1,13 +1,16 @@
 /* arquivo: MenuEngrenagem.tsx */
 import { useState } from 'react'
-import { ICONE } from '../variaveis'
+import Icone from './Icone'
 import { useIdioma } from '../idioma/IdiomaContexto'
 import { IDIOMAS, type Idioma } from '../idioma/idioma'
+import { TAMANHOS_LETRA, useTamanhoLetra } from '../estado/useTamanhoLetra'
+import { medirEspaco, emMB } from '../estado/espaco'
 import Janela from './Janela'
 import AvisoCuidado from './AvisoCuidado'
 
 // A engrenagem no canto do topo: o que é do APP, não da ficha na mesa —
-// a ponte com o Shards (importar/exportar), o backup e o idioma da tela.
+// a ponte com o Shards (importar/exportar), o backup, o espaço do aparelho,
+// o idioma e o tamanho da letra.
 // Importar apaga dado: pede confirmação aqui mesmo, sem `confirm()`.
 
 type Props = {
@@ -21,9 +24,13 @@ type Props = {
 }
 
 export default function MenuEngrenagem({ aoImportar, aoExportar, aoBaixarBackup, aoDesfazerImportacao, salvou }: Props) {
-  const { t, tx, idioma, definirIdioma } = useIdioma()
+  const { t, tx, idioma, definirIdioma, num } = useIdioma()
+  // Medido a cada desenho: soma o tamanho das chaves, barato, e acompanha cada gravação
+  const espaco = medirEspaco()
+  const alerta = !salvou || espaco.quaseCheio
   const [aberto, setAberto] = useState(false)
   const [confirmandoImportar, setConfirmandoImportar] = useState(false)
+  const [letra, definirLetra] = useTamanhoLetra()
 
   function fechar() {
     setAberto(false)
@@ -38,8 +45,8 @@ export default function MenuEngrenagem({ aoImportar, aoExportar, aoBaixarBackup,
 
   return (
     <>
-      <button className={salvou ? 'engrenagem' : 'engrenagem engrenagem-alerta'} onClick={() => setAberto(true)} aria-label={tx.geral.menu}>
-        {ICONE.menu}
+      <button className={alerta ? 'engrenagem engrenagem-alerta' : 'engrenagem'} onClick={() => setAberto(true)} aria-label={tx.geral.menu}>
+        <Icone nome="configuracoes" />
       </button>
       {aberto && (
         <Janela titulo={tx.geral.menu} aoFechar={fechar} classe="menu-engrenagem">
@@ -72,12 +79,28 @@ export default function MenuEngrenagem({ aoImportar, aoExportar, aoBaixarBackup,
           <button className={salvou ? 'menu-item' : 'menu-item menu-perigo'} onClick={e(aoBaixarBackup)}>
             {tx.geral.baixarBackup}
           </button>
+          <div className={espaco.quaseCheio ? 'menu-espaco menu-espaco-cheio' : 'menu-espaco'}>
+            <span>{t(tx.menu.espaco, { usado: num(emMB(espaco.usadoBytes), 2), limite: num(emMB(espaco.limiteBytes), 0) })}</span>
+            <span className="menu-espaco-barra" aria-hidden>
+              <i style={{ width: `${espaco.fracao * 100}%` }} />
+            </span>
+            {espaco.quaseCheio && <span>{tx.menu.espacoQuaseCheio}</span>}
+          </div>
 
           <h3 className="menu-grupo">{t(tx.menu.idioma)}</h3>
-          <div className="menu-idioma" role="group" aria-label={t(tx.menu.idioma)}>
+          <div className="menu-opcoes" role="group" aria-label={t(tx.menu.idioma)}>
             {(Object.keys(IDIOMAS) as Idioma[]).map((i) => (
               <button key={i} className={i === idioma ? 'menu-item menu-ativo' : 'menu-item'} aria-pressed={i === idioma} onClick={() => definirIdioma(i)}>
                 {IDIOMAS[i]}
+              </button>
+            ))}
+          </div>
+
+          <h3 className="menu-grupo">{t(tx.menu.letra)}</h3>
+          <div className="menu-opcoes" role="group" aria-label={t(tx.menu.letra)}>
+            {TAMANHOS_LETRA.map((l) => (
+              <button key={l} className={l === letra ? 'menu-item menu-ativo' : 'menu-item'} aria-pressed={l === letra} onClick={() => definirLetra(l)}>
+                {{ pequeno: tx.menu.letraPequeno, medio: tx.menu.letraMedio, grande: tx.menu.letraGrande }[l]}
               </button>
             ))}
           </div>

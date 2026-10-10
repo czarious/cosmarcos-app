@@ -7,19 +7,22 @@ import FotoPersonagem from './FotoPersonagem'
 import Fogueira from './Fogueira'
 import PopoverDeflexao from './PopoverDeflexao'
 import { ICONE, SIMBOLO_RECURSO, GRUPOS_FICHA } from '../variaveis'
-import { condicoesEfetivas } from '../regras/condicoes'
+import { condicoesEfetivas, CONDICOES_POSITIVAS } from '../regras/condicoes'
 import { deflexaoTotal } from '../regras/armadura'
-import { rotuloCondicao } from './secoes/Condicoes'
+import ResumoCondicoes from './ResumoCondicoes'
 import { useIdioma } from '../idioma/IdiomaContexto'
 
 // O cabeçalho fixo — SÓ o que muda o tempo todo na mesa (premissas.md →
 // "Os vitais grudam no topo"). No alto, a linha de identidade (nome, texto, ⚙);
 // embaixo, duas colunas: foto e fogueira (descanso) à esquerda,
 // Vida/Foco/Investidura empilhados à direita (a Vida com o escudinho da
-// deflexão). Por último, as condições ativas.
+// deflexão). Por último, as condições ativas: duas caixinhas (negativas e
+// positivas) com o número; o toque abre o resumo (ResumoCondicoes).
 // Altura perto da do cabeçalho antigo (3 quadros lado a lado) — o César pediu.
 // Atributos, defesas e derivados moram na aba Principal.
 // Cada recurso: ▲▼ mudam 1; tocar no número abre o ControleRecurso (dano/cura de valor qualquer, item 1.2/1.3).
+
+const CHAVE_DICA_SETAS = 'cosmarcos:dica-setas-vista'
 
 type Props = {
   ficha: Personagem
@@ -27,7 +30,7 @@ type Props = {
   definirFoto: (foto: string | undefined) => void
   fazerDescansoCurto: (vida: number, foco: number) => void
   fazerDescansoLongo: () => void
-  /** Toque na faixa de condições → vai pra aba Condições. */
+  /** O atalho do resumo das condições → vai pra aba Condições. */
   aoVerCondicoes: () => void
   /** A engrenagem (MenuEngrenagem), no canto direito da identidade. */
   menu: ReactNode
@@ -35,11 +38,32 @@ type Props = {
 
 export default function CabecalhoFixo({ ficha, alterarRecurso, definirFoto, fazerDescansoCurto, fazerDescansoLongo, aoVerCondicoes, menu }: Props) {
   const idioma = useIdioma()
-  const { t, tx, nome } = idioma
+  const { t, tn, tx, nome } = idioma
   const { meta, recursos } = ficha
   const [aberto, setAberto] = useState<NomeRecurso | null>(null)
   const [vendoDeflexao, setVendoDeflexao] = useState(false)
+  const [vendoCondicoes, setVendoCondicoes] = useState(false)
+  // O app se explica sozinho: no 1º toque numa seta, uma faixa diz o que ela faz (até o "Entendi")
+  const [dicaSetas, setDicaSetas] = useState(false)
+  const tocarSeta = (qual: NomeRecurso, delta: number) => {
+    alterarRecurso(qual, delta)
+    try {
+      if (!localStorage.getItem(CHAVE_DICA_SETAS)) setDicaSetas(true)
+    } catch {
+      // sem armazenamento: sem dica
+    }
+  }
+  const fecharDicaSetas = () => {
+    setDicaSetas(false)
+    try {
+      localStorage.setItem(CHAVE_DICA_SETAS, '1')
+    } catch {
+      // volta a aparecer na próxima vez — sem problema
+    }
+  }
   const efetivas = condicoesEfetivas(ficha)
+  const positivas = efetivas.filter((c) => CONDICOES_POSITIVAS.has(c.id)).length
+  const negativas = efetivas.length - positivas
   const deflexao = deflexaoTotal(ficha).total
 
   return (
@@ -82,10 +106,10 @@ export default function CabecalhoFixo({ ficha, alterarRecurso, definirFoto, faze
                 ) : (
                   <span aria-hidden />
                 )}
-                <button className="cf-seta" onClick={() => alterarRecurso(qual, +1)} disabled={r.atual >= r.max} aria-label={`${tx.recursos[qual]}: ${t(tx.recurso.mais)}`}>
+                <button className="cf-seta" onClick={() => tocarSeta(qual, +1)} disabled={r.atual >= r.max} aria-label={`${tx.recursos[qual]}: ${t(tx.recurso.mais)}`}>
                   {ICONE.subir}
                 </button>
-                <button className="cf-seta" onClick={() => alterarRecurso(qual, -1)} disabled={r.atual <= 0} aria-label={`${tx.recursos[qual]}: ${t(tx.recurso.menos)}`}>
+                <button className="cf-seta" onClick={() => tocarSeta(qual, -1)} disabled={r.atual <= 0} aria-label={`${tx.recursos[qual]}: ${t(tx.recurso.menos)}`}>
                   {ICONE.descer}
                 </button>
                 {/* o número abre o editor: dano/cura de valor qualquer (as setas são de 1 em 1) */}
@@ -105,16 +129,24 @@ export default function CabecalhoFixo({ ficha, alterarRecurso, definirFoto, faze
         <Fogueira ficha={ficha} fazerDescansoCurto={fazerDescansoCurto} fazerDescansoLongo={fazerDescansoLongo} />
       </div>
 
+      {dicaSetas && (
+        <div className="cf-dica" role="status">
+          <span>{t(tx.cabecalho.dicaSetas)}</span>
+          <button type="button" className="rodape-botao" onClick={fecharDicaSetas}>
+            {tx.geral.entendi}
+          </button>
+        </div>
+      )}
+
       {/* Condição ativa aparece em QUALQUER aba — muda a jogada no meio do combate */}
       {efetivas.length > 0 && (
-        <button className="cf-condicoes" onClick={aoVerCondicoes} aria-label={t(tx.cabecalho.verCondicoesAtivas)}>
-          {efetivas.map((c) => (
-            <span key={c.uid} className="cf-condicao">
-              {rotuloCondicao(c, idioma)}
-            </span>
-          ))}
+        <button className="cf-condicoes" onClick={() => setVendoCondicoes(true)} aria-label={t(tx.cabecalho.verCondicoesAtivas)}>
+          <span className="cf-condicoes-rotulo">{t(tx.condicoes.condicoes)}</span>
+          {negativas > 0 && <span className="cf-condicao">{tn(tx.cabecalho.condNegativas, negativas)}</span>}
+          {positivas > 0 && <span className="cf-condicao cf-condicao-positiva">{tn(tx.cabecalho.condPositivas, positivas)}</span>}
         </button>
       )}
+      {vendoCondicoes && <ResumoCondicoes efetivas={efetivas} aoAbrirAba={aoVerCondicoes} aoFechar={() => setVendoCondicoes(false)} />}
 
       {vendoDeflexao && <PopoverDeflexao ficha={ficha} aoFechar={() => setVendoDeflexao(false)} />}
 

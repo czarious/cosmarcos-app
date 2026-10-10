@@ -1,126 +1,35 @@
 # CLAUDE.md
 
-> **Finalidade:** briefing de sessão — lido automaticamente ao iniciar cada uma.
->
-> ## 📏 A regra deste arquivo
->
-> Pra cada assunto, uma pergunta só:
->
-> > **Ao abrir o projeto eu preciso saber disso imediatamente, ou posso ler só quando precisar?**
->
-> **Imediatamente → seção aqui.** · **Só quando precisar → arquivo próprio, e aqui fica a referência.**
->
-> Vale nos dois sentidos: enxugar demais também custa. Ponteiro que me obriga a abrir 5 arquivos pra saber uma coisa é pior do que o texto inteiro aqui. Como aplicar e quando revisar: [.claude/organizacao.md](.claude/organizacao.md).
+> **Briefing de sessão** — lido sozinho ao abrir. Aqui só o que vale em **toda** sessão; o resto mora no doc dono. Como manter assim: [.claude/organizacao.md](.claude/organizacao.md) → "A regra do CLAUDE.md".
 
-## Mapa dos documentos
+- **Ao abrir a conversa:** [escopo/melhorias.md](escopo/melhorias.md) → "Próxima conversa" (os pedidos do César e o estado de cada um).
+- **Pra se localizar no projeto** — qual doc responde o quê, e quando abrir cada um: [mapa-app.md](mapa-app.md) → "Como se localizar no projeto".
 
-**Cada assunto tem um dono. Se está aqui, não está lá — não duplicar.**
+## O projeto
 
-| Doc | Responde | Abrir quando |
-|---|---|---|
-| **CLAUDE.md** (este) | Quem · como trabalhar | Sempre — já está em contexto |
-| **[escopo/premissas.md](escopo/premissas.md)** | **Por quê** — toda decisão de arquitetura, o que custa, e o que foi descartado | Antes de propor funcionalidade, stack ou dependência |
-| **[escopo/roadmap.md](escopo/roadmap.md)** | O que falta · perguntas em aberto | Antes de propor funcionalidade ou chutar regra |
-| **[escopo/](escopo/README.md)** | O quê | [visão](escopo/visao.md) · [dados](escopo/dados.md) · [interface](escopo/interface.md) · [Cosmere × D&D](escopo/cosmere-e-a-interface.md) · [personagens](escopo/personagens.md) |
-| **[mapa-app.md](mapa-app.md)** | Onde, **no código** | Antes de mexer em `src/`; **escrever nele** ao criar/mover/apagar arquivo |
-| **[.claude/mapa-projeto.md](.claude/mapa-projeto.md)** | Onde, **na raiz** | Antes de criar arquivo fora de `src/`; idem pra escrever |
-| **[.claude/mapa-shards.md](.claude/mapa-shards.md)** | Onde, **no site do Shards** | Antes de editar a ficha no navegador ou mexer no tradutor |
-| **[.claude/organizacao.md](.claude/organizacao.md)** | Como a estrutura se mantém | Ao sentir atrito: regra esquecida, busca longa, doc duplicado |
+**cosmarcos-app** — ficha do **Cosmere RPG** pro celular, usada na mesa (vida, foco, investidura, condições ao vivo): um "D&D Beyond do Cosmere", só a parte de jogar. React + TypeScript + Vite, PWA, ficha no IndexedDB, GitHub Pages. **Custo zero é requisito.** O Shards é a **semente** (importar sobrescreve tudo); **nenhum personagem fica escrito no código**. O repo é público: guarda os dados do César e o código, **nunca o texto do livro** (catálogos são resumo com palavras próprias).
 
-> **Antes de propor qualquer funcionalidade:** ler [premissas](escopo/premissas.md) → "Descartado — não repropor" e [roadmap](escopo/roadmap.md) → "Perguntas em aberto".
->
-> **Decisão de arquitetura mora numa página só — [premissas](escopo/premissas.md), sempre vigente.** Mudou de ideia? **Sobrescreve a linha.** Sem registro novo, sem "superada", sem histórico.
+Repositório `C:\dev\GitHub\cosmarcos-app` · campanha em `G:\Meu Drive\Claude\campanha-cosmere-marcos`.
 
-## O Projeto
+## O César — a divisão
 
-**cosmarcos-app** — ficha interativa do **Cosmere RPG** pro celular, usada durante a sessão: vida, foco, investidura, buffs e condições ao vivo na mesa. Um "D&D Beyond do Cosmere", **só a parte de jogar**.
+Engenheiro civil, não é desenvolvedor. **Diz o que o app tem que ser e confere só a tela — não olha pastas nem código** (12/Set/2026). Todo o resto é meu: organização, achar a regra no livro, entender o pedido sem dúvida. Inclua dicas de aprendizado (ele aprende por osmose).
 
-**Stack:** React + TypeScript + Vite, empacotado como PWA. Estado em localStorage. Publicado no GitHub Pages. **Custo zero é requisito** — ver [premissas](escopo/premissas.md).
+## Como trabalhar
 
-O Shards é a **semente**: importa o JSON uma vez, e a partir daí **o app é dono da ficha**. Importar de novo **sobrescreve tudo, sem fusão**. O app é orientado a dados — **nenhum personagem fica escrito no código**.
+- **Dúvida que muda o trabalho: pergunto antes.** Diferença pequena: decido e digo a suposição. Sugestão dele eu avalio; pedido eu executo.
+- **Regra do sistema: livro > decisão do César > fonte online > nada.** O livro está em `referencia/livro/transcricao/` (índice `00-sumario.md`) — abrir **antes** de implementar, e o conteúdo do livro entra junto, pra qualquer personagem. Não sei? Pergunto ou registro em [roadmap](escopo/roadmap.md) → "Perguntas em aberto". Nunca invento.
+- **Relato em comportamento** (o que mudou na tela), **sempre com o que NÃO consegui verificar**, fechando com o **roteiro de conferência** (o que tocar, o que ver).
+- **Antes de dizer que terminei:** `node .claude/verificar.mjs` · `npx tsc --noEmit` · `npm test` · `npm run build` — e: algo merece refatorar, fundir ou apagar?
+- **Erro analisado até virar mudança** (conferência nova, regra no ponto de uso, estrutura corrigida) — "vou prestar atenção" não fecha.
+- **Peça única:** o que se repete vira uma peça com características (ex.: `Janela`, `BotaoInfo`, `ListaLinhas`, `regraDoLivro.ts`), pra uma mudança grande afetar todo lugar que deve.
+- Confirmação por **entrega**, não por arquivo · commit e push **só com autorização** (`/git-up` já é ela) · texto pra copiar em bloco de código · respostas diretas.
 
-**Uso pessoal / da mesa.** O texto de regras é da Brotherwise — o repo guarda **os dados do César** e o código, nunca o livro.
+## Convenções
 
-Repositório: `C:\dev\GitHub\cosmarcos-app` · Projeto irmão (campanha): `G:\Meu Drive\Claude\campanha-cosmere-marcos`
-
-## Sobre o César
-
-Engenheiro Civil, Ribeirão Preto/SP — engenharia + processos + dados. **Não é desenvolvedor de formação**; aprendeu no `ficha-imovel` (JS puro). Lê e edita HTML/CSS/JS com orientação, usa GitHub Desktop, já integrou Google Drive API + OAuth.
-
-**Inclua dicas de aprendizado ao longo do trabalho** — ele aprende por osmose.
-
-> `ficha-imovel` e `reforma-rp-tibirica-682` são referência **organizacional**, nunca de stack.
-
-## Como Trabalhar
-
-### A divisão (definida em 12/Set/2026)
-
-> **O César diz o que o app tem que ser.** Ele instrui, pede mudança, pede verificação. **Ele não olha pastas nem código.**
->
-> **Todo o resto é meu:** organização, onde cada coisa mora, achar a regra do sistema na transcrição, e entender o pedido **sem dúvida** antes de executar.
-
-**Ele só consegue conferir uma coisa: o app na tela.** Tudo que não aparece na tela — arquivo no lugar errado, referência quebrada, regra inventada, conta errada que ninguém exercitou — **não tem quem pegue além de mim**. Por isso:
-
-| Dever | O que significa na prática |
-|---|---|
-| **Dizer o que eu NÃO consegui verificar** | Nunca deixar passar em silêncio. "O build passou, mas não consegui testar o F5 no navegador" é obrigatório. Silêncio aqui vira bug na mesa |
-| **Analisar todo erro até ele virar mudança** | Não prometo zero erro — prometo que o erro é **analisado até mudar alguma coisa**: conferência nova no `verificar.mjs`, regra movida pro ponto de uso, ou estrutura corrigida. **"Vou prestar mais atenção" não fecha a análise.** Ver [.claude/organizacao.md](.claude/organizacao.md) → "As perguntas que eu me faço" |
-| **Procurar a regra na transcrição ANTES de implementar** | Mexeu com regra do sistema? Abrir `referencia/livro/transcricao/` (índice em `00-sumario.md`) e achar o texto. Só então codar |
-| **Desfazer a dúvida antes, não depois** | Entendimentos diferentes levariam a trabalhos diferentes? Pergunto **antes**. Se a diferença é pequena, decido e digo qual suposição usei |
-| **Relatar em comportamento, não em arquivo** | Ele não abre código: o relato diz **o que mudou na tela**, não quais arquivos toquei |
-| **Terminar com o roteiro de conferência** | Ele valida **na tela** — botão, aba, informação nova. Toda entrega fecha com a lista curta: **o que tocar e o que ele deve ver**. Sem isso ele não tem como validar |
-| **Rodar as quatro conferências antes de dizer que terminei** | `node .claude/verificar.mjs` · `npx tsc --noEmit` · `npm test` · `npm run build` |
-
-- **Apresente o raciocínio antes de executar e aguarde confirmação**
-- **Confirmação por ENTREGA, não por arquivo.** Aprovado o raciocínio, executo a mudança inteira e ele confere **na tela**. *(Era "um arquivo por vez" — regra de quando ele revisava cada arquivo; virou cerimônia quando ele parou de abrir código, 12/Set/2026.)*
-- Textos para copiar sempre em bloco de código (` ``` `)
-- Verifique referências cruzadas antes de entregar qualquer arquivo
-- Respostas diretas e sem enrolação
-- Commit e push **nunca** são automáticos — só após autorização explícita (`/git-up` já é ela)
-- **A organização, a limpeza e a verificação do projeto são minha responsabilidade**, não dele. **A cada entrega, antes de dizer que terminei:** algo merece refatorar, reestruturar, fundir ou apagar? Sem esperar ele pedir — [.claude/organizacao.md](.claude/organizacao.md)
-- **Não inventar regra do sistema.** Não sabe? Pergunta, ou registra em [roadmap](escopo/roadmap.md) → "Perguntas em aberto". Regra chutada só aparece na mesa, no meio do combate
-- **O livro desempata, e chega aos poucos.** Hierarquia: **livro > decisão do César > fonte online > nada**. Toda transcrição nova é **gatilho de revisão** — conferir as perguntas em aberto contra o texto e derrubar o que for provisório. Regra **PROVISÓRIA** existe pra ser derrubada, não pra virar permanente por esquecimento
-
-## Convenções Obrigatórias
-
-- `<!-- DESTINO: pasta/arquivo.md -->` no topo de todo doc · `/* arquivo: nome.tsx */` no topo de todo código
-- **Criou, renomeou, moveu ou apagou? Atualiza o mapa na mesma entrega** — `mapa-app.md` se foi em `src/`, `.claude/mapa-projeto.md` se foi na raiz
-- **Referência por nome, nunca por número de seção.** `ver [dados.md](escopo/dados.md) → "O que o Shards não dá"`, jamais "ver §6.3" — numeração quebra quando alguém insere seção no meio (já quebrou duas vezes)
-- Datas no formato `DD/Mmm/AAAA`
-- Código em **português** — tipos, funções, componentes
-- Componentes em `PascalCase.tsx` · lógica em `camelCase.ts`
-- **Uma versão só**, a do `package.json` — sobe **uma vez por push**, no commit que vai subir. Regra: [mapa-app.md](mapa-app.md) → "Versionamento"
-- Palavra de tela mora em `src/idioma/pt.ts` e `en.ts` (as mesmas variáveis); símbolo e ícone, em `src/variaveis.ts`; cor e forma, em `src/estilos/base.css`
-
-## Fluxo de Teste e Deploy
-
-`npm run dev` na raiz → `localhost:5173` com recarga automática → **César confirma na tela** → teste no celular (IP local) → autorização → commit + push → GitHub Actions builda → GitHub Pages publica.
-
-> Não existe Live Server aqui: quem serve o projeto é o Vite.
-
-## Estado atual — 10/Out/2026
-
-Publicado (v0.15.0): **dados do jogador mais seguros** (tela "Algo quebrou", cópias em pasta própria, importar recusa ficha ruim em janela "Não importei", lixeira com 2º toque) · **peça `Janela`** com características (fechar, largura, tema, tipo aviso) · menu ⚙ vira "Configurações" · **talentos de ação na aba Ações** (grupo "Talentos", ▶ ▷ ↻ com "Usar"; custo fixo de Foco/Investidura em 41 dos 87) · **notas de trilha** do Shards em 2 blocos fixos da aba Anotações · **especialidades** na aba Talentos (pílula abre a conta do livro) · janelas dentro das abas presas na tela (`Sobreposicao.tsx`), números que abrem janela em bolinha · em inglês, pés/libras (`idioma.ts` → medidas) · **fluxos** com "Como usar" e "Usar" por habilidade · **"Na mesa"** na aba Personagem · **"⇅ Reordenar"** abas · **texto de todo talento** (trilhas, Cantor, 9 ordens, 10 fluxos; grupo "De fluxo") · **Contagem de talentos** · importa ficha com linha em branco (v0.12.2, caso do Tiago) · **cabeçalho novo** (foto com recorte, fogueira do descanso, quadradinhos coloridos, setas ▲▼, escudinho da deflexão) · **botões com custo à esquerda** · turno minimizável · aviso de ficha mais nova · **arrastar entre abas** (Embla) ·  **rastreador de turno** na aba Ações · guia dos fluxos · **engrenagem ⚙** (importar, exportar, backup, idioma, número da versão) · **idioma PT/EN** 1ª etapa · pertences no Inventário · ajustes pro iPhone · **aviso "Versão nova — Atualizar"** (v0.8.1: antes a versão nova só entrava reinstalando) · checklist Shards × app em [escopo/checklist-shards.md](escopo/checklist-shards.md). **Arte PAUSADA** a pedido do César.
-
-**Próxima conversa:** ver a rodada do iPhone da v0.15.0 (`gh run list --workflow iphone.yml -L 1`). Seguir as entregas combinadas em 10/Out/2026: **B** (pedido 16 — alvo de toque, tamanho da letra, medidor de espaço, ícone de mudança não guardada fora do celular) → **migração pro IndexedDB** → **C** temas Claro/Escuro/Cosmere pro app inteiro (pedido 17) → **D** simular iPhone → **E** cabeçalhos de outros apps. Da v0.14.0 o César só conferiu os talentos de ação. Depois, seguir pela [checklist](escopo/checklist-shards.md).
-
-**Pedidos do César, em ordem — nenhum se apaga, só muda de estado (ele pediu, 30/Set/2026):**
-1. ✅ Plano do turno, Desfazer e travas de carga (v0.9.0).
-2. ✅ 20 turnos de jogador testados + regra das mãos no Golpear (v0.9.1).
-3. ✅ Ligações entre abas conferidas na tela (equipar ↔ ataques, recarga com Investidura ↔ cargas e topo, ação ↔ Foco, Aprimorar ↔ Principal/Perícias/Condições, descanso ↔ topo, fluxo Radiante ↔ Ações, vaga de talento ↔ perícia) (v0.9.2).
-4. ✅ Salvar/exportar/importar: condições e lesões vão e voltam pro Shards; "Voltar à ficha de antes da importação" na ⚙ (v0.9.2). Celular → item 14.
-5. ✅ Teste de iPhone: roda **sozinho em Linux depois de cada publicação** (WebKit, ~2 min); o Safari real do simulador só com `-f mac=true`; antes de publicar, `--ref <ramo> -f alvo=ramo` testa o app do ramo (01/Out/2026). O Golpear que travava na v0.10.2 passou (19/19 no ramo `teste/cabecalho-novo`). O que simulador não cobre → item 14.
-6. ✅ Armadura (v0.10.0): vestir/tirar no Inventário, deflexão total, Desajeitada. **Ainda falta:** `modifiers` de item equipado — o que o Shards já soma e o que não: [dados.md](escopo/dados.md) → "Bônus: o que já vem somado"; nenhum personagem da mesa usa ainda.
-7. 🔶 Mapeamento do Shards mais fundo (01/Out/2026, código do Shards 3.5.0 lido): o tradutor já usava os números prontos certos; faltava só o ajuste manual de deflexão, agora somado (teste; o Eccho tem 0, não aparece na tela). O que cada bônus soma e o que o app ignora de propósito: [dados.md](escopo/dados.md) → "Bônus: o que já vem somado". Rótulos que sobraram (2ª trilha, contador de talentos…) seguem no item 8.
-8. ⏳ Funcionalidades que faltam, pela [checklist](escopo/checklist-shards.md).
-9. ⏳ 2ª etapa do idioma (descrições de regra).
-10. 📌 Lembrar a mesa de importar a ficha uma vez depois de atualizar (save antigo guarda nomes em inglês e tipos velhos).
-11. 🔶 Arrastar o dedo pra trocar de aba: v0.10.1 publicada travava; refeito com **Embla** (abas montadas uma vez, vizinha real no meio do arrasto) + "Iniciar combate" dentro da aba Ações. César achou fluido no PC (30/Set/2026). Publicado na v0.10.2; celular → item 14.
-12. ✅ **Cabeçalho fixo novo** (César conferiu na tela do PC, 01/Out/2026; celular → item 14; publicado na v0.11.0). Junto: botões com visual único e custo à esquerda, turno minimizável, deflexão no editor da Vida, janela do descanso. Pedido: foto quadrada do personagem no canto esquerdo, com recorte e zoom; nome em cima da foto; botão de descanso em forma de fogueira embaixo dela (curto ou longo); Vida, Foco e Investidura empilhados em linhas à direita, todos no mesmo padrão; o texto da linha de cima (sem o nome) e a ⚙ continuam no alto à direita.
-13. 🔶 **Avisar quando a ficha-semente for mais nova que o save** (pedido 30/Set/2026; v0.11.0, testado com save envelhecido, falta o César ver na tela): "Há uma ficha mais nova do Eccho — Importar". Nasceu de um save velho no `localhost` sem o PROJÉTIL — o mesmo buraco do item 10, sem depender de lembrar a mesa.
-14. 📱 **Testes que só o César faz, no iPhone** (ele pediu pra deixar pra depois, 01/Out/2026): arrastar entre abas (item 11) · salvar/exportar/importar (item 4) · foto pela galeria e recorte com dois dedos · instalar pela Tela de Início e o aviso "Versão nova — Atualizar" · setas, escudinho, fogueira e faixa do turno no toque. Nenhum simulador cobre instalar nem o corte de ~7 dias do Safari.
-15. 🔶 **Revisão do código pelo Fable** (agente `revisor`, 10/Out/2026). Itens 1–5 publicados na v0.15.0, César conferiu na tela (falta a tela "Algo quebrou", que não dá pra provocar): tela "Algo quebrou" com Baixar meu save · cópia do save antes de converter de versão · cópias em pasta própria (`copias.ts`; "Voltar à ficha de antes" guarda as 3 últimas) · faixa "ficha mais nova" pede confirmação · importar recusa ficha sem nome, Vida 0 ou sem perícias, e arquivo com vários personagens · lixeira pergunta "Apagar / Manter" · anotação com texto não fecha tocando fora. **Faltam (médios):** 6) duas armas de mesmo nome equipam juntas — usar `idShards` · 7) regra presa a texto PT (`'Mão Inábil'`, `'Golpear'`, `'Corpo a corpo'`, strings de `condicoes.ts`) · 8) testes de `usePersonagem`/`useTurno`/`descanso`/`fabriais` · 9) combate não reinicia ao reimportar (suspeita). 10) 3 regras de CSS mortas (`.ataque-alcance`, `.ataque-numeros`, `.aviso-placeholder`) — apagar quando mexer no `base.css`.
-16. ⏳ **Boas práticas da pesquisa** (10/Out/2026, [boas-praticas.md](escopo/boas-praticas.md) itens 9–12): medidor de espaço do aparelho · ícone que muda de cor quando a ficha mudou desde o último backup (toque = baixa o backup; ideia do César no lugar da frase de aviso) · tamanho da letra nas Configurações · bordas do iPhone (conferir antes).
-17. ⏳ **Temas pro app inteiro** (10/Out/2026): botão em Configurações com **Claro · Escuro · Cosmere** (o visual do livro — fontes e cores, meticuloso; fonte parecida e grátis se a do livro não puder). O tema é característica de **tudo**, não só de janela. Muda duas premissas (tema escuro descartado; só Georgia) — sobrescrever lá ao fazer. **Migração pro IndexedDB** (pedido do César, mesmo dia): sem conta, entrega própria, depois da B.
-
-Detalhe e critério de pronto: [roadmap.md](escopo/roadmap.md).
+- `<!-- DESTINO: pasta/arquivo.md -->` no topo de doc · `/* arquivo: nome.tsx */` no topo de código · código em **português** · `PascalCase.tsx` (tela) · `camelCase.ts` (lógica).
+- Criou, moveu ou apagou arquivo? **Atualiza o mapa na mesma entrega** (`mapa-app.md` ou `.claude/mapa-projeto.md`).
+- Referência **por nome de seção**, nunca por número. Datas `DD/Mmm/AAAA`.
+- Palavra de tela em `src/idioma/pt.ts` + `en.ts`; símbolo em `src/variaveis.ts`; cor, forma e tamanho de letra em `src/estilos/base.css`.
+- **Uma versão só** (`package.json`), sobe uma vez por push — [mapa-app.md](mapa-app.md) → "Versionamento".
+- Teste: `npm run dev` → `localhost:5173` → César confere na tela → autorização → commit + push → GitHub Pages.

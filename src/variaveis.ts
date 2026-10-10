@@ -17,7 +17,7 @@
  * escrever = a variável não pertence aqui.
  */
 
-import type { Personagem, NomeAtributo, Ativacao } from './tipos/personagem'
+import type { Personagem, NomeAtributo, Ativacao, TipoEspecializacao } from './tipos/personagem'
 
 /**
  * Ícones de interação — os glifos dos botões, sem significado de regra.
@@ -35,8 +35,6 @@ export const ICONE = {
   graduacaoTalento: '◎',
   /** Marca de talento-chave da trilha (o ★ do Shards). */
   talentoChave: '★',
-  /** A engrenagem do topo (MenuEngrenagem) — importar, exportar, backup. */
-  menu: '⚙',
   /** As setas de ±1 ao lado de cada recurso no cabeçalho. */
   subir: '▲',
   descer: '▼',
@@ -108,3 +106,6 @@ export const GRUPOS_FICHA = [
  * e podia divergir da ficha oficial sem ninguém notar.
  */
 export const ORDEM_ATRIBUTOS: readonly NomeAtributo[] = GRUPOS_FICHA.flatMap((g) => [...g.atribs])
+
+/** A ordem dos grupos de especialidade na tela (aba Talentos e "Na mesa"): as culturais primeiro, como no livro. */
+export const ORDEM_ESPECIALIDADES: readonly TipoEspecializacao[] = ['cultural', 'utilidade', 'perito', 'arma', 'armadura']

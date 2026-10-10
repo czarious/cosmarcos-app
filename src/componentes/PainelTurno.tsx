@@ -6,6 +6,7 @@ import { acoesNoTurno, lembretes } from '../regras/condicoes'
 import { aprimorarVenceAgora } from '../regras/turno'
 import { ICONE, SIMBOLO_ATIVACAO, SIMBOLO_RECURSO } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
+import ListaLinhas from './ListaLinhas'
 
 // Faixa do rastreador de turno, no topo fixo. Em combate aparece em qualquer
 // aba (as ▶ que restam importam em todas). Fora de combate, "Iniciar combate"
@@ -160,7 +161,7 @@ export default function PainelTurno({ ficha, turno }: Props) {
 
       <PlanoDoTurno ficha={ficha} turno={turno} />
       {turno.plano.length > 0 && e.tipo !== null && <p className="turno-nota">{tx.turno.planoPendente}</p>}
-      {pode.motivos.length > 0 && e.tipo === null && <p className="turno-nota">{pode.motivos.map((m) => msg(m)).join(' · ')}</p>}
+      {e.tipo === null && <ListaLinhas classe="turno-nota" itens={pode.motivos.map((m) => msg(m))} />}
       {avisos.map((a) => (
         <p className="turno-nota" key={msg(a)}>
           {msg(a)}

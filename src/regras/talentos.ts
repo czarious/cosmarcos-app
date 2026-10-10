@@ -1,5 +1,5 @@
 /* arquivo: talentos.ts */
-import type { Ativacao, Pericia, Personagem, Talento } from '../tipos/personagem'
+import type { Ativacao, Pericia, Personagem, Talento, TipoEspecializacao } from '../tipos/personagem'
 import type { Custo, EntradaAcao } from './acoes'
 import { TALENTOS_ERUDITO } from './talentos/erudito'
 import { TALENTOS_AGENTE } from './talentos/agente'
@@ -57,6 +57,8 @@ export type VagaTalento = {
   rotuloEn: string
   /** Só pra vaga tipo 'pericia' — filtra as opções do dropdown pela regra do talento. */
   filtroPericia?: (p: Pericia) => boolean
+  /** Só pra vaga tipo 'especialidade' — os tipos que o talento aceita (ex.: Erudição: cultural ou utilidade). Ausente: qualquer um. */
+  tiposEspecialidade?: TipoEspecializacao[]
 }
 
 /** A escolha atual de UMA vaga — é isto que vive no estado (usePersonagem). */
@@ -70,6 +72,19 @@ export type EscolhaVaga = {
 
 export function chaveVaga(talentoId: string, tipo: TipoVaga, indice: number): string {
   return `${talentoId}#${tipo}#${indice}`
+}
+
+/**
+ * O que as OUTRAS vagas do mesmo tipo neste talento já escolheram — não pode
+ * repetir: duas vagas de perícia são "duas perícias", cada uma com a sua
+ * graduação (livro, ex.: Erudição, 04-trilhas-heroicas/05-erudito.md).
+ */
+export function escolhidasNasOutras(talentoId: string, vaga: Pick<VagaTalento, 'tipo' | 'indice'>, escolhas: Record<string, EscolhaVaga>): Set<string> {
+  return new Set(
+    Object.values(escolhas)
+      .filter((e) => e.talentoId === talentoId && e.tipo === vaga.tipo && e.indice !== vaga.indice && e.valor)
+      .map((e) => e.valor as string),
+  )
 }
 
 export type EntradaTalento = {

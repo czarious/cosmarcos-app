@@ -1,7 +1,8 @@
 /* arquivo: armazenamento.ts */
 
 /**
- * Persistência em localStorage — item 2.3.
+ * Persistência — item 2.3. Onde a ficha mora (IndexedDB, ou o localStorage
+ * se não houver): estado/banco.ts.
  *
  * ⚠️ A INVERSÃO QUE ESTE ARQUIVO IMPLEMENTA (ver escopo/premissas.md):
  * o JSON do Shards é SEMENTE, não fonte de verdade contínua. Importa uma
@@ -10,11 +11,11 @@
  * o estado vivo: se salvasse só vida/foco, todo ajuste de ficha feito no
  * app morreria no próximo F5.
  *
- * Consequência: quem manda no boot é o localStorage, e o `fetch` do JSON
+ * Consequência: quem manda no boot é o save, e o `fetch` do JSON
  * só acontece quando não existe nada salvo. Importar é ato
  * explícito (`importarTexto` no usePersonagem), que grava por cima.
  *
- * Nada aqui pode quebrar a ficha: localStorage falha de verdade (aba
+ * Nada aqui pode quebrar a ficha: o armazenamento falha de verdade (aba
  * privada, cota cheia, storage bloqueado). Toda leitura/escrita é
  * try/catch — e toda falha volta pra quem chama, pra TELA avisar.
  * Console o César não vê.
@@ -26,6 +27,7 @@ import { CONDICOES } from '../regras/condicoes'
 import { importarShards } from './importarShards'
 import type { EscolhaVaga } from '../regras/talentos'
 import { guardarCopia, ultimaCopia } from './copias'
+import { armazem } from './banco'
 
 /**
  * Sobe quando o formato salvo mudar de forma incompatível.
@@ -189,9 +191,9 @@ export type Leitura = {
 export function lerFicha(id: string): Leitura {
   let cru: string | null
   try {
-    cru = localStorage.getItem(chave(id))
+    cru = armazem().getItem(chave(id))
   } catch (e) {
-    console.warn('[cosmarcos] localStorage indisponível pra leitura:', e)
+    console.warn('[cosmarcos] armazenamento indisponível pra leitura:', e)
     return { salva: null, problema: 'o navegador bloqueou o armazenamento deste site.' }
   }
   if (!cru) return { salva: null }
@@ -255,7 +257,7 @@ export function salvarFicha(
   semente: Record<string, unknown> | undefined,
 ): boolean {
   try {
-    localStorage.setItem(chave(id), JSON.stringify(montarPacote(ficha, escolhasTalento, semente)))
+    armazem().setItem(chave(id), JSON.stringify(montarPacote(ficha, escolhasTalento, semente)))
     return true
   } catch (e) {
     // Cota cheia ou storage bloqueado. A sessão continua — só não persiste.

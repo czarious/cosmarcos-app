@@ -133,6 +133,12 @@ for (const arq of codigo.filter((f) => f.endsWith('.tsx') && !/[\\/](Janela|Sobr
   const texto = readFileSync(arq, 'utf8')
   if (/<Sobreposicao\b|className=[^>]*\bcr-painel\b/.test(texto)) problemas.push(`janela montada à mão — use <Janela> (características em Janela.tsx) · ${relative(RAIZ, arq)}`)
 }
+// E toda explicação "toque pra ver" pelo BotaoInfo: o nome em pílula vinho que abre a janela
+// (César, 10/Out/2026). <details> e "▸ texto" recolhido voltariam o padrão que ele trocou.
+// Exceção: a tela "Algo quebrou" (ErroTela) — de emergência, com o mínimo de peças.
+for (const arq of codigo.filter((f) => f.endsWith('.tsx') && !/[\\/]ErroTela\.tsx$/.test(f))) {
+  if (/<details\b/.test(readFileSync(arq, 'utf8'))) problemas.push(`explicação recolhida com <details> — use <BotaoInfo> (o nome abre a janela) · ${relative(RAIZ, arq)}`)
+}
 
 // 6d. Caractere de controle invisível no código (fora tab/quebra de linha). Já
 // aconteceu (07/Out/2026): um script gravou backspace no lugar de \b numa regex, e ela

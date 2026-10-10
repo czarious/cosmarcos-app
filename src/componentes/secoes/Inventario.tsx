@@ -5,6 +5,9 @@ import { pesoCarregado, pesoEmKg } from '../../regras/calculos'
 import { useIdioma } from '../../idioma/IdiomaContexto'
 import Janela from '../Janela'
 import BotaoApagar from '../BotaoApagar'
+import ListaLinhas from '../ListaLinhas'
+import BotaoInfo from '../BotaoInfo'
+import { regraDaArma, regraDoItem, type Palavras } from '../regraDoLivro'
 
 // Aba Inventário — resumo de peso carregado/máximo + marcos (moeda) editável no topo, botão
 // "Gerenciar Inventário" (adicionar/remover), Armas (com checkbox de
@@ -111,6 +114,8 @@ function GerenciarInventario({
 
 export default function Inventario({ ficha, alternarEquipada, alternarItemEquipado, definirMarcos, definirEquipamentoTexto, adicionarItem, removerItem }: Props) {
   const { t, tx, nome, pesoNum, unidadePeso } = useIdioma()
+  // a regra do livro de cada arma, armadura e item: o nome abre (regraDoLivro.ts)
+  const palavras: Palavras = { t, tx, nome }
   const [editandoMarcos, setEditandoMarcos] = useState(false)
   const [valorMarcos, setValorMarcos] = useState('')
   const [gerenciando, setGerenciando] = useState(false)
@@ -142,21 +147,23 @@ export default function Inventario({ ficha, alternarEquipada, alternarItemEquipa
       {/* painel superior — separado visualmente do resto; hoje só cor de
           fundo, no futuro pode ganhar uma imagem */}
       <div className="inv-topo">
-        <div className="inv-resumo">
-          <div className="inv-resumo-bloco">
-            <span className="inv-resumo-rotulo">{tx.inventario.pesoCarregado}</span>
-            <span className="inv-resumo-valor">
+        {/* pedido 20: o número em caixinha à esquerda e o nome à direita, como o Movimento da aba Principal */}
+        <ul className="pr-derivados inv-resumo">
+          <li>
+            <b className={sobrecarregado ? 'numero-alterado' : undefined}>
               {pesoNum(carregado, 2)} <i>{unidadePeso}</i>
-              {maximo > 0 && <span className="inv-peso-max"> / {pesoNum(maximo)} {unidadePeso}</span>}
+            </b>
+            <span>
+              {tx.inventario.pesoCarregado}
+              {maximo > 0 && (
+                <ListaLinhas
+                  classe={sobrecarregado ? 'inv-status inv-status-alerta' : 'inv-status'}
+                  itens={[t(tx.inventario.limiteN, { n: pesoNum(maximo), u: unidadePeso }), sobrecarregado ? tx.inventario.sobrecarregado : tx.inventario.livre]}
+                />
+              )}
             </span>
-            {maximo > 0 && (
-              <span className={sobrecarregado ? 'inv-status inv-status-alerta' : 'inv-status'}>
-                {sobrecarregado ? tx.inventario.sobrecarregado : tx.inventario.livre}
-              </span>
-            )}
-          </div>
-          <div className="inv-resumo-bloco inv-resumo-marcos">
-            <span className="inv-resumo-rotulo">{tx.inventario.marcos}</span>
+          </li>
+          <li>
             {editandoMarcos ? (
               <input
                 className="inv-marcos-input"
@@ -173,8 +180,9 @@ export default function Inventario({ ficha, alternarEquipada, alternarItemEquipa
                 🪙 {ficha.marcos}
               </button>
             )}
-          </div>
-        </div>
+            <span>{tx.inventario.marcos}</span>
+          </li>
+        </ul>
 
         <button className="botao-gerenciar" onClick={() => setGerenciando(true)}>
           {tx.inventario.gerenciar}
@@ -199,7 +207,9 @@ export default function Inventario({ ficha, alternarEquipada, alternarItemEquipa
             {ficha.armas.map((a) => (
               <label className="linha-item" key={a.nome}>
                 <input type="checkbox" checked={a.equipada} onChange={() => alternarEquipada(a.nome)} />
-                <span>{nome(a.nome)}</span>
+                <span>
+                  {regraDaArma(a, palavras).length > 0 ? <BotaoInfo titulo={nome(a.nome)} linhas={regraDaArma(a, palavras)} /> : nome(a.nome)}
+                </span>
                 <span>{pesoNum(a.peso)} {unidadePeso}</span>
                 <span>1</span>
                 <span>{pesoNum(a.peso)} {unidadePeso}</span>
@@ -207,6 +217,7 @@ export default function Inventario({ ficha, alternarEquipada, alternarItemEquipa
             ))}
           </div>
         )}
+
       </section>
 
       <section className="grupo-acoes">
@@ -236,7 +247,7 @@ export default function Inventario({ ficha, alternarEquipada, alternarItemEquipa
                       <span />
                     )}
                     <span>
-                      {nome(item.nome)}
+                      {regraDoItem(item, palavras).length > 0 ? <BotaoInfo titulo={nome(item.nome)} linhas={regraDoItem(item, palavras)} /> : nome(item.nome)}
                       {item.deflexao !== undefined && <small className="inv-deflexao"> · {t(tx.inventario.deflexaoN, { n: item.deflexao })}</small>}
                       {(item.tracos ?? []).length > 0 && <small className="inv-deflexao"> · {(item.tracos ?? []).map((x) => nome(x)).join(', ')}</small>}
                     </span>

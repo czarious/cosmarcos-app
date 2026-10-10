@@ -73,6 +73,33 @@ export function unidadePeso(idioma: Idioma): string {
   return idioma === 'pt' ? 'kg' : 'lb'
 }
 
+/**
+ * Texto corrido com vários efeitos ("Sem reações; sentidos obscurecidos.") → um
+ * tópico por efeito, pra tela mostrar um por linha (ListaLinhas — pedido do César,
+ * 10/Out/2026). Corta no ";" e no fim de frase; nunca dentro de parênteses.
+ */
+export function emTopicos(texto: string): string[] {
+  const partes: string[] = []
+  let atual = ''
+  let parenteses = 0
+  for (let i = 0; i < texto.length; i++) {
+    const c = texto[i]
+    if (c === '(') parenteses++
+    if (c === ')') parenteses--
+    atual += c
+    const fimDeFrase = c === '.' && texto[i + 1] === ' ' && /\p{Lu}/u.test(texto[i + 2] ?? '')
+    if (parenteses === 0 && (c === ';' || fimDeFrase)) {
+      partes.push(atual)
+      atual = ''
+    }
+  }
+  partes.push(atual)
+  return partes
+    .map((p) => p.trim().replace(/;$/, ''))
+    .filter(Boolean)
+    .map((p) => p[0].toUpperCase() + p.slice(1))
+}
+
 /** Peso digitado na tela (lb em inglês) → kg, que é o que a ficha guarda. */
 export function pesoDigitadoEmKg(valor: number, idioma: Idioma): number {
   return idioma === 'pt' ? valor : valor / LIBRAS_POR_KG

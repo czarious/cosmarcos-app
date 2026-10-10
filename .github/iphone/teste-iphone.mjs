@@ -14,6 +14,7 @@
 import { webkit, devices } from 'playwright'
 import { mkdirSync, writeFileSync, appendFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { medirToque } from './medir-toque.mjs'
 
 const URL_APP = process.argv[2] ?? 'https://czarious.github.io/cosmarcos-app/'
 const SAIDA = process.argv[3] ?? 'saida'
@@ -30,6 +31,12 @@ p.on('console', (m) => m.type() === 'error' && rel.erros.push(`console: ${m.text
 
 const foto = (nome) => p.screenshot({ path: join(SAIDA, `${nome}.png`), fullPage: false })
 const espera = (ms) => p.waitForTimeout(ms)
+
+// Alvo de toque medido em cada tela que o roteiro abre; um passo só, no fim
+const toquePequeno = new Map()
+const medirAqui = async (onde) => {
+  for (const x of await p.evaluate(medirToque)) if (!toquePequeno.has(x.classe)) toquePequeno.set(x.classe, `${onde}: ${x.classe} «${x.texto}» ${x.problema}`)
+}
 
 /**
  * Troca de aba pelo nome EXATO ("Ações" não pode casar com "Anotações"). Menu que ficou aberto é fechado antes.
@@ -70,6 +77,7 @@ try {
       await abrirAba(aba)
       const nome = await p.locator('.ss-nome').innerText()
       passo(`aba ${aba}`, nome === aba, nome)
+      await medirAqui(aba)
       await foto(`${String(i + 2).padStart(2, '0')}-${aba.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()}`)
     } catch (e) {
       passo(`aba ${aba}`, false, String(e).slice(0, 200))
@@ -80,16 +88,18 @@ try {
   await p.locator('.cf-fogueira').click()
   passo('fogueira abre o descanso', await p.locator('.cr-overlay .desc-painel').isVisible(), '')
   await foto('12-fogueira')
+  await medirAqui('descanso')
   await p.locator('.cr-overlay .cr-fechar').click()
 
   // Turno: iniciar, lento, golpear
   await abrirAba('Ações')
   await p.getByRole('button', { name: 'Iniciar combate' }).click()
   await p.getByRole('button', { name: /Turno lento/ }).click()
-  await p.locator('.carrossel-aba-aberta .ataque-usar .usar-botao').first().click()
+  await p.locator('.carrossel-aba-aberta .ataque-acoes .usar-linha').first().click()
   // "Usar" só planeja (v0.9.0); o gasto é no Confirmar
   const planejadas = await p.locator('.turno-acoes .turno-pip-plano').count()
   passo('turno: Golpear entra no plano (1 ▶)', planejadas === 1, `${planejadas} planejada(s)`)
+  await medirAqui('turno')
   await p.getByRole('button', { name: /Confirmar/ }).click()
   const gastos = await p.locator('.turno-acoes .turno-pip-gasto').count()
   passo('turno: Confirmar gasta 1 ▶', gastos === 1, `${gastos} gasto(s)`)
@@ -102,15 +112,34 @@ try {
   const versao = await p.locator('.menu-versao').innerText()
   passo('engrenagem mostra a versão', /v\d+\.\d+\.\d+/.test(versao), versao)
   await foto('13-engrenagem')
+  await medirAqui('Configurações')
   await p.getByRole('button', { name: 'English' }).click()
-  await p.locator('.cr-fechar').first().click()
+  await p.locator('.cr-overlay .cr-fechar').click()
   await abrirAba('Actions')
   const emIngles = await p.locator('.cabecalho-fixo').innerText()
   passo('inglês', emIngles.includes('HEALTH'), emIngles.replace(/\n/g, ' ').slice(0, 90))
   await foto('14-ingles-acoes')
   await p.locator('.engrenagem').click()
   await p.getByRole('button', { name: 'Português' }).click()
-  await p.locator('.cr-fechar').first().click()
+  await p.locator('.cr-overlay .cr-fechar').click()
+
+  // Letra Grande: a aba mais cheia cabe na largura do iPhone?
+  await p.locator('.engrenagem').click()
+  await p.getByRole('button', { name: 'Grande', exact: true }).click()
+  await p.locator('.cr-overlay .cr-fechar').click()
+  await abrirAba('Ações')
+  const vaza = await p.evaluate(() => {
+    const aba = document.querySelector('.carrossel-aba-aberta')
+    const borda = aba.getBoundingClientRect().right + 1
+    return [...aba.querySelectorAll('*')].filter((e) => e.getBoundingClientRect().right > borda).map((e) => e.className).slice(0, 5)
+  })
+  passo('letra Grande: nada sai da tela', vaza.length === 0, vaza.join(', ') || 'cabe')
+  await foto('14b-letra-grande')
+  await medirAqui('Ações com letra Grande')
+  await p.locator('.engrenagem').click()
+  await p.getByRole('button', { name: 'Pequeno', exact: true }).click()
+  await p.locator('.cr-overlay .cr-fechar').click()
+  passo('alvos de toque ≥ 44px', toquePequeno.size === 0, [...toquePequeno.values()].join(' · ').slice(0, 600) || 'todos')
 
   // Exportar e backup: o arquivo baixa?
   for (const [rotulo, nome] of [['Exportar pro Shards', 'exportar'], ['Baixar backup', 'backup']]) {
@@ -123,6 +152,8 @@ try {
       await p.keyboard.press('Escape').catch(() => {})
     }
   }
+  const botaoBackup = (await p.locator('.botao-backup').getAttribute('class')) ?? ''
+  passo('backup baixado: o botão do backup fica em dia', !botaoBackup.includes('backup-mudou'), botaoBackup)
 
   // Importar a ficha de outro jogador e ver se ela fica depois de reabrir
   const semente = await (await p.request.get(new URL('personagens/eccho.json', URL_APP).href)).json()

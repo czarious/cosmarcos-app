@@ -234,4 +234,4 @@ Decido sozinho: nome e lugar de arquivo, criar/dissolver pasta, partir ou juntar
 
 Levo pra ele: mudança que altera **o jeito dele trabalhar** (onde ele abre as coisas, o que ele precisa saber de cor), ou que mexe em `referencia/` e no que vai pro repo público.
 
-> ⚠️ **Desde 12/Set/2026 ele não olha pastas nem código** — a divisão está no `CLAUDE.md` → "A divisão". Isso muda o peso de tudo neste arquivo: a revisão que ele fazia por cima do meu ombro **deixou de existir**, e quem substitui é a conferência automática mais o hábito de **declarar o que não consegui verificar**. Organização frouxa agora não é deselegância — é erro que ninguém pega.
+> ⚠️ **Desde 12/Set/2026 ele não olha pastas nem código** — a divisão está no `CLAUDE.md` → "O César — a divisão". Isso muda o peso de tudo neste arquivo: a revisão que ele fazia por cima do meu ombro **deixou de existir**, e quem substitui é a conferência automática mais o hábito de **declarar o que não consegui verificar**. Organização frouxa agora não é deselegância — é erro que ninguém pega.

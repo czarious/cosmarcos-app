@@ -91,7 +91,7 @@
 |---|---|---|
 | 5.3 · 5.4 | *"Ficha de mestre — não é"* | [visao.md](visao.md) |
 | 5.1 · 5.5 | *"Rolador compartilhado / VTT — não é"* | [visao.md](visao.md) |
-| 5.2 · 5.5 | Estado: localStorage — sem servidor, sem login | [premissas](premissas.md) → "localStorage, sem servidor" |
+| 5.2 · 5.5 | Estado: IndexedDB no aparelho — sem servidor, sem login | [premissas](premissas.md) → "IndexedDB, sem servidor" |
 | 5.5 | Princípio 3 — **Offline primeiro** | [visao.md](visao.md) |
 
 **Custo zero sobrevive, mas muda de sentido.** Supabase, Firebase e Cloudflare D1 têm plano grátis folgado pra 5 pessoas. Só que hoje o custo zero vem de **não existir servidor**; ali passaria a vir de **uma empresa manter o plano grátis**. É trocar ausência de dependência por dependência gratuita — e o Firebase já mudou de preço uma vez.
@@ -117,7 +117,7 @@
 
 > **Consequência a encarar:** o Drive entrega 4 dos 5 itens. O tempo real (*"tomo dano e o Mestre vê na hora"*) é o único que ele não faz — e é justamente o mais chamativo. Ou a mesa aceita "atualiza quando abrir", ou entra um banco de verdade só pra isso.
 
-**Não resolve o login.** Cada jogador precisaria de conta Google e autorizar o app. Continua contrariando a [premissas](premissas.md) → "localStorage, sem servidor" — só que **de graça e sem empresa nova**.
+**Não resolve o login.** Cada jogador precisaria de conta Google e autorizar o app. Continua contrariando a [premissas](premissas.md) → "IndexedDB, sem servidor" — só que **de graça e sem empresa nova**.
 
 #### Três coisas a acertar antes de decidir
 
@@ -152,7 +152,7 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 
 > ⚠️ **Armadilha técnica a verificar antes de prometer o painel do mestre:** o escopo OAuth `drive.file` só enxerga arquivos que **o próprio app criou**. Pro Mestre ler a ficha de outro jogador, ou usa o Google Picker (o usuário aponta o arquivo na mão), ou pede escopo amplo — que é **sensível** e exige verificação do app pelo Google. Isso muda o esforço da 5.3/5.4.
 
-> Se a Fase 5 for aprovada, **não basta exumar a ideia**: a [premissas](premissas.md) → "localStorage, sem servidor" justifica o localStorage dizendo *"é ficha de uma pessoa"* — o motivo também morreu. Sobrescrever aquela premissa explicando o que mudou no mundo.
+> Se a Fase 5 for aprovada, **não basta exumar a ideia**: a [premissas](premissas.md) → "IndexedDB, sem servidor" justifica o localStorage dizendo *"é ficha de uma pessoa"* — o motivo também morreu. Sobrescrever aquela premissa explicando o que mudou no mundo.
 
 ---
 
@@ -165,7 +165,7 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 
 | Ideia | Nota |
 |---|---|
-| **Ficha na nuvem (Supabase ou parecido)** | Melhoria futura (10/Out/2026). Traz login, depende de internet pra sincronizar e o plano grátis pausa sem uso; resolve a Fase 5 ("A mesa inteira", acima), não o espaço do aparelho — ver [premissas](premissas.md) → "localStorage, sem servidor" |
+| **Ficha na nuvem (Supabase ou parecido)** | Melhoria futura (10/Out/2026). Traz login, depende de internet pra sincronizar e o plano grátis pausa sem uso; resolve a Fase 5 ("A mesa inteira", acima), não o espaço do aparelho — ver [premissas](premissas.md) → "IndexedDB, sem servidor" |
 | **Subir de nível guiado** (o forte do Pathbuilder: cada escolha explicada, regra conferida) | Melhoria futura, dá trabalho (10/Out/2026). Hoje subir de nível fica no Shards; o foco agora é absorver o JSON dele — ver [boas-praticas.md](boas-praticas.md) |
 
 ### Derivadas do schema e das conversas
@@ -203,6 +203,7 @@ Isso derruba o principal argumento contra a Fase 5. **Sincronia deixa de ser car
 | 11 | Quais ideias suas ainda não estão escritas? | ❓ | **César** |
 | ~~12~~ | ~~O export do Shards está desatualizado — o 1º Ideal não está marcado lá~~ | ✅ **RESOLVIDA 27/Set/2026:** o export novo traz `ideals.i1: true` e Investidura **5/5** (2 + Consciência 3, como o livro manda) | Shards reexportado |
 | 13 | Sentinela da Verdade Iluminado: "nenhum inimigo tem visões de evento que você influencia" é de **Vislumbrar o Futuro** ou de **Visão do Vazio**? O texto corrido do livro (p.197) põe em Vislumbrar; o quadro-resumo da mesma página e o Shards, em Visão do Vazio | 🔶 **PROVISÓRIA:** o app segue o texto corrido (Vislumbrar). Só importa se o Tiago pegar a árvore Iluminada | Livro (errata) ou **César** |
+| ~~14~~ | ~~O espreno do Eccho (Alternauta, espreno de tinta) vem do Shards marcado **Iluminado**~~ | ✅ **RESOLVIDA 10/Out/2026:** Iluminado é só o espreno de névoa do Sentinela da Verdade — no livro (cap. 5) e no catálogo público do Shards (`radiant-paths.json`: "enlightened" só na árvore Truthwatcher). Em outra ordem a marca não vale regra: o app não mostra. Pro Eccho, vale desmarcar no Shards | Livro ✓ + Shards ✓ |
 
 ### Resolvidas
 

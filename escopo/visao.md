@@ -43,7 +43,7 @@ Limites explícitos. Cada item é uma decisão, não um "ainda não":
 | **Construtor de personagem** | Subir nível e escolher talentos continua no **Shards**, que exporta a semente. O app não duplica isso — mas, depois de importar, a ficha é dele. Ver [premissas](premissas.md) → "O Shards é SEMENTE; o app é dono da ficha" |
 | **Compêndio de regras** | O texto é da Brotherwise Games. O app guarda **os dados do César**, não redistribui o livro |
 | **App de loja (Play/App Store)** | PWA instala pelo navegador. Ver [premissas](premissas.md) → "PWA, sem loja de apps" |
-| **Serviço com login/conta** | Sem servidor, sem banco, sem senha. Ver [premissas](premissas.md) → "localStorage, sem servidor" |
+| **Serviço com login/conta** | Sem servidor, sem banco, sem senha. Ver [premissas](premissas.md) → "IndexedDB, sem servidor" |
 | **Rolador compartilhado / VTT** | O app rola **pro César ver**. Quem narra pra mesa é o César |
 | **Ficha de mestre** | É ficha de **PC**. O Mestre tem as ferramentas dele |
 
