@@ -20,7 +20,7 @@ Chamar `/git-up` **é** a autorização de commit e push — não pedir de novo.
    git diff --cached --name-only | grep -iE '^referencia/|transcricao/|\.pdf$|jogadores\.md$|notas-do-livro|conferencia-formulas|escopo/interface\.md$|settings\.local\.json$|\.claude/agents/|\.(keystore|jks|apk|aab)$|^\.env'
    ```
    Achou algo → `git reset -q`, mostrar a lista, conferir o `.gitignore` e parar. Nunca `git add -f`.
-5. **Enviar:** `git commit -F <arquivo da mensagem>` → `git tag vX.Y.Z` (se subiu) → `git push --follow-tags`. Push recusado → `git pull --rebase` e push de novo.
+5. **Enviar:** `git commit -F <arquivo da mensagem>` → `git tag -a vX.Y.Z -m vX.Y.Z` (se subiu; **anotada** — o `--follow-tags` ignora tag simples) → `git push --follow-tags`. Push recusado → `git pull --rebase` e push de novo.
 6. **Responder em 2 linhas:** versão e quantos arquivos foram, e se ficou igual ao GitHub (`git status -sb`, 1ª linha).
 
 ## Se parar
