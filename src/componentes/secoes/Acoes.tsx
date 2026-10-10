@@ -1,7 +1,7 @@
 /* arquivo: Acoes.tsx */
 import { useState } from 'react'
 import type { Personagem, Pericia, Fluxo, Fabrial } from '../../tipos/personagem'
-import { CATALOGO_TALENTOS, type EscolhaVaga } from '../../regras/talentos'
+import { CATALOGO_TALENTOS, acoesDeTalentos, type EscolhaVaga } from '../../regras/talentos'
 import { SIMBOLO_ATIVACAO, SIMBOLO_RECURSO } from '../../variaveis'
 import {
   ACOES_PADRAO,
@@ -35,6 +35,7 @@ import { useIdioma } from '../../idioma/IdiomaContexto'
 //  1. Ataques: armas EQUIPADAS (Inventário) — cada ataque é um Golpear
 //  2. Fluxos: se Radiante — total do teste, custo e o guia de uso (regras/fluxos.ts)
 //  3. Ações de Luz das Tempestades: as que algum talento concede
+//  3b. Talentos: os de ação (▶ ▷ ↻) que o personagem tem — custo em regras/talentos.ts
 //  4. Ações / Reações: as 17 padrão (Cap. 10)
 //  5. Fabriais: os que se ativam em combate gastando carga
 //  6. Habilidades de Espreno: se Radiante vinculado
@@ -78,6 +79,7 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
     .filter((tal) => CATALOGO_TALENTOS[tal.id] && ACOES_CONCEDIDAS[tal.id])
     .flatMap((tal) => ACOES_CONCEDIDAS[tal.id].map((acao) => ({ acao, deTalento: CATALOGO_TALENTOS[tal.id].nome })))
     .sort((a, b) => compararAtivacao(a.acao.ativacao, b.acao.ativacao))
+  const acoesTalentos = acoesDeTalentos(ficha).sort((a, b) => compararAtivacao(a.acao.ativacao, b.acao.ativacao))
 
   const acoesPadraoAcao = ordenarPorAtivacao(ACOES_PADRAO.filter((a) => a.ativacao !== 'reacao'))
   const acoesPadraoReacao = ordenarPorAtivacao(ACOES_PADRAO.filter((a) => a.ativacao === 'reacao'))
@@ -217,6 +219,19 @@ export default function Acoes({ ficha, escolhasTalento, alterarCargas, turno }: 
           <ul className="lista-acoes-padrao">
             {acoesConcedidas.map(({ acao, deTalento }) => (
               <LinhaAcao ctx={ctx} key={acao.nome} acao={acao} grupo="luz" extra={deTalento} />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {acoesTalentos.length > 0 && (
+        <section className="grupo-acoes">
+          <h2 className="titulo-secao">
+            {t(tx.acoes.talentos)} <span className="contador">({acoesTalentos.length})</span>
+          </h2>
+          <ul className="lista-acoes-padrao">
+            {acoesTalentos.map(({ acao, deTalento }) => (
+              <LinhaAcao ctx={ctx} key={acao.nome} acao={acao} grupo="talento" extra={deTalento} />
             ))}
           </ul>
         </section>
@@ -390,17 +405,38 @@ function CartaoFluxo({ ctx, fluxo: f }: { ctx: Ctx; fluxo: Fluxo }) {
       <p className="talento-desc">
         {t(tx.acoes.graduacaoGDadoDado, { g: f.graduacao, dado: esc.dado, tamanho: nome(esc.tamanho) })}
       </p>
-      <div className="fab-botoes">
-        <BotaoUsar ctx={ctx} acao={usavel} />
-        {guia?.pagamentos(f.graduacao).map((p) => (
-          <BotaoUsar
-            ctx={ctx}
-            key={p.investidura}
-            acao={{ chave: `pagar:${f.id}:${p.investidura}`, nome: f.nome, ativacao: 'especial', custo: { investidura: p.investidura }, repetivel: true }}
-            rotulo={msg(p.rotulo)}
-          />
-        ))}
-      </div>
+      {/* primeiro o "Usar" do fluxo (e o que se paga depois dele); as habilidades vêm embaixo */}
+      {(!guia?.habilidadesNoLugarDoUsar || (guia?.pagamentos(f.graduacao).length ?? 0) > 0) && (
+        <div className="fab-botoes">
+          {!guia?.habilidadesNoLugarDoUsar && <BotaoUsar ctx={ctx} acao={usavel} />}
+          {guia?.pagamentos(f.graduacao).map((p) => (
+            <BotaoUsar
+              ctx={ctx}
+              key={p.investidura}
+              acao={{ chave: `pagar:${f.id}:${p.investidura}`, nome: f.nome, ativacao: 'especial', custo: { investidura: p.investidura }, repetivel: true }}
+              rotulo={msg(p.rotulo)}
+            />
+          ))}
+        </div>
+      )}
+      {guia?.habilidades && (
+        <ul className="lista-acoes-padrao fluxo-habilidades">
+          {guia.habilidades.map((h) => (
+            <li className="acao-padrao" key={h.id}>
+              <div className="acao-corpo">
+                <span className="acao-padrao-nome">{nome(h.nome)}</span>
+                <p className="acao-padrao-resumo">{h.resumo}</p>
+                {h.ativacao !== 'sempre' && (
+                  <BotaoUsar
+                    ctx={ctx}
+                    acao={{ chave: `fluxo:${f.id}:${h.id}`, nome: h.nome, ativacao: h.ativacao, custo: h.custo, repetivel: h.repetivel }}
+                  />
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
       <button className="fluxo-guia-botao" onClick={() => setAberto(!aberto)} aria-expanded={aberto}>
         {aberto ? '▾' : '▸'} {t(tx.acoes.comoUsar)}
       </button>

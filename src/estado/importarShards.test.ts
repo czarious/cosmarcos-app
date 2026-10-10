@@ -125,6 +125,46 @@ describe('condições e lesões: app → Shards → app', () => {
   })
 })
 
+describe('especialidades na volta pro Shards', () => {
+  const exporta = (f: ReturnType<typeof ficha>) => JSON.parse(exportarShards(f, structuredClone(cru) as Record<string, unknown>)).characters[0]
+
+  it('sem mudança, volta a mesma lista (as culturais da cultura não entram)', () => {
+    expect(exporta(ficha()).expertises).toEqual(cru.expertises)
+  })
+
+  it('a adicionada no app vai com id novo; a removida some; a da cultura fica fora', () => {
+    const f = ficha()
+    f.especializacoes.push({ tipo: 'arma', nome: 'Arco Curto' }, { tipo: 'utilidade', nome: 'Navegação' })
+    const volta = exporta(f).expertises as Array<{ type: string; name: string; id: string }>
+    expect(volta.slice(-2).map(({ type, name }) => ({ type, name }))).toEqual([
+      { type: 'Weapon', name: 'Shortbow' },
+      { type: 'Utility', name: 'Navegação' },
+    ])
+    expect(volta.at(-1)!.id).toBeTruthy()
+    expect(volta.some((x) => x.type === 'Cultural' && f.meta.culturas.length > 0 && x.name === f.especializacoes[0].nome)).toBe(false)
+  })
+})
+
+describe('cartão "Path Notes" do Shards', () => {
+  it('meta.paths e talents (texto) viram blocos fixos e voltam pro seu campo, fora das notas gerais', () => {
+    const json = structuredClone(eccho) as unknown as { characters: Record<string, unknown>[] }
+    const cru = json.characters[0]
+    ;(cru.meta as Record<string, unknown>).paths = 'Quer virar Artifabriano mestre.'
+    cru.talents = 'Pegar Engenheiro Eficiente no nível 4.'
+    const f = importarShards(json)[0]
+    expect(f.anotacoes.find((a) => a.id === 'shards-path-notes')?.conteudo).toBe('Quer virar Artifabriano mestre.')
+    expect(f.anotacoes.find((a) => a.id === 'shards-path-talents')?.conteudo).toBe('Pegar Engenheiro Eficiente no nível 4.')
+    const volta = JSON.parse(exportarShards(f, structuredClone(cru))).characters[0]
+    expect(volta.meta.paths).toBe('Quer virar Artifabriano mestre.')
+    expect(volta.talents).toBe('Pegar Engenheiro Eficiente no nível 4.')
+    expect(volta.notes).not.toContain('Artifabriano mestre')
+  })
+
+  it('vazios no Shards não criam bloco', () => {
+    expect(ficha().anotacoes.some((a) => a.id.startsWith('shards-path'))).toBe(false)
+  })
+})
+
 describe('bônus que o Shards não soma no exportado', () => {
   it('o ajuste manual de deflexão (deflectMod) entra na deflexão da ficha', () => {
     const json = structuredClone(eccho)

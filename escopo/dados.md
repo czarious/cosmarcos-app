@@ -102,7 +102,8 @@ O tradutor tem que saber destas — todas verificadas no export real:
 
 | Armadilha | Detalhe |
 |---|---|
-| **Campos mortos** | `talents: ""` (string vazia na raiz) e `surges: [{...vazio}]` são **legado**. Os reais são `heroic.talents[]` e `radiant.surgeSkills[]`. Não ler os mortos |
+| **Campo morto** | `surges: [{...vazio}]` é **legado**; o real é `radiant.surgeSkills[]` |
+| **`talents` na raiz é texto, não talento** | É o campo "Notes" do cartão **Path Notes** do Shards; o outro campo do cartão ("Path Notes") é `meta.paths`. Os talentos reais estão em `heroic.talents[]`, `radiant.talents[]` e `ancestryTalents[]`. Os dois textos viram blocos fixos da aba Anotações e voltam pro seu campo no export (`NOTAS_DE_TRILHA` em `importarShards.ts`) |
 | **Duplicação na raiz** | `name` e `player` aparecem **duas vezes**: em `meta` e na raiz do personagem |
 | **Ideais em dois objetos** | `idealsText.{i1..i5}` (texto) e `ideals.{i1..i5}` (jurado, booleano). O tradutor **funde** nos nossos `ideais[]` |
 | **Talentos em três lugares** | `heroic.talents[]` · `radiant.talents[]` · `ancestryTalents[]`. Viram um array só, com `origem` |
@@ -112,7 +113,7 @@ O tradutor tem que saber destas — todas verificadas no export real:
 | **Linha em branco** | `expertises[]` e `conditions[]` podem trazer uma linha sem tipo nem nome — o jogador clicou em adicionar e não preencheu (ficha do Tiago, 07/Out/2026). O tradutor **pula**; tipo preenchido e desconhecido continua recusando o arquivo |
 | **Mistborn no mesmo site** | Desde a 3.x o Shards faz ficha de Mistborn também (`system.type`). O tradutor **recusa** com aviso — outro sistema |
 | **Tudo em inglês** | Nomes de ancestralidade, cultura, trilha, ordem, espreno, fluxo, item, fabrial, traço e dano chegam em inglês. O tradutor tem um de-para por categoria, conferido contra o livro — fonte: `referencia/livro/dicionario-en-ptbr.md`. Termo fora do mapa passa cru (item customizado, por exemplo) |
-| **Unidades** | O livro PT-BR usa **5 ft = 1,5 m** e **2 lb = 1 kg** (Maça 3 lb = 1,5 kg) — o tradutor converte na entrada, nenhuma tela converte. ⚠️ **O modo métrico do Shards é inconsistente:** converte só o inventário, com fator exato (Maça 1,4 kg), e deixa movimento, sentidos, carga e alcance do espreno em pés/libras com o rótulo trocado ("20 m" = 20 ft). O tradutor detecta o modo pelo `weightRaw` e sempre parte do número imperial. Detalhe no topo de `importarShards.ts` |
+| **Unidades** | O livro PT-BR usa **5 ft = 1,5 m** e **2 lb = 1 kg** (Maça 3 lb = 1,5 kg) — o tradutor converte na entrada e a ficha guarda **metro e quilo**; em inglês, a tela desfaz a mesma conta (`idioma/idioma.ts` → "medidas"; formatação pelo `Intl` do navegador). Guardar em pés/libras, como vem do Shards, daria a mesma tela com migração de save e de todas as contas — ficou metro (07/Out/2026). ⚠️ **O modo métrico do Shards é inconsistente:** converte só o inventário, com fator exato (Maça 1,4 kg), e deixa movimento, sentidos, carga e alcance do espreno em pés/libras com o rótulo trocado ("20 m" = 20 ft). O tradutor detecta o modo pelo `weightRaw` e sempre parte do número imperial. Detalhe no topo de `importarShards.ts` |
 
 ## FIXO — o Shards manda pronto
 

@@ -1,6 +1,6 @@
 /* arquivo: Talentos.tsx */
 import { useState } from 'react'
-import type { Personagem, Talento } from '../../tipos/personagem'
+import type { Especializacao, Personagem, Talento, TipoEspecializacao } from '../../tipos/personagem'
 import {
   entradaTalento,
   talentosDeFluxo,
@@ -13,12 +13,14 @@ import { bonusDeEscolhas } from '../../regras/calculos'
 import { contarTalentos } from '../../regras/contagemTalentos'
 import { ICONE, SIMBOLO_ATIVACAO } from '../../variaveis'
 import { vinculosDe } from '../../regras/especialidades'
-import { ESPECIALIDADES_CULTURAIS } from '../../regras/especialidadesCulturais'
+import { ESPECIALIDADES_CULTURAIS, indicesDaCultura } from '../../regras/especialidadesCulturais'
+import { ARMA_NOME, ARMADURA_NOME } from '../../estado/deparaShards'
 import {
   ESPECIALIDADES_UTILIDADE_EXEMPLO,
   ESPECIALIDADES_PERITO_EXEMPLO,
 } from '../../regras/especialidadesUtilidadePerito'
 import { useIdioma } from '../../idioma/IdiomaContexto'
+import PopoverDetalhe from '../PopoverDetalhe'
 
 // Aba Talentos — cruza 4 fontes pra cada talento do personagem carregado:
 //  1. ficha.talentos          → o que o Shards diz que ele TEM (dado), mais
@@ -36,6 +38,8 @@ type Props = {
   ficha: Personagem
   escolhasTalento: Record<string, EscolhaVaga>
   definirEscolhaVaga: (talentoId: string, tipo: TipoVaga, indice: number, valor: string | undefined) => void
+  adicionarEspecializacao: (e: Especializacao) => void
+  removerEspecializacao: (indice: number) => void
 }
 
 const GRUPOS: Array<{ origem: Talento['origem']; titulo: 'heroicos' | 'radiantes' | 'ancestrais' }> = [
@@ -45,6 +49,104 @@ const GRUPOS: Array<{ origem: Talento['origem']; titulo: 'heroicos' | 'radiantes
 ]
 
 const OUTRA = '__outra__'
+
+const CATEGORIAS: TipoEspecializacao[] = ['arma', 'armadura', 'cultural', 'utilidade', 'perito']
+
+/** Sugestões do campo de nome, por categoria — o livro não fecha a lista (só a cultural), então digitar outra vale. */
+function sugestoesDe(tipo: TipoEspecializacao): string[] {
+  if (tipo === 'cultural') return ESPECIALIDADES_CULTURAIS.map((c) => c.nome)
+  if (tipo === 'utilidade') return ESPECIALIDADES_UTILIDADE_EXEMPLO
+  if (tipo === 'perito') return ESPECIALIDADES_PERITO_EXEMPLO
+  return [...new Set(Object.values(tipo === 'arma' ? ARMA_NOME : ARMADURA_NOME))]
+}
+
+/**
+ * Especialidades: as que a ficha tem, por categoria, e adicionar/remover avulsa
+ * (recompensa, treino, MJ). As culturais da cultura escolhida são fixas. Tocar
+ * no número abre a janela com a conta-base do livro — transcrição 03-estatisticas-de-personagem/05-especialidades.md.
+ */
+function Especialidades({ ficha, adicionar, remover }: { ficha: Personagem; adicionar: Props['adicionarEspecializacao']; remover: Props['removerEspecializacao'] }) {
+  const { t, tx, nome } = useIdioma()
+  const [verConta, setVerConta] = useState(false)
+  const [tipo, setTipo] = useState<TipoEspecializacao>('utilidade')
+  const [novo, setNovo] = useState('')
+  const fixos = indicesDaCultura(ficha)
+  const intelecto = Math.max(0, ficha.atributos.intelecto)
+  const lista = ficha.especializacoes
+
+  function enviar(ev: React.FormEvent) {
+    ev.preventDefault()
+    const n = novo.trim()
+    if (n === '' || lista.some((e) => e.tipo === tipo && e.nome === n)) return
+    adicionar({ tipo, nome: n })
+    setNovo('')
+  }
+
+  return (
+    <section className="grupo-talentos especialidades">
+      <h2 className="titulo-secao">
+        {tx.talentos.especialidades}{' '}
+        <button className="numero-detalhavel numero-titulo" aria-label={tx.talentos.contaTitulo} aria-expanded={verConta} onClick={() => setVerConta(!verConta)}>
+          {lista.length}
+        </button>
+      </h2>
+      {verConta && (
+        <PopoverDetalhe
+          detalhe={{
+            titulo: tx.talentos.contaTitulo,
+            linhas: [
+              { origem: tx.talentos.contaCulturais, valor: 2 },
+              { origem: tx.talentos.contaIntelecto, valor: intelecto },
+            ],
+            total: 2 + intelecto,
+          }}
+          nota={
+            lista.length > 2 + intelecto
+              ? t(tx.talentos.contaAMais, { n: lista.length, dif: lista.length - 2 - intelecto })
+              : lista.length < 2 + intelecto
+                ? t(tx.talentos.contaAEscolher, { n: lista.length, dif: 2 + intelecto - lista.length })
+                : t(tx.talentos.contaEmDia, { n: lista.length })
+          }
+          aoFechar={() => setVerConta(false)}
+        />
+      )}
+      <ul className="lista-especialidades">
+        {lista.map((e, i) => (
+          <li key={`${e.tipo}:${e.nome}:${i}`}>
+            <span className="esp-categoria">{tx.categoriaEspecialidade[e.tipo]}</span>
+            <span className="esp-nome">{nome(e.nome)}</span>
+            {fixos.has(i) ? (
+              <span className="esp-fixa">{tx.talentos.daCultura}</span>
+            ) : (
+              <button className="esp-remover" aria-label={t(tx.talentos.removerEspecialidade, { nome: nome(e.nome) })} onClick={() => remover(i)}>
+                {ICONE.fechar}
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+      <form className="esp-nova" onSubmit={enviar}>
+        <select value={tipo} onChange={(ev) => setTipo(ev.target.value as TipoEspecializacao)} aria-label={tx.talentos.especialidades}>
+          {CATEGORIAS.map((c) => (
+            <option key={c} value={c}>
+              {tx.categoriaEspecialidade[c]}
+            </option>
+          ))}
+        </select>
+        <input list="esp-sugestoes" value={novo} onChange={(ev) => setNovo(ev.target.value)} placeholder={tx.talentos.nomeEspecialidade} />
+        <datalist id="esp-sugestoes">
+          {sugestoesDe(tipo).map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
+        <button type="submit" className="esp-adicionar" disabled={novo.trim() === ''}>
+          {tx.geral.adicionar}
+        </button>
+      </form>
+      {tipo === 'perito' && <p className="contagem-saldo">{tx.talentos.peritoSoPor}</p>}
+    </section>
+  )
+}
 
 /** Contagem no alto da aba: talentos usados × previstos pela tabela do livro, por categoria (regras/contagemTalentos.ts). */
 function ContagemTalentos({ ficha }: { ficha: Personagem }) {
@@ -239,7 +341,7 @@ function ConcessaoFixa({ id, ficha }: { id: string; ficha: Personagem }) {
   )
 }
 
-export default function Talentos({ ficha, escolhasTalento, definirEscolhaVaga }: Props) {
+export default function Talentos({ ficha, escolhasTalento, definirEscolhaVaga, adicionarEspecializacao, removerEspecializacao }: Props) {
   const { t, tx, nome } = useIdioma()
   const { talentos } = ficha
   const grupos = [
@@ -258,6 +360,7 @@ export default function Talentos({ ficha, escolhasTalento, definirEscolhaVaga }:
   return (
     <div className="secao talentos">
       <ContagemTalentos ficha={ficha} />
+      <Especialidades ficha={ficha} adicionar={adicionarEspecializacao} remover={removerEspecializacao} />
       {grupos.map(({ chave, titulo, lista: doGrupo }) => {
         if (doGrupo.length === 0) return null
         return (

@@ -63,6 +63,7 @@ Moram no `package.json` da raiz do projeto (react · react-dom · vite · typesc
 | `apk/twa-manifest.json` | Receita do APK (TWA/Bubblewrap). O resto de `apk/` é gerado e fica fora do Git |
 | [`.claude/apk.md`](apk.md) | Como gerar o APK, onde mora a chave de assinatura (fora do repo), conferência de segurança |
 | `.claude/verificar.mjs` | A revisão de organização executável: `node .claude/verificar.mjs`. Links, mapas × disco, versão copiada |
+| [`.claude/skills/git-up/SKILL.md`](skills/git-up/SKILL.md) | `/git-up`: commit + push, com a versão subindo no mesmo commit. Só o César chama |
 | [`.claude/organizacao.md`](organizacao.md) | **Como a estrutura se mantém.** A regra do CLAUDE.md, pastas por papel, gatilhos de refatoração. A organização é responsabilidade do Claude |
 | `.vscode/settings.json` | Configuração do VS Code deste projeto: a extensão de Java ignora `apk/` |
 | `.claude/settings.local.json` | Configuração local do Claude Code. Não é do app |

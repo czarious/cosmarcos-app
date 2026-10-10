@@ -1,6 +1,6 @@
 /* arquivo: IdiomaContexto.tsx */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { DICIONARIO, LOCALE, preencher, plural, nome, mensagem, rotulo, numero, type Idioma } from './idioma'
+import { DICIONARIO, LOCALE, preencher, plural, nome, mensagem, rotulo, numero, distancia, pesoNumero, unidadePeso, pesoDigitadoEmKg, medidas, type Idioma } from './idioma'
 import type { Dicionario, Mensagem, Plural, Rotulo } from './pt'
 
 // O idioma escolhido na engrenagem, para o app inteiro. Mora no aparelho
@@ -28,6 +28,15 @@ type Valor = {
   rot: (r: Rotulo) => string
   /** Número no formato do idioma. */
   num: (n: number, casas?: number) => string
+  /** Distância em metros, com unidade — pés em inglês. */
+  distancia: (m: number) => string
+  /** Peso em kg, só o número — libras em inglês; a unidade é `unidadePeso`. */
+  pesoNum: (kg: number, casas?: number) => string
+  unidadePeso: string
+  /** Peso que a pessoa digitou (lb em inglês) → kg. */
+  pesoEmKg: (valor: number) => number
+  /** Converte as medidas dentro de um texto ("50 kg" → "100 lb" em inglês). */
+  medidas: (texto: string) => string
 }
 
 function montar(idioma: Idioma, definirIdioma: (i: Idioma) => void): Valor {
@@ -41,6 +50,11 @@ function montar(idioma: Idioma, definirIdioma: (i: Idioma) => void): Valor {
     msg: (m) => mensagem(m, idioma),
     rot: (r) => rotulo(r, idioma),
     num: (n, casas) => numero(n, idioma, casas),
+    distancia: (m) => distancia(m, idioma),
+    pesoNum: (kg, casas) => pesoNumero(kg, idioma, casas),
+    unidadePeso: unidadePeso(idioma),
+    pesoEmKg: (v) => pesoDigitadoEmKg(v, idioma),
+    medidas: (texto) => medidas(texto, idioma),
   }
 }
 

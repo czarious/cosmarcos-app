@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { ICONE } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
 import { IDIOMAS, type Idioma } from '../idioma/idioma'
+import Sobreposicao from './Sobreposicao'
 
 // A engrenagem no canto do topo: o que é do APP, não da ficha na mesa —
 // a ponte com o Shards (importar/exportar), o backup e o idioma da tela.
@@ -40,7 +41,7 @@ export default function MenuEngrenagem({ aoImportar, aoExportar, aoBaixarBackup,
         {ICONE.menu}
       </button>
       {aberto && (
-        <div className="cr-overlay" onClick={fechar}>
+        <Sobreposicao aoFechar={fechar}>
           <div className="cr-painel menu-engrenagem" onClick={(ev) => ev.stopPropagation()}>
             <div className="cr-cabeca">
               <span className="cr-titulo">{tx.geral.menu}</span>
@@ -90,7 +91,7 @@ export default function MenuEngrenagem({ aoImportar, aoExportar, aoBaixarBackup,
 
             <p className="menu-versao">{t(tx.menu.versao, { v: __VERSAO__ })}</p>
           </div>
-        </div>
+        </Sobreposicao>
       )}
     </>
   )

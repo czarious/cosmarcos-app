@@ -5,7 +5,7 @@ import type { Personagem, Condicao, IdCondicao } from '../tipos/personagem'
 import { importarShards } from '../estado/importarShards'
 import { PT, type Mensagem, type Plural } from './pt'
 import { EN } from './en'
-import { mensagem, nome, plural, rotulo } from './idioma'
+import { mensagem, nome, plural, rotulo, distancia, medidas, pesoNumero, pesoDigitadoEmKg } from './idioma'
 import { NOMES_EN } from './nomes'
 import { CONDICOES, acoesNoTurno, lembretes, modificadorRolagemLesao, movimentoComCondicoes } from '../regras/condicoes'
 import { detalhePericia } from '../regras/calculos'
@@ -148,5 +148,27 @@ describe('mensagens das regras', () => {
     const msgs = [...guia.pagamentos(5).map((p) => p.rotulo), guia.tabelaCD!.titulo, ...guia.tabelaCD!.colunas, ...guia.tabelaCD!.linhas.map((l) => l.rotulo)]
     expect(msgs.filter((m) => !completa(m))).toEqual([])
     expect(mensagem(guia.pagamentos(2)[1].rotulo, 'en')).toBe('Medium −2')
+  })
+})
+
+describe('medidas: a ficha guarda metro/kg, o inglês mostra pé/libra pela conta do livro', () => {
+  it('desfaz a conta do tradutor: 9 m = 30 ft, 0,75 m = 2,5 ft, 50 kg = 100 lb', () => {
+    expect(distancia(9, 'en')).toBe('30 ft')
+    expect(distancia(0.75, 'en')).toBe('2.5 ft')
+    expect(distancia(9, 'pt')).toBe('9 m')
+    expect(pesoNumero(50, 'en')).toBe('100')
+    expect(pesoDigitadoEmKg(3, 'en')).toBe(1.5)
+  })
+
+  it('converte toda medida dentro de um texto, e só em inglês', () => {
+    expect(medidas('À distância [9/36 m]', 'en')).toBe('À distância [30/120 ft]')
+    expect(medidas('Small (0.75 m)', 'en')).toBe('Small (2.5 ft)')
+    expect(medidas('50 kg', 'en')).toBe('100 lb')
+    expect(medidas('9 m', 'pt')).toBe('9 m')
+    expect(medidas('5 minutos, 3 metros', 'en')).toBe('5 minutos, 3 metros')
+  })
+
+  it('o nome de jogo já sai convertido (alcance de arma)', () => {
+    expect(nome('Corpo a corpo (1,5 m)', 'en')).toContain('5 ft')
   })
 })

@@ -4,6 +4,7 @@ import type { Recurso } from '../tipos/personagem'
 import { ICONE, SIMBOLO_RECURSO, VERBOS_RECURSO } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
 import { danoAposDeflexao } from '../regras/armadura'
+import Sobreposicao from './Sobreposicao'
 
 // Popover que abre ao tocar num recurso do cabeçalho. Duas formas de mexer:
 //   − e + grandes  → ±1 (o caso comum: 1 de foco, 1 de investidura)
@@ -45,7 +46,7 @@ export default function ControleRecurso({ qual, de, recurso, alterar, aoFechar, 
 
   return (
     // fundo escurecido: toca fora → fecha
-    <div className="cr-overlay" onClick={aoFechar}>
+    <Sobreposicao aoFechar={aoFechar}>
       <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
           <span className="cr-titulo">
@@ -112,6 +113,6 @@ export default function ControleRecurso({ qual, de, recurso, alterar, aoFechar, 
           </button>
         </div>
       </div>
-    </div>
+    </Sobreposicao>
   )
 }

@@ -1,5 +1,6 @@
 /* arquivo: talentos.ts */
 import type { Ativacao, Pericia, Personagem, Talento } from '../tipos/personagem'
+import type { Custo, EntradaAcao } from './acoes'
 import { TALENTOS_ERUDITO } from './talentos/erudito'
 import { TALENTOS_AGENTE } from './talentos/agente'
 import { TALENTOS_CACADOR } from './talentos/cacador'
@@ -78,6 +79,8 @@ export type EntradaTalento = {
   fonteEn: string
   preRequisitos: string
   ativacao: Ativacao
+  /** Só em talento de ação (▶ ▷ ↻): o que ativar desconta SEMPRE. Custo variável ou opcional fica fora — ajusta no topo. */
+  custo?: Custo
   descricao: string
   /** Presente só nos talentos com escolha em aberto (ex.: Erudição). */
   vagas?: VagaTalento[]
@@ -145,4 +148,16 @@ export function talentosDeFluxo(ficha: Personagem): Talento[] {
       .filter((t) => t.aprendido)
       .map((t): Talento => ({ id: chaveTalentoFluxo(f.id, t.id), nome: t.nome, origem: 'radiante', chave: false })),
   )
+}
+
+/** As ativações que se USAM no turno. Passivo (∞) e especial (★) ficam só na aba Talentos. */
+const ATIVACAO_DE_ACAO: Ativacao[] = ['1acao', '2acoes', '3acoes', 'livre', 'reacao']
+
+/** Talentos do personagem (inclusive os de fluxo aprendidos) que viram ação usável na aba Ações. */
+export function acoesDeTalentos(ficha: Personagem): Array<{ acao: EntradaAcao; deTalento: string }> {
+  return [...ficha.talentos, ...talentosDeFluxo(ficha)].flatMap((tal) => {
+    const e = entradaTalento(tal)
+    if (!e || !ATIVACAO_DE_ACAO.includes(e.ativacao)) return []
+    return [{ acao: { nome: e.nome, nomeEn: e.nomeEn, ativacao: e.ativacao, resumo: e.descricao, custo: e.custo }, deTalento: e.fonte }]
+  })
 }

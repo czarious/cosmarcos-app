@@ -5,7 +5,7 @@ import { CATALOGO_TALENTOS } from '../regras/talentos'
 import { CONDICOES, EFEITOS_LESAO, GRAVIDADE } from '../regras/condicoes'
 import { FABRIAIS_PADRAO, EFEITOS_UNICOS, APRIMORAMENTOS_GERAIS, REVEZES_GERAIS, CARACTERISTICAS_AVANCADAS, QUALIDADE, CARACTERISTICA_EN } from '../regras/fabriais'
 import { ESPECIALIDADES_EN } from '../regras/especialidadesUtilidadePerito'
-import { ESCALONAMENTO_FLUXO, TAMANHO_EN } from '../regras/fluxos'
+import { ESCALONAMENTO_FLUXO, GUIAS_FLUXO, TAMANHO_EN } from '../regras/fluxos'
 
 /**
  * NOMES DO JOGO em inglês, pelo nome em português. Não é lista digitada aqui:
@@ -76,4 +76,5 @@ export const NOMES_EN: Record<string, string> = juntar([
   ...Object.entries(ESPECIALIDADES_EN),
   ...Object.entries(TAMANHO_EN),
   ...Object.values(ESCALONAMENTO_FLUXO).map((e): [string, string] => [e.tamanho, e.tamanhoEn]),
+  ...Object.values(GUIAS_FLUXO).flatMap((g) => (g.habilidades ?? []).map((h): [string, string] => [h.nome, h.nomeEn])),
 ])

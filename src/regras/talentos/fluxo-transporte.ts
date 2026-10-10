@@ -50,6 +50,7 @@ export const TALENTOS_FLUXO_TRANSPORTE: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Transportation',
     preRequisitos: 'Dizer o Segundo Ideal',
     ativacao: 'reacao',
+    custo: { investidura: 1 },
     descricao:
       'Antes de ser acertado por um ataque, gasta 1 de Investidura e testa Transporte (CD igual ao ataque). Na falha, o ataque atinge de raspão; no sucesso, erra.',
   },
@@ -60,6 +61,7 @@ export const TALENTOS_FLUXO_TRANSPORTE: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Transportation',
     preRequisitos: 'Evasão Entre Reinos',
     ativacao: '1acao',
+    custo: { investidura: 2 },
     descricao:
       'Testa Transporte (CD 15) e gasta 2 de Investidura para se transportar a um espaço dentro da distância do seu vínculo com o espreno.',
   },

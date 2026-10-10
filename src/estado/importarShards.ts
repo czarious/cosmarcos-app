@@ -461,6 +461,12 @@ function traduzRadiante(bruto: unknown): Radiante | undefined {
 export const ID_NOTAS_SHARDS = 'shards-notes'
 export const TITULO_NOTAS_SHARDS = 'Notas (do Shards)'
 
+/** O cartão "Path Notes" do Shards: dois textos livres, um bloco fixo cada (dados.md → "Armadilhas do JSON do Shards"). */
+export const NOTAS_DE_TRILHA = [
+  { id: 'shards-path-notes', titulo: 'Notas de trilha (do Shards)', campo: 'meta.paths' },
+  { id: 'shards-path-talents', titulo: 'Notas de talentos (do Shards)', campo: 'talents' },
+] as const
+
 /**
  * O campo NOTES do Shards vira a aba Anotações. O Shards tem UM campo; o app,
  * vários blocos — na exportação cada bloco vira "### Título" + texto
@@ -521,6 +527,11 @@ function anotacoesDoShards(c: Obj): Anotacao[] {
   const blocos: Anotacao[] = []
   const solto = partes[0].trim()
   if (solto !== '') blocos.push({ id: ID_NOTAS_SHARDS, titulo: TITULO_NOTAS_SHARDS, conteudo: solto })
+  const meta = ehObjeto(c.meta) ? c.meta : {}
+  for (const n of NOTAS_DE_TRILHA) {
+    const conteudo = texto(n.campo === 'meta.paths' ? meta.paths : c.talents).trim()
+    if (conteudo !== '') blocos.push({ id: n.id, titulo: n.titulo, conteudo })
+  }
   partes.slice(1).forEach((p, i) => {
     const quebra = p.indexOf('\n')
     const titulo = (quebra < 0 ? p : p.slice(0, quebra)).trim()

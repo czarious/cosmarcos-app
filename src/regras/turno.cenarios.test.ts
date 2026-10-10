@@ -49,6 +49,11 @@ const fluxo = (f: Personagem, id: string): AcaoUsavel => {
   const x = f.radiante!.fluxos.find((y) => y.id === id)!
   return { chave: `fluxo:${id}`, nome: x.nome, ativacao: x.ativacao, custo: GUIAS_FLUXO[id]?.custoAoUsar }
 }
+/** Igual ao botão da habilidade no cartão do fluxo (secoes/Acoes.tsx → CartaoFluxo). */
+const habilidade = (id: string, hab: string): AcaoUsavel => {
+  const h = GUIAS_FLUXO[id].habilidades!.find((x) => x.id === hab)!
+  return { chave: `fluxo:${id}:${h.id}`, nome: h.nome, ativacao: h.ativacao, custo: h.custo, repetivel: h.repetivel }
+}
 const pagar = (id: string, inv: number): AcaoUsavel => ({ chave: `pagar:${id}:${inv}`, nome: id, ativacao: 'especial', custo: { investidura: inv }, repetivel: true })
 
 /** Monta o turno e roda o plano; devolve o que passou e por quê não. */
@@ -124,8 +129,14 @@ describe('10 turnos LENTOS (3 ▶)', () => {
 
   it('"Olho o Reino Cognitivo: sinto Investidura e leio as emoções dele (2 efeitos), e ando duas vezes."', () => {
     const f = eccho_()
-    const r = turno(f, 'lento', [item(fluxo(f, 'transportation')), item(pagar('transportation', 1)), item(padrao('Mover')), item(padrao('Mover'))])
-    expect(r.passou).toEqual([true, true, true, true])
+    const r = turno(f, 'lento', [
+      item(fluxo(f, 'transportation')),
+      item(habilidade('transportation', 'sense_investiture')),
+      item(habilidade('transportation', 'learn_emotions_motives')),
+      item(padrao('Mover')),
+      item(padrao('Mover')),
+    ])
+    expect(r.passou).toEqual([true, true, true, true, true])
     expect(r.sim.ficha.recursos.investidura.atual).toBe(f.recursos.investidura.atual - 2)
   })
 

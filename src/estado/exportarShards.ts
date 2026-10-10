@@ -19,9 +19,10 @@
  */
 
 import type { Personagem, Fabrial, Ideal } from '../tipos/personagem'
-import { APRIMORAMENTO_ID, REVES_ID, QUALIDADE_FABRIAL, FABRIAL_PADRAO_ID, CONDICAO_ID, GRAVIDADE_LESAO, ATRIBUTO } from './deparaShards'
+import { APRIMORAMENTO_ID, REVES_ID, QUALIDADE_FABRIAL, FABRIAL_PADRAO_ID, CONDICAO_ID, GRAVIDADE_LESAO, ATRIBUTO, TIPO_ESPECIALIDADE, ARMA_NOME, ARMADURA_NOME } from './deparaShards'
+import { indicesDaCultura } from '../regras/especialidadesCulturais'
 import { EFEITOS_LESAO } from '../regras/condicoes'
-import { ID_NOTAS_SHARDS } from './importarShards'
+import { ID_NOTAS_SHARDS, NOTAS_DE_TRILHA } from './importarShards'
 import { ID_PROPRIO, CARACTERISTICAS_AVANCADAS, efeitoUnico, APRIMORAMENTOS_GERAIS, REVEZES_GERAIS } from '../regras/fabriais'
 
 type Obj = Record<string, unknown>
@@ -39,6 +40,30 @@ const FABRIAL_PADRAO_EN = inverte(FABRIAL_PADRAO_ID)
 const CONDICAO_EN = inverte(CONDICAO_ID)
 const GRAVIDADE_EN = inverte(GRAVIDADE_LESAO)
 const ATRIBUTO_EN = inverte(ATRIBUTO)
+const TIPO_ESPECIALIDADE_EN = inverte(TIPO_ESPECIALIDADE)
+const ARMA_EN = inverte(ARMA_NOME)
+const ARMADURA_EN = inverte(ARMADURA_NOME)
+
+/**
+ * Especialidades → `expertises`, menos as culturais fixas (o Shards as tira da
+ * cultura). A que já existia no Shards volta com o mesmo id; a nova ganha um.
+ */
+function especialidadesShards(ficha: Personagem, crus: Obj[]): Obj[] {
+  const fixos = indicesDaCultura(ficha)
+  const usados = new Set<Obj>()
+  return ficha.especializacoes
+    .filter((_, i) => !fixos.has(i))
+    .map((e) => {
+      const name = e.tipo === 'arma' ? (ARMA_EN[e.nome] ?? e.nome) : e.tipo === 'armadura' ? (ARMADURA_EN[e.nome] ?? e.nome) : e.nome
+      const type = TIPO_ESPECIALIDADE_EN[e.tipo]
+      const cru = crus.find((x) => !usados.has(x) && x.type === type && x.name === name)
+      if (cru) {
+        usados.add(cru)
+        return cru
+      }
+      return { id: crypto.randomUUID(), type, name, source: 'manual' }
+    })
+}
 
 /** Condição no formato do Shards — o valor vai no `detail`, que ele lê ("+1 Strength", "-2"). */
 function condicaoShards(c: Personagem['condicoes'][number]): Obj {
@@ -128,7 +153,8 @@ function fabrialShards(f: Fabrial, cru: Obj | undefined): Obj {
 /** Anotações → um campo de texto: o bloco do Shards solto no topo, os outros como "### Título". */
 function notasShards(ficha: Personagem): string {
   const solto = ficha.anotacoes.find((a) => a.id === ID_NOTAS_SHARDS)
-  const outros = ficha.anotacoes.filter((a) => a.id !== ID_NOTAS_SHARDS)
+  const fixos = new Set<string>([ID_NOTAS_SHARDS, ...NOTAS_DE_TRILHA.map((n) => n.id)])
+  const outros = ficha.anotacoes.filter((a) => !fixos.has(a.id))
   return [solto?.conteudo ?? '', ...outros.map((a) => `### ${a.titulo}\n${a.conteudo}`)].filter((x) => x !== '').join('\n\n')
 }
 
@@ -234,7 +260,12 @@ export function exportarShards(ficha: Personagem, semente: Obj): string {
   if (ficha.radiante) c.radiant = radianteShards(ficha.radiante.ideais, c.radiant as Obj)
 
   c.notes = notasShards(ficha)
+  // cartão "Path Notes": cada bloco volta pro seu campo; bloco apagado no app volta vazio
+  const [trilha, talentos] = NOTAS_DE_TRILHA.map((n) => ficha.anotacoes.find((a) => a.id === n.id)?.conteudo ?? '')
+  c.meta = { ...(c.meta as Obj), paths: trilha }
+  c.talents = talentos
   c.equipment = ficha.equipamentoTexto
+  c.expertises = especialidadesShards(ficha, lista(c.expertises))
   c.conditions = ficha.condicoes.map(condicaoShards)
   c.injuries = ficha.lesoes.map(lesaoShards)
   c.injuriesCount = ficha.lesoes.length

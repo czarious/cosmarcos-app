@@ -5,6 +5,7 @@ import Cropper, { type Area, type Point } from 'react-easy-crop'
 import 'react-easy-crop/react-easy-crop.css'
 import { ICONE } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
+import Sobreposicao from './Sobreposicao'
 
 // O rosto do personagem no cabeçalho: quadrado, tocar põe (ou troca) a foto.
 // Escolhida a imagem, o recorte: janela quadrada limpa no meio, o que fica de
@@ -56,7 +57,7 @@ export default function FotoPersonagem({ foto, definirFoto }: Props) {
       <input ref={seletor} type="file" accept="image/*" hidden onChange={aoEscolher} />
 
       {opcoes && (
-        <div className="cr-overlay" onClick={() => setOpcoes(false)}>
+        <Sobreposicao aoFechar={() => setOpcoes(false)}>
           <div className="cr-painel painel-mesa" onClick={(e) => e.stopPropagation()}>
             <div className="cr-cabeca">
               <span className="cr-titulo">{tx.foto.trocarFoto}</span>
@@ -71,7 +72,7 @@ export default function FotoPersonagem({ foto, definirFoto }: Props) {
               </button>
             </div>
           </div>
-        </div>
+        </Sobreposicao>
       )}
 
       {original && (
@@ -110,7 +111,7 @@ function Recorte({ src, aoUsar, aoCancelar }: { src: string; aoUsar: (foto: stri
   }
 
   return (
-    <div className="cr-overlay" onClick={aoCancelar}>
+    <Sobreposicao aoFechar={aoCancelar}>
       <div className="cr-painel painel-mesa rf-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
           <span className="cr-titulo">{tx.foto.recortar}</span>
@@ -161,7 +162,7 @@ function Recorte({ src, aoUsar, aoCancelar }: { src: string; aoUsar: (foto: stri
           <button type="button" className="rodape-botao" onClick={aoCancelar}>{tx.geral.cancelar}</button>
         </div>
       </div>
-    </div>
+    </Sobreposicao>
   )
 }
 

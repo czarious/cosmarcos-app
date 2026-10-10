@@ -112,6 +112,28 @@ for (const doc of docs) {
   }
 }
 
+// 6b. Aspas escapadas (\") no texto de doc — sobra de script de substituição. Já
+// aconteceu (07/Out/2026): um re.sub com string crua deixou `\"Contagem\"` na
+// checklist, e só a leitura do arquivo achou.
+for (const doc of docs) {
+  const texto = semCodigo(readFileSync(doc, 'utf8')).replace(/`[^`\n]*`/g, '')
+  if (texto.includes('\\"')) problemas.push(`aspas escapadas (\\") no texto · ${relative(RAIZ, doc)}`)
+}
+
+// 6c. Janela só pela Sobreposicao (desenha no <body>). Já falhou (07/Out/2026): toda
+// janela aberta de dentro de uma aba ficava presa ao carrossel e abria fora da tela,
+// da v0.10.2 à v0.13.0, sem ninguém ver — a 1ª aba, a mais testada, não tinha o defeito.
+for (const arq of codigo.filter((f) => f.endsWith('.tsx') && !f.endsWith('Sobreposicao.tsx'))) {
+  if (/className=[^>]*cr-overlay/.test(readFileSync(arq, 'utf8'))) problemas.push(`janela fora da Sobreposicao (abre fora da tela dentro das abas) · ${relative(RAIZ, arq)}`)
+}
+
+// 6d. Caractere de controle invisível no código (fora tab/quebra de linha). Já
+// aconteceu (07/Out/2026): um script gravou backspace no lugar de \b numa regex, e ela
+// passou a converter "3 metros" em pés — o tsc não viu nada.
+for (const arq of codigo.filter((f) => /\.(ts|tsx|css)$/.test(f))) {
+  if (/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(readFileSync(arq, 'utf8'))) problemas.push(`caractere de controle invisível · ${relative(RAIZ, arq)}`)
+}
+
 // 7. Classe que o roteiro do iPhone procura existe no código? Já falhou (30/Set/2026):
 // a janela da fogueira trocou de classe, o roteiro seguiu procurando a velha, e só a
 // rodada no GitHub (depois do push) diria. Aqui pega antes.

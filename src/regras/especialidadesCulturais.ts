@@ -1,4 +1,6 @@
 /* arquivo: especialidadesCulturais.ts */
+import type { Personagem } from '../tipos/personagem'
+import { CULTURA, ESPECIALIDADE_CULTURAL } from '../estado/deparaShards'
 
 /**
  * As 13 especialidades culturais rosharanas — Cap. 2 (Cultura), lista
@@ -32,3 +34,20 @@ export const ESPECIALIDADES_CULTURAIS: EspecialidadeCultural[] = [
   { nome: 'Vedena', resumo: 'Jah Keved — vorinismo, castas por cor dos olhos, próxima da cultura alethiana.' },
   { nome: 'Viajante', resumo: 'Estilo de vida nômade, sem nação fixa — rotas, abrigos contra tempestade.' },
 ]
+
+/**
+ * As culturais que nascem das culturas escolhidas (o Shards não as põe em
+ * `expertises` — o tradutor as cria): FIXAS, não se removem e não voltam no
+ * export. Devolve os índices delas em `ficha.especializacoes` — calculado na
+ * hora pela cultura, pra não mudar o formato do save.
+ */
+export function indicesDaCultura(ficha: Personagem): Set<number> {
+  const fixos = new Set<number>()
+  for (const cultura of ficha.meta.culturas) {
+    const en = Object.keys(CULTURA).find((k) => CULTURA[k] === cultura) ?? cultura
+    const nome = ESPECIALIDADE_CULTURAL[en] ?? en
+    const i = ficha.especializacoes.findIndex((e, k) => !fixos.has(k) && e.tipo === 'cultural' && e.nome === nome)
+    if (i >= 0) fixos.add(i)
+  }
+  return fixos
+}

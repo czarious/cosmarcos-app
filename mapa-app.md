@@ -35,6 +35,7 @@
 | `src/main.tsx` | Ponto de entrada — monta o React no `#raiz`, dentro do `ProvedorIdioma` |
 | `src/App.tsx` | Compõe a ficha: cabeçalho fixo (com a engrenagem) + painel de turno + abas + conteúdo + rodapé (estado do save). Liga o `useTurno` ao `usePersonagem` |
 | `src/estado/usePersonagem.ts` | **Estado VIVO** — recursos, escolhas de vaga, `alternarEquipada`, `definirMarcos`, `adicionarItem`/`removerItem`, fabriais, `importarTexto`/`exportarJson`. Carrega do save; o JSON é semente e base da exportação. Semente mais nova que o save → aviso "Importar / Agora não" no topo |
+| `src/estado/useOrdemAbas.ts` | A ordem das abas que a pessoa reordenou no menu (▲▼), guardada no aparelho — vale pro menu e pro arrastar |
 | `src/estado/useTurno.ts` | **Estado do combate** ligado à ficha: o **plano do turno** ("Usar" só planeja), **Confirmar** grava o que `simularPlano` calculou, **Desfazer** volta a última confirmação. Tira Surpreendido no fim do turno. Chave própria no localStorage, fora do save |
 | `src/estado/armazenamento.ts` | **Persistência** (localStorage). Salva a ficha INTEIRA + escolhas + o JSON cru do Shards (semente da exportação), com `VERSAO_ESQUEMA` e migração de versão antiga. Save que não abre → **quarentena** (cópia guardada) + aviso na tela, nunca quebra. Mesmo pacote = arquivo de **backup** |
 | `src/estado/armazenamento.test.ts` | Testes do save: migração sem buraco, quarentena, gravação que falha, backup ida e volta |
@@ -49,29 +50,30 @@
 | `src/componentes/ControleRecurso.tsx` | **Popover de ±**: botões − e + de ±1 + entrada numérica. Serve a qualquer contador atual/máximo — os 3 recursos e as cargas de fabrial. Na Vida, desconta a deflexão do dano (marcado de saída) |
 | `src/componentes/FormularioFabrial.tsx` | Montador de fabrial (novo/editar): padrão ou único, efeito, qualidade, aprimoramentos, revezes e características do livro, com avisos que não bloqueiam |
 | `src/componentes/ControleMarcos.tsx` | As 3 caixas de marco de história + concluir. Serve a Objetivos e Ideais |
+| `src/componentes/Sobreposicao.tsx` | O fundo escurecido de toda janela, desenhado no `<body>` (fora do carrossel das abas, senão abre fora da tela). Só ele escreve `cr-overlay` — o `verificar.mjs` confere |
 | `src/componentes/PopoverDetalhe.tsx` | Popover só-leitura — toca num número calculado e vê de onde vem cada parcela. Reaproveita o visual do `ControleRecurso` |
-| `src/componentes/SeletorSecao.tsx` | Barra de uma linha (ícone + aba aberta + 9 quadradinhos) que abre o menu com todas as abas. Exporta `SECOES` (nome → ícone), `LISTA` (a ordem) e o tipo `Secao` |
+| `src/componentes/SeletorSecao.tsx` | Barra de uma linha (ícone + aba aberta + 9 quadradinhos) que abre o menu com todas as abas. Exporta `SECOES` (nome → ícone), `LISTA` (a ordem original; "⇅ Reordenar" troca por ▲▼) e o tipo `Secao` |
 | `src/componentes/CarrosselAbas.tsx` | As abas coladas lado a lado: arrastar o dedo passa pra vizinha (Embla). Desenha só a aberta e as vizinhas; ignora borda, campo e diálogo |
 | `src/componentes/CarrosselAbas.test.ts` | Testes do carrossel: quais abas desenha, quando o arrasto vale |
 | `src/componentes/secoes/Principal.tsx` | Aba Principal — o "Abilities, Saves, Senses" do DDB: 3 cartões [atributo·DEFESA·atributo], Deflexão, movimento/sentidos/recuperação/carga/levantamento, com o efeito das condições |
 | `src/componentes/secoes/Pericias.tsx` | Aba Perícias — as 18 agrupadas por atributo, bolinha de graduação (◎ = de talento, isenta do teto) e o total calculado, grande. Toque no total abre o `PopoverDetalhe` |
-| `src/componentes/secoes/Talentos.tsx` | Aba Talentos — "Contagem" no alto; grupos heroicos · radiantes · ancestrais · de fluxo (os aprendidos); cruza talento (dado) × `regras/talentos.ts` (regra) × escolha do jogador (vivo). Talento com `vagas` ganha dropdown editável; sem vagas, fallback só-leitura |
-| `src/componentes/secoes/Acoes.tsx` | Aba Ações — tudo que o personagem pode fazer, cada item com "Usar" ligado ao turno: ataques (Golpear, mão inábil), fluxos (total, pagar Investidura, guia "Como usar"), Luz, as 17 padrão, fabriais de combate, espreno |
+| `src/componentes/secoes/Talentos.tsx` | Aba Talentos — "Contagem" no alto; "Especialidades" (lista por categoria, adicionar/remover avulsa, tocar no número mostra a conta do livro); grupos heroicos · radiantes · ancestrais · de fluxo (os aprendidos); cruza talento (dado) × `regras/talentos.ts` (regra) × escolha do jogador (vivo). Talento com `vagas` ganha dropdown editável; sem vagas, fallback só-leitura |
+| `src/componentes/secoes/Acoes.tsx` | Aba Ações — tudo que o personagem pode fazer, cada item com "Usar" ligado ao turno: ataques (Golpear, mão inábil), fluxos (total, pagar Investidura, guia "Como usar"), Luz, talentos de ação (▶ ▷ ↻) do personagem, as 17 padrão, fabriais de combate, espreno |
 | `src/componentes/secoes/Condicoes.tsx` | Aba Condições — "Agora" (ações/reação/movimento/lembretes), as 14 com checkbox e valor entre colchetes, lesões (rolagem guiada, dias, curar). Exporta `rotuloCondicao` pro cabeçalho |
 | `src/componentes/secoes/Fabriais.tsx` | Aba Fabriais — cartão por fabrial: cargas (± de ajuste), recarga com Investidura e grantormenta, efeito/aprimoramentos/revezes e avisos. **Usar** o fabrial é pelo plano da aba Ações |
-| `src/componentes/secoes/Personagem.tsx` | Aba Personagem — objetivos (marcos, concluir, adicionar, apagar), identidade e o texto de interpretação do Shards |
+| `src/componentes/secoes/Personagem.tsx` | Aba Personagem — "Na mesa" no alto (especialidades e o que está equipado), objetivos (marcos, concluir, adicionar, apagar), identidade e o texto de interpretação do Shards |
 | `src/componentes/secoes/Radiante.tsx` | Aba Radiante — vínculo, Ideais (marcos, Palavras, jurar) e fluxos com total via `detalhePericia` |
 | `src/componentes/secoes/Inventario.tsx` | Aba Inventário — peso carregado/máximo, marcos editável, armas (equipar), itens por categoria, "Gerenciar Inventário" (add/remover), Pertences (texto livre do Shards) |
 | `src/componentes/secoes/Anotacoes.tsx` | Aba Anotações — blocos livres título+conteúdo, 100% do app (Shards não tem isso). Cabeçalho recolhe/expande o corpo |
 | `src/tipos/personagem.ts` | **O SCHEMA** — fonte única dos tipos. Sem `total` na perícia: quem calcula é `regras/calculos.ts` |
-| `src/regras/talentos.ts` | **Catálogo de talentos** — o tipo (nome, fonte, pré-requisitos, ativação, descrição, `vagas?`), o índice dos blocos, `entradaTalento()` (busca pelo id do Shards) e `talentosDeFluxo()` (os de fluxo aprendidos, chave `<fluxo>::<id>`) |
+| `src/regras/talentos.ts` | **Catálogo de talentos** — o tipo (nome, fonte, pré-requisitos, ativação, descrição, `vagas?`), o índice dos blocos, `entradaTalento()` (busca pelo id do Shards) `talentosDeFluxo()` (os de fluxo aprendidos, chave `<fluxo>::<id>`) e `acoesDeTalentos()` (os de ação, pra aba Ações; `custo` fixo de Foco/Investidura) |
 | `src/regras/talentos/<trilha>.ts` | Um bloco do catálogo por trilha, chave = id do Shards. Arquivos: `erudito.ts` · `agente.ts` · `cacador.ts` · `emissario.ts` · `guerreiro.ts` · `lider.ts` · `cantor.ts` · `alternauta.ts` · `corredor-dos-ventos.ts` · `dancarino-de-precipicios.ts` · `guardiao-das-pedras.ts` · `plasmador.ts` · `pulverizador.ts` · `rompe-ceu.ts` · `sentinela-da-verdade.ts` · `teceluz.ts` |
 | `src/regras/talentos/fluxo-<fluxo>.ts` | Os talentos de fluxo, um arquivo por fluxo: `fluxo-abrasao.ts` · `fluxo-adesao.ts` · `fluxo-coesao.ts` · `fluxo-divisao.ts` · `fluxo-gravitacao.ts` · `fluxo-iluminacao.ts` · `fluxo-progressao.ts` · `fluxo-tensao.ts` · `fluxo-transformacao.ts` · `fluxo-transporte.ts` |
 | `src/regras/talentos.test.ts` | Testes do catálogo: todo talento do Eccho (inclusive de fluxo) acha o texto; nenhuma entrada sem texto |
 | `src/regras/contagemTalentos.ts` | Talentos usados × previstos pela tabela do livro, por categoria (por nível, inclusive os de fluxo · bônus de ancestralidade) |
 | `src/regras/contagemTalentos.test.ts` | Testes da contagem (Eccho = −1, Cantor, patamar novo, talento de fluxo) |
 | `src/regras/especialidades.ts` | **Vínculo talento→concessão, POR PERSONAGEM** (`vinculosDe`) — o Shards não expõe essa ligação. Só o valor INICIAL das vagas; quem não tem entrada nasce com vagas vazias |
-| `src/regras/especialidadesCulturais.ts` | As 13 especialidades culturais do livro (Cap. 2) — lista fechada, completa dropdown |
+| `src/regras/especialidadesCulturais.ts` | As 13 especialidades culturais do livro (Cap. 2) — lista fechada, completa dropdown; `indicesDaCultura()` (as culturais fixas, que nascem da cultura) |
 | `src/regras/especialidadesUtilidadePerito.ts` | Rótulo das 5 categorias de especialidade + exemplos do livro (Cap. 3) pra Utilidade/Perito — o livro não fecha essas duas, por isso o dropdown tem "Outra" |
 | `src/regras/pericias.ts` | Teto de graduação por patamar (2/3/4/5/5) + a exceção da Erudição. Consumido pela aba Perícias |
 | `src/regras/calculos.ts` | `totalPericia`/`detalhePericia` + `bonusNaoAtribuido` (o bônus que o Shards mandou e ninguém atribuiu) + `pesoCarregado`/`pesoEmKg` + `periciaPorNome` |
@@ -85,7 +87,7 @@
 | `src/regras/turno.cenarios.test.ts` | 20 turnos de jogador (10 lentos, 10 rápidos): a fala do jogador + o plano que ele montaria, conferidos contra o livro |
 | `src/regras/armadura.ts` | **Armadura** (Cap. 7): deflexão total (a da ficha + a vestida, a maior), Desajeitada [X] com traço de perito → Lento e desvantagem em Velocidade |
 | `src/regras/armadura.test.ts` | Testes da armadura: deflexão, Desajeitada, perito, tradutor, volta pro Shards, migração |
-| `src/regras/fluxos.ts` | Guia de uso dos fluxos (Cap. 6): escalonamento, CD e custo de Transformação e Transporte, notas gerais |
+| `src/regras/fluxos.ts` | Guia de uso dos 10 fluxos (Cap. 6): escalonamento, passos, custos, CD da Transformação, notas gerais; `habilidades` com "Usar" próprio (Transporte, Progressão, Abrasão; id do Shards) |
 | `src/estado/importarShards.ts` | **O TRADUTOR** — JSON do Shards → schema. **Grita** no que não reconhecer. Unidades pelos números do livro, inclusive com o Shards em métrico |
 | `src/estado/importarShards.test.ts` | Testes do tradutor com o `eccho.json`: valores prontos, as 18 perícias contra a conta refeita do JSON cru, ida e volta do export |
 | `src/estado/exportarShards.ts` | **O caminho de volta** — ficha → JSON que o Shards importa. Parte do JSON cru da importação e aplica só o que o app edita; o resto volta idêntico |
@@ -139,7 +141,7 @@ tipos/personagem.ts  ← a raiz de tudo
 | **`tipos/personagem.ts`** ⚠️ | `regras/` · `estado/` · `componentes/` · `public/personagens/*.json` · [`escopo/dados.md`](escopo/dados.md) | **O de maior alcance.** Todo o resto lê a ficha por ele. Mudou campo → os JSONs viram inválidos |
 | **`estado/importarShards.ts`** (o tradutor) · `deparaShards.ts` · `exportarShards.ts` | `idioma/idioma.ts` (nomes em inglês vêm do de-para) · `tipos/personagem.ts` · `public/personagens/*.json` · [`escopo/dados.md`](escopo/dados.md) · [`.claude/mapa-shards.md`](.claude/mapa-shards.md) | Única porta de entrada de dado. **Quebra calada** quando o Shards mudar — tem que validar e gritar ([premissas](escopo/premissas.md) → "Schema próprio em português + tradutor na entrada") |
 | `regras/ordens.ts` | `secoes/Acoes.tsx` · `Radiante.tsx` · [`escopo/roadmap.md`](escopo/roadmap.md) perguntas 8–9 | As Ações de Luz/Mancha vêm daqui, não do JSON. Regra do livro: conferir contra transcrição |
-| `regras/talentos.ts` | `secoes/Talentos.tsx` · `usePersonagem.ts` · `importarShards.ts` (nome PT do talento de fluxo) · `contagemTalentos.ts` | Nome/efeito/vagas de cada talento — um bloco de trilha por vez |
+| `regras/talentos.ts` | `secoes/Talentos.tsx` · `secoes/Acoes.tsx` · `usePersonagem.ts` · `importarShards.ts` (nome PT do talento de fluxo) · `contagemTalentos.ts` | Nome/efeito/vagas de cada talento — um bloco de trilha por vez |
 | `regras/especialidades.ts` | `usePersonagem.ts` · `secoes/Talentos.tsx` | Um bloco por personagem, chaveado por `meta.nome`. Personagem sem entrada **funciona** — o total cai no `bonusNaoAtribuido` |
 | `regras/pericias.ts` | `secoes/Pericias.tsx` | Teto por patamar — as bolinhas ○ são as vagas até ele |
 | `regras/calculos.ts` | `secoes/Talentos.tsx` · `Acoes.tsx` · `secoes/Pericias.tsx` · `secoes/Radiante.tsx` (fluxo conta como perícia) | O total da perícia sai daqui — é o número que vai pra mesa |

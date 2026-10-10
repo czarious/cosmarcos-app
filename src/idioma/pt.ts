@@ -165,6 +165,11 @@ export const PT = {
     secoesFicha: 'Seções da ficha',
     abaAbaAbrirMenu: 'Aba {aba}. Abrir menu de abas',
     abasFicha: 'Abas da ficha',
+    reordenar: '⇅ Reordenar',
+    pronto: '✓ Concluir',
+    ordemOriginal: 'Ordem original',
+    subirAba: 'Subir {aba}',
+    descerAba: 'Descer {aba}',
   },
 
   // ── MenuEngrenagem — a ⚙ do topo ────────────────────────────────
@@ -263,6 +268,7 @@ export const PT = {
     maoInabil: 'Mão inábil',
     fluxos: 'Fluxos',
     acoesLuzTempestades: 'Ações de Luz das Tempestades',
+    talentos: 'Talentos',
     acoes: 'Ações',
     reacoes: 'Reações',
     fabriais: 'Fabriais',
@@ -357,6 +363,9 @@ export const PT = {
 
   // ── aba Personagem ──────────────────────────────────────────────
   personagem: {
+    naMesa: 'Na mesa',
+    equipado: 'Equipado',
+    nadaAinda: '—',
     objetivos: 'Objetivos',
     apagar: 'Apagar',
     manter: 'Manter',
@@ -510,7 +519,20 @@ export const PT = {
     saldoAEscolher: '{n} a escolher',
     saldoAMais: '{n} a mais que a tabela do livro',
     saldoEmDia: 'em dia com a tabela do livro',
+    especialidades: 'Especialidades',
+    contaTitulo: 'Especialidades pela conta do livro',
+    contaCulturais: 'Culturais da criação',
+    contaIntelecto: 'Intelecto',
+    contaAMais: 'Você tem {n}: {dif} a mais que a conta — as extras vêm de talento, recompensa ou treino.',
+    contaAEscolher: 'Você tem {n}: {dif} a escolher.',
+    contaEmDia: 'Você tem {n}: em dia com a conta.',
+    daCultura: 'da cultura',
+    removerEspecialidade: 'Remover {nome}',
+    peritoSoPor: 'Perito só vem de talento, recompensa ou permissão do Mestre.',
   },
+  // ── categorias de especialidade (TipoEspecializacao) ──
+  categoriaEspecialidade: { arma: 'Arma', armadura: 'Armadura', cultural: 'Cultural', utilidade: 'Utilidade', perito: 'Perito' },
+
   // ── o que as REGRAS devolvem pra tela escrever (regras/*.ts) ────
   regras: {
     faltaFoco: 'falta foco ({n})',

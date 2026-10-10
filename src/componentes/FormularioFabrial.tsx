@@ -20,6 +20,7 @@ import {
 } from '../regras/fabriais'
 import { ICONE } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
+import Sobreposicao from './Sobreposicao'
 
 // Montador de fabrial — novo ou edição. As opções saem todas de
 // regras/fabriais.ts (o livro). Combinação fora da regra só AVISA, não
@@ -99,7 +100,7 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
   }
 
   return (
-    <div className="cr-overlay" onClick={aoFechar}>
+    <Sobreposicao aoFechar={aoFechar}>
       <div className="cr-painel fab-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
           <span className="cr-titulo">{inicial ? ff.editarFabrial : ff.novoFabrial}</span>
@@ -315,6 +316,6 @@ export default function FormularioFabrial({ ficha, inicial, aoSalvar, aoFechar }
           </button>
         </div>
       </div>
-    </div>
+    </Sobreposicao>
   )
 }

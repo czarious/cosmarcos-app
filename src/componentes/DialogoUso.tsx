@@ -6,6 +6,7 @@ import type { ExtraUso } from '../estado/useTurno'
 import { patamarPorNivel } from '../regras/pericias'
 import { ICONE, SIMBOLO_ATIVACAO } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
+import Sobreposicao from './Sobreposicao'
 
 // A pergunta antes de usar a ação que depende do dado rolado na mão
 // (premissas.md → "O dado é rolado na mão"): Restaurar, Recuperar, e quantas
@@ -29,7 +30,7 @@ export default function DialogoUso({ acao, ficha, estado, aoUsar, aoFechar }: Pr
   const maxReservar = Math.max(0, (estado?.acoes ?? 0) - 1)
 
   return (
-    <div className="cr-overlay" onClick={aoFechar}>
+    <Sobreposicao aoFechar={aoFechar}>
       <div className="cr-painel" onClick={(ev) => ev.stopPropagation()}>
         <div className="cr-cabeca">
           <span className="cr-titulo">{nome(acao.nome)}</span>
@@ -88,7 +89,7 @@ export default function DialogoUso({ acao, ficha, estado, aoUsar, aoFechar }: Pr
           </>
         )}
       </div>
-    </div>
+    </Sobreposicao>
   )
 }
 

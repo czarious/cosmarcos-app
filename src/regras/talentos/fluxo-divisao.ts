@@ -40,6 +40,7 @@ export const TALENTOS_FLUXO_DIVISAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Division',
     preRequisitos: 'Talento Divisão Incendiadora',
     ativacao: '2acoes',
+    custo: { investidura: 3 },
     descricao:
       'Gasta 3 de Investidura e escolhe uma área um tamanho maior que o normal para suas graduações em Divisão. Ataque de Divisão contra a defesa Física de cada alvo na área, rolando 3d4 de dano energético (escalona com as graduações: 3d6, 3d8...).',
   },

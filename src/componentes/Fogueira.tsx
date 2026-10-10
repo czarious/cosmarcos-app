@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { Personagem } from '../tipos/personagem'
 import { ICONE, SIMBOLO_RECURSO } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
+import Sobreposicao from './Sobreposicao'
 
 // A fogueira embaixo da foto, no cabeçalho: toca e escolhe o descanso — curto
 // (rola o dado de recuperação na mão e divide entre Vida e Foco) ou longo
@@ -39,7 +40,7 @@ export default function Fogueira({ ficha, fazerDescansoCurto, fazerDescansoLongo
 
       {aberta && (
         // fundo escurecido: toca fora → fecha (o mesmo painel do ControleRecurso)
-        <div className="cr-overlay" onClick={fechar}>
+        <Sobreposicao aoFechar={fechar}>
           <div className="cr-painel desc-painel" onClick={(e) => e.stopPropagation()}>
             <div className="cr-cabeca">
               <span className="cr-titulo desc-titulo">
@@ -117,7 +118,7 @@ export default function Fogueira({ ficha, fazerDescansoCurto, fazerDescansoLongo
 
             <p className="desc-nota">{t(tx.descanso.lesaoLeveGraveConta)}</p>
           </div>
-        </div>
+        </Sobreposicao>
       )}
     </>
   )

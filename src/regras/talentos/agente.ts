@@ -30,6 +30,7 @@ export const TALENTOS_AGENTE: Record<string, EntradaTalento> = {
     fonteEn: 'Investigator · Agent',
     preRequisitos: 'Dedução 3+; talento Resistente',
     ativacao: '3acoes',
+    custo: { foco: 3 },
     descricao:
       'Uma vez por cena, gasta 3 de foco e testa Dedução contra a defesa Cognitiva de um personagem que possa influenciar (vantagem se souber a motivação atual do alvo, desvantagem se não souber). Falha: o alvo tem vantagem em todos os testes contra o personagem até o fim do próximo turno dele. Sucesso: o alvo é influenciado a recuar e deixa de se opor aos objetivos imediatos do personagem na cena (pode até sair dela). Se resistir, sofre desvantagem em todos os testes até o fim do próximo turno dele.',
   },
@@ -50,6 +51,7 @@ export const TALENTOS_AGENTE: Record<string, EntradaTalento> = {
     fonteEn: 'Investigator · Agent',
     preRequisitos: 'Intuição 2+; talento-chave Oportunista',
     ativacao: '2acoes',
+    custo: { foco: 1 },
     descricao:
       'Gasta 1 de foco e testa Dedução contra a defesa Espiritual de um personagem que possa influenciar. Em sucesso, descobre a motivação do alvo para estar na cena. Até o fim da cena, ao fazer um teste que explore essa motivação contra o alvo, pode aumentar as apostas.',
   },
@@ -70,6 +72,7 @@ export const TALENTOS_AGENTE: Record<string, EntradaTalento> = {
     fonteEn: 'Investigator · Agent',
     preRequisitos: 'talento Olhar Vigilante',
     ativacao: 'livre',
+    custo: { foco: 2 },
     descricao:
       'Gasta 2 de foco para ganhar ▶▶, usáveis apenas em testes de perícia cognitivos via Usar uma Perícia, Ganhar Vantagem ou ação de qualquer talento de Agente. Em diálogo ou empreitada, a critério do MJ, pode usar as duas ▶▶ juntas numa contribuição adicional na rodada.',
   },
@@ -149,6 +152,7 @@ export const TALENTOS_AGENTE: Record<string, EntradaTalento> = {
     fonteEn: 'Spy · Agent',
     preRequisitos: 'Dissimulação 1+; talento-chave Oportunista',
     ativacao: 'reacao',
+    custo: { foco: 2 },
     descricao:
       'Depois de ser flagrado se escondendo ou se esgueirando, gasta 2 de foco para se passar por alguém fazendo algo inofensivo, influenciando todo personagem que o sinta a acreditar. Quem resistir perde foco adicional igual às graduações do Agente em Dissimulação. Ao adquirir, ganha uma especialidade de utilidade em Prestidigitação.',
   },
@@ -179,6 +183,7 @@ export const TALENTOS_AGENTE: Record<string, EntradaTalento> = {
     fonteEn: 'Thief · Agent',
     preRequisitos: 'talento-chave Oportunista',
     ativacao: '1acao',
+    custo: { foco: 1 },
     descricao:
       'Com uma mão livre, gasta 1 de foco para atacar desarmado com Ladinagem contra a defesa Cognitiva de um inimigo do seu tamanho ou menor, aumentando as apostas. Em acerto, além dos efeitos normais, o alvo fica Atordoado até o fim do próximo turno dele. Em acerto ou raspão, pode gastar uma Oportunidade para furtar um item que o alvo carregue sem segurar nem empunhar (o item é decidido pelo MJ).',
   },
@@ -199,6 +204,7 @@ export const TALENTOS_AGENTE: Record<string, EntradaTalento> = {
     fonteEn: 'Thief · Agent',
     preRequisitos: 'Intuição 3+; talento Redobrar Esforços',
     ativacao: 'livre',
+    custo: { foco: 2 },
     descricao:
       'Gasta 2 de foco para ganhar ▶▶, usáveis apenas em testes de perícia espirituais via Usar uma Perícia, Ganhar Vantagem ou ação de qualquer talento de Agente. Em diálogo ou empreitada, a critério do MJ, pode usar as duas ▶▶ juntas numa contribuição adicional na rodada.',
   },
@@ -238,6 +244,7 @@ export const TALENTOS_AGENTE: Record<string, EntradaTalento> = {
     fonteEn: 'Thief · Agent',
     preRequisitos: 'Ladinagem 3+; talento Pés Firmes',
     ativacao: 'livre',
+    custo: { foco: 2 },
     descricao:
       'Gasta 2 de foco para ganhar ▶▶, usáveis apenas em testes de perícia físicos via Usar uma Perícia, Ganhar Vantagem ou ação de qualquer talento de Agente. Em diálogo ou empreitada, a critério do MJ, pode usar as duas ▶▶ juntas numa contribuição adicional na rodada.',
   },

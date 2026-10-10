@@ -33,10 +33,6 @@ export function rotuloCondicao(c: Omit<Condicao, 'uid'>, { nome: nomeJogo, tx }:
   return nome
 }
 
-export function formatarMetros(m: number): string {
-  return `${String(m).replace('.', ',')} m`
-}
-
 type Props = {
   ficha: Personagem
   adicionarCondicao: (c: Omit<Condicao, 'uid'>) => void
@@ -73,7 +69,7 @@ function Agora({ ficha }: { ficha: Personagem }) {
         {turno.motivos.length > 0 && <span className="proximo"> ({turno.motivos.map((m) => msg(m)).join('; ')})</span>}
       </p>
       <p>
-        <b>{t(tx.condicoes.movimento)}:</b> {formatarMetros(mov.metros)}
+        <b>{t(tx.condicoes.movimento)}:</b> {idioma.distancia(mov.metros)}
         {mov.motivos.length > 0 && <span className="proximo"> ({mov.motivos.map((m) => nome(m)).join(' · ')})</span>}
       </p>
       {avisos.length > 0 && (

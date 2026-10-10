@@ -1,6 +1,6 @@
 /* arquivo: usePersonagem.ts */
 import { useEffect, useState, useCallback, useRef } from 'react'
-import type { Personagem, Item, Anotacao, Fabrial, Condicao, Lesao, Objetivo, Ideal } from '../tipos/personagem'
+import type { Personagem, Item, Anotacao, Fabrial, Condicao, Lesao, Objetivo, Ideal, Especializacao } from '../tipos/personagem'
 import { descansoCurto, descansoLongo } from '../regras/descanso'
 import { importarShards, ErroImportacao } from './importarShards'
 import { exportarShards } from './exportarShards'
@@ -46,6 +46,10 @@ type Retorno = {
   editarAnotacao: (id: string, titulo: string, conteudo: string) => void
   /** Remove uma anotação pelo id. */
   removerAnotacao: (id: string) => void
+  /** Especialidade avulsa (recompensa, treino, MJ) — volta pro Shards no export. */
+  adicionarEspecializacao: (e: Especializacao) => void
+  /** Remove pelo índice em `ficha.especializacoes` (a tela não oferece remover as da cultura). */
+  removerEspecializacao: (indice: number) => void
   alterarObjetivo: (indice: number, muda: Partial<Objetivo>) => void
   adicionarObjetivo: (nome: string) => void
   removerObjetivo: (indice: number) => void
@@ -404,6 +408,16 @@ export function usePersonagem(caminhoJson: string): Retorno {
     )
   }, [])
 
+  const adicionarEspecializacao = useCallback((e: Especializacao) => {
+    setFicha((atual) => (atual ? { ...atual, especializacoes: [...atual.especializacoes, e] } : atual))
+  }, [])
+
+  const removerEspecializacao = useCallback((indice: number) => {
+    setFicha((atual) =>
+      atual ? { ...atual, especializacoes: atual.especializacoes.filter((_, i) => i !== indice) } : atual,
+    )
+  }, [])
+
   const removerAnotacao = useCallback((id: string) => {
     setFicha((atual) =>
       atual ? { ...atual, anotacoes: atual.anotacoes.filter((a) => a.id !== id) } : atual,
@@ -568,6 +582,8 @@ export function usePersonagem(caminhoJson: string): Retorno {
     adicionarAnotacao,
     editarAnotacao,
     removerAnotacao,
+    adicionarEspecializacao,
+    removerEspecializacao,
     alterarObjetivo,
     adicionarObjetivo,
     removerObjetivo,

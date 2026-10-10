@@ -1,7 +1,8 @@
 /* arquivo: talentos.test.ts */
 import { describe, it, expect } from 'vitest'
 import { importarShards } from '../estado/importarShards'
-import { CATALOGO_TALENTOS, entradaTalento, talentosDeFluxo, chaveTalentoFluxo } from './talentos'
+import { CATALOGO_TALENTOS, acoesDeTalentos, entradaTalento, talentosDeFluxo, chaveTalentoFluxo } from './talentos'
+import { usavelDe } from './turno'
 import eccho from '../../public/personagens/eccho.json'
 
 const ficha = importarShards(structuredClone(eccho))[0]
@@ -26,6 +27,23 @@ describe('catálogo de talentos', () => {
     expect(tal.id).toBe(chaveTalentoFluxo(f.id, f.talentos[0].id))
     expect(tal.nome).toBe(CATALOGO_TALENTOS[tal.id].nome)
     expect(entradaTalento(tal)?.descricao).toBeTruthy()
+  })
+
+  it('aba Ações: só talento de ação (▶ ▷ ↻) vira ação; ★ e ∞ ficam de fora', () => {
+    const acoes = acoesDeTalentos(ficha)
+    const deAcao = ficha.talentos.filter((t) => ['1acao', '2acoes', '3acoes', 'livre', 'reacao'].includes(entradaTalento(t)!.ativacao))
+    expect(acoes.map((a) => a.acao.nome)).toEqual(deAcao.map((t) => entradaTalento(t)!.nome))
+  })
+
+  it('custo do catálogo só em talento de ação, e chega ao "Usar" do turno', () => {
+    const comCustoErrado = Object.entries(CATALOGO_TALENTOS)
+      .filter(([, e]) => e.custo && (e.ativacao === 'especial' || e.ativacao === 'sempre'))
+      .map(([k]) => k)
+    expect(comCustoErrado).toEqual([])
+    const [chave, e] = Object.entries(CATALOGO_TALENTOS).find(([, x]) => x.custo)!
+    const tal = { id: chave, nome: e.nomeEn, origem: 'heroica' as const, chave: false }
+    const [{ acao }] = acoesDeTalentos({ ...ficha, talentos: [tal], radiante: undefined })
+    expect(usavelDe('talento', acao).custo).toEqual(e.custo)
   })
 
   it('nenhuma entrada sem texto de regra', () => {

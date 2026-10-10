@@ -2,6 +2,7 @@
 import type { DetalhePericia } from '../regras/calculos'
 import { ICONE } from '../variaveis'
 import { useIdioma } from '../idioma/IdiomaContexto'
+import Sobreposicao from './Sobreposicao'
 
 // Popover SÓ-LEITURA que abre ao tocar num número calculado (ex.: o +4 de
 // acerto de um ataque) e mostra de onde vem cada parcela — mesmo visual do
@@ -17,7 +18,7 @@ type Props = {
 export default function PopoverDetalhe({ detalhe, aoFechar, nota }: Props) {
   const { tx, nome, rot } = useIdioma()
   return (
-    <div className="cr-overlay" onClick={aoFechar}>
+    <Sobreposicao aoFechar={aoFechar}>
       <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
           <span className="cr-titulo">{nome(detalhe.titulo)}</span>
@@ -47,6 +48,6 @@ export default function PopoverDetalhe({ detalhe, aoFechar, nota }: Props) {
         </div>
         {nota && <p className="detalhe-nota">{nota}</p>}
       </div>
-    </div>
+    </Sobreposicao>
   )
 }

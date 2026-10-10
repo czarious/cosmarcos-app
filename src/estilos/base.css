@@ -487,6 +487,48 @@ body {
   font-size: 1.4rem;
 }
 
+/* "Reordenar": troca a lista por linhas com ▲▼ (estado/useOrdemAbas.ts) */
+.ss-reordenar-barra {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.ss-reordenar {
+  min-height: var(--alvo-toque);
+  padding: 0.3rem 0.8rem;
+  font-family: var(--fonte);
+  font-size: 0.85rem;
+  color: var(--cor-destaque);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-destaque);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.ss-item-reordenando {
+  cursor: default;
+}
+
+.ss-nome-reordenando {
+  flex: 1;
+}
+
+.ss-seta {
+  min-width: var(--alvo-toque);
+  min-height: var(--alvo-toque);
+  font-size: 1rem;
+  color: var(--cor-destaque);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.ss-seta:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
 .ss-item {
   display: flex;
   align-items: center;
@@ -635,6 +677,21 @@ body {
   border-radius: 8px;
 }
 
+/* "Na mesa" (aba Personagem): rótulo pequeno em cima, a lista embaixo */
+.na-mesa dl div + div {
+  margin-top: 0.45rem;
+}
+
+.na-mesa dt {
+  font-size: 0.75rem;
+  font-variant: small-caps;
+  color: var(--cor-texto-suave);
+}
+
+.na-mesa dd {
+  font-size: 0.9rem;
+}
+
 /* Contagem da aba Talentos: usados × previstos por categoria; saldo em cor neutra (o "-1" do Eccho é decisão do César) */
 .contagem-talentos dl div {
   display: flex;
@@ -653,6 +710,83 @@ body {
   margin-top: 0.3rem;
   font-size: 0.8rem;
   color: var(--cor-texto-suave);
+}
+
+/* Especialidades (aba Talentos): categoria · nome · ✕ (ou "da cultura"); o número do título abre a conta do livro */
+.numero-titulo {
+  margin-left: 0.5rem;
+  font-size: 1rem;
+  font-variant: normal;
+  letter-spacing: normal;
+  vertical-align: middle;
+}
+
+.lista-especialidades {
+  list-style: none;
+}
+
+.lista-especialidades li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--alvo-toque);
+  border-bottom: 1px solid var(--cor-borda);
+  font-size: 0.9rem;
+}
+
+.esp-categoria {
+  flex: 0 0 5.5rem;
+  font-size: 0.75rem;
+  font-variant: small-caps;
+  color: var(--cor-texto-suave);
+}
+
+.esp-nome {
+  flex: 1;
+}
+
+.esp-fixa {
+  font-size: 0.7rem;
+  color: var(--cor-texto-suave);
+}
+
+.esp-remover {
+  min-width: var(--alvo-toque);
+  min-height: var(--alvo-toque);
+  color: var(--cor-texto-suave);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.esp-nova {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.esp-nova select,
+.esp-nova input,
+.esp-adicionar {
+  min-width: 0;
+  min-height: var(--alvo-toque);
+  padding: 0.4rem 0.5rem;
+  font-family: var(--fonte);
+  font-size: 0.85rem;
+  color: var(--cor-texto);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+}
+
+.esp-adicionar {
+  cursor: pointer;
+}
+
+.esp-adicionar:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 /* grupos de seção (ex.: Talentos por origem — Heroicos/Radiantes/Ancestrais) */
@@ -1231,18 +1365,25 @@ label.linha-item input[type='checkbox'] {
 /* número que abre detalhamento (PopoverDetalhe) — só o valor, não a linha toda.
    ⚠️ Exceção consciente aos 44px de --alvo-toque: é um alvo SECUNDÁRIO (abre um
    detalhe, não uma ação principal) — errar o toque só reabre o mesmo popover. */
+/* O PADRÃO de "número que abre janela" (César, 07/Out/2026): pílula de borda vinho.
+   Todo número tocável usa esta classe — perícias, fluxos, acerto/dano, deflexão, especialidades. */
 .numero-detalhavel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--fonte);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: bold;
   color: var(--cor-texto);
   background: var(--cor-campo);
-  border: 1px solid var(--cor-borda);
-  border-radius: 5px;
-  padding: 0.05rem 0.35rem;
-  min-height: 1.5rem;
+  border: 1.5px solid var(--cor-destaque);
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(43, 38, 32, 0.25);
+  padding: 0.15rem 0.6rem;
+  min-height: 1.8rem;
   cursor: pointer;
 }
+
 
 .numero-detalhavel:active {
   background: var(--cor-fundo-pagina);

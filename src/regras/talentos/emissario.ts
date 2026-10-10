@@ -69,6 +69,7 @@ export const TALENTOS_EMISSARIO: Record<string, EntradaTalento> = {
     fonteEn: 'Diplomat · Envoy',
     preRequisitos: 'Disciplina 1+; talento-chave Presença Estimulante',
     ativacao: '1acao',
+    custo: { foco: 1 },
     descricao:
       'Gasta 1 de foco e faz um teste de Dedução contra a defesa Espiritual de um personagem que possa influenciar. Em sucesso, o alvo fica Desorientado e sofre desvantagem em todos os testes contra o Emissário até o fim do próximo turno do alvo.',
   },
@@ -249,6 +250,7 @@ export const TALENTOS_EMISSARIO: Record<string, EntradaTalento> = {
     fonteEn: 'Mentor · Envoy',
     preRequisitos: 'talento-chave Presença Estimulante',
     ativacao: 'reacao',
+    custo: { foco: 1 },
     descricao:
       'Depois que um aliado influenciável falhar em um teste de perícia, pode gastar 1 de foco para usar Presença Estimulante nele como reação.',
   },

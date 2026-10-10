@@ -153,6 +153,11 @@ export const EN: Dicionario = {
     secoesFicha: 'Sheet sections',
     abaAbaAbrirMenu: '{aba} tab. Open tab menu',
     abasFicha: 'Sheet tabs',
+    reordenar: '⇅ Reorder',
+    pronto: '✓ Done',
+    ordemOriginal: 'Original order',
+    subirAba: 'Move {aba} up',
+    descerAba: 'Move {aba} down',
   },
 
   // ── MenuEngrenagem — a ⚙ do topo ────────────────────────────────
@@ -251,6 +256,7 @@ export const EN: Dicionario = {
     maoInabil: 'Off-hand',
     fluxos: 'Surges',
     acoesLuzTempestades: 'Stormlight Actions',
+    talentos: 'Talents',
     acoes: 'Actions',
     reacoes: 'Reactions',
     fabriais: 'Fabrials',
@@ -345,6 +351,9 @@ export const EN: Dicionario = {
 
   // ── aba Personagem ──────────────────────────────────────────────
   personagem: {
+    naMesa: 'At the table',
+    equipado: 'Equipped',
+    nadaAinda: '—',
     objetivos: 'Goals',
     apagar: 'Delete',
     manter: 'Keep',
@@ -451,7 +460,7 @@ export const EN: Dicionario = {
     gerenciar: 'Manage Inventory',
     nomeItem: 'Item name',
     categoriaExemplo: 'Category (e.g. Tool)',
-    pesoKg: 'Weight (kg)',
+    pesoKg: 'Weight (lb)',
     qtd: 'Qty',
     outros: 'Other',
     pesoCarregado: 'Carried weight',
@@ -493,7 +502,20 @@ export const EN: Dicionario = {
     saldoAEscolher: '{n} to choose',
     saldoAMais: "{n} more than the book's table",
     saldoEmDia: "matches the book's table",
+    especialidades: 'Expertises',
+    contaTitulo: "Expertises by the book's count",
+    contaCulturais: 'Cultural (character creation)',
+    contaIntelecto: 'Intellect',
+    contaAMais: 'You have {n}: {dif} more than the count — extras come from talents, rewards or training.',
+    contaAEscolher: 'You have {n}: {dif} to choose.',
+    contaEmDia: 'You have {n}: matches the count.',
+    daCultura: 'from culture',
+    removerEspecialidade: 'Remove {nome}',
+    peritoSoPor: 'Specialist only comes from a talent, a reward or GM permission.',
   },
+  // ── categorias de especialidade (TipoEspecializacao) ──
+  categoriaEspecialidade: { arma: 'Weapon', armadura: 'Armor', cultural: 'Cultural', utilidade: 'Utility', perito: 'Specialist' },
+
   // ── o que as REGRAS devolvem pra tela escrever (regras/*.ts) ────
   regras: {
     faltaFoco: 'not enough focus ({n})',

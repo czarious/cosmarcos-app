@@ -20,6 +20,7 @@ export const TALENTOS_CACADOR: Record<string, EntradaTalento> = {
     fonteEn: 'Archer · Hunter',
     preRequisitos: 'Agilidade 2+; talento Mira Estável',
     ativacao: 'livre',
+    custo: { foco: 2 },
     descricao:
       'Depois de fazer um ataque à distância, gasta 2 pontos de foco para Desengajar como ▷. Se terminar o turno sob cobertura ou onde os sentidos dos inimigos estejam obscurecidos, ganha o benefício da ação Proteger.',
   },
@@ -169,6 +170,7 @@ export const TALENTOS_CACADOR: Record<string, EntradaTalento> = {
     fonteEn: 'Assassin · Hunter',
     preRequisitos: 'talento Olhar Frio',
     ativacao: '1acao',
+    custo: { foco: 1 },
     descricao:
       'Gasta 1 ponto de foco para fazer uma segunda ação de Golpear com uma mão que já tenha Golpeado naquele turno.',
   },
@@ -229,6 +231,7 @@ export const TALENTOS_CACADOR: Record<string, EntradaTalento> = {
     fonteEn: 'Tracker · Hunter',
     preRequisitos: 'Percepção 2+; talento Vínculo Protetivo',
     ativacao: 'reacao',
+    custo: { foco: 1 },
     descricao:
       'Quando um aliado na sua linha de efeito ataca sua presa, gasta 1 ponto de foco para somar suas graduações em Sobrevivência ao teste ou ao dano dele (à sua escolha).',
   },

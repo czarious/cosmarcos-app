@@ -90,6 +90,7 @@ export const TALENTOS_ROMPE_CEU: Record<string, EntradaTalento> = {
     fonteEn: 'Highspren Bond · Skybreaker',
     preRequisitos: 'Dizer o Primeiro Ideal',
     ativacao: 'livre',
+    custo: { foco: 1 },
     descricao:
       'Depois de Mover mantendo uma Projeção Básica de Gravitação em si, gasta 1 de foco para ganhar uma ação extra que só serve para Divisão ou um talento de Divisão.',
   },

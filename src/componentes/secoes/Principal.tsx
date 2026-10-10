@@ -3,7 +3,6 @@ import type { Personagem, NomeAtributo } from '../../tipos/personagem'
 import { GRUPOS_FICHA } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
 import { condicoesEfetivas, bonusAprimorado, movimentoComCondicoes } from '../../regras/condicoes'
-import { formatarMetros } from './Condicoes'
 import { useState } from 'react'
 import { deflexaoTotal } from '../../regras/armadura'
 import PopoverDeflexao from '../PopoverDeflexao'
@@ -16,7 +15,7 @@ import PopoverDeflexao from '../PopoverDeflexao'
 type Props = { ficha: Personagem }
 
 export default function Principal({ ficha }: Props) {
-  const { t, tx, nome } = useIdioma()
+  const { t, tx, nome, distancia, medidas } = useIdioma()
   const { atributos, atributosMod, defesas, deflect, derivados } = ficha
   const efetivas = condicoesEfetivas(ficha)
   const mov = movimentoComCondicoes(ficha)
@@ -37,11 +36,11 @@ export default function Principal({ ficha }: Props) {
 
   const motivoMov = mov.motivos.map((m) => nome(m)).join(' · ')
   const derivadosLinhas: { rotulo: string; valor: string; motivo?: string }[] = [
-    { rotulo: tx.principal.movimento, valor: motivoMov ? formatarMetros(mov.metros) : derivados.movimento, motivo: motivoMov || undefined },
-    { rotulo: tx.principal.alcanceSentidos, valor: derivados.alcanceSentidos },
+    { rotulo: tx.principal.movimento, valor: motivoMov ? distancia(mov.metros) : medidas(derivados.movimento), motivo: motivoMov || undefined },
+    { rotulo: tx.principal.alcanceSentidos, valor: medidas(derivados.alcanceSentidos) },
     { rotulo: tx.principal.dadoRecuperacao, valor: derivados.dadoRecuperacao },
-    { rotulo: tx.principal.capacidadeCarga, valor: derivados.capacidadeCarga },
-    { rotulo: tx.principal.capacidadeLevantamento, valor: derivados.capacidadeLevantamento },
+    { rotulo: tx.principal.capacidadeCarga, valor: medidas(derivados.capacidadeCarga) },
+    { rotulo: tx.principal.capacidadeLevantamento, valor: medidas(derivados.capacidadeLevantamento) },
   ]
 
   return (

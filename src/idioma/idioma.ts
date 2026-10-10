@@ -41,9 +41,52 @@ export function plural(p: Plural, n: number, idioma: Idioma, vars?: Vars): strin
  */
 export function nome(pt: string, idioma: Idioma): string {
   if (idioma === 'pt') return pt
-  if (pt in NOMES_EN) return NOMES_EN[pt]
+  if (pt in NOMES_EN) return medidas(NOMES_EN[pt], idioma)
   const m = /^(.+?) (\[[^\]]*\])$/.exec(pt)
-  return m && m[1] in NOMES_EN ? `${NOMES_EN[m[1]]} ${m[2]}` : pt
+  return medidas(m && m[1] in NOMES_EN ? `${NOMES_EN[m[1]]} ${m[2]}` : pt, idioma)
+}
+
+// ── medidas ─────────────────────────────────────────────────────────
+// O app guarda metro e quilo, na conta do livro PT-BR (5 ft = 1,5 m · 2 lb = 1 kg):
+// o tradutor converte na entrada (estado/importarShards.ts). Em inglês a tela
+// desfaz a mesma conta — 9 m volta a 30 ft, 50 kg a 100 lb, como no livro em inglês.
+const PES_POR_METRO = 5 / 1.5
+const LIBRAS_POR_KG = 2
+
+/** Metros → pés, na meia unidade (0,75 m = 2,5 ft). */
+function emPes(m: number): number {
+  return Math.round(m * PES_POR_METRO * 2) / 2
+}
+
+/** Distância com unidade, formatada pelo próprio navegador (Intl, estilo unidade): "9 m" · "30 ft". */
+export function distancia(m: number, idioma: Idioma): string {
+  const [valor, unit] = idioma === 'pt' ? [m, 'meter'] : [emPes(m), 'foot']
+  return valor.toLocaleString(LOCALE[idioma], { style: 'unit', unit, maximumFractionDigits: 2 })
+}
+
+/** Peso no idioma, só o número (kg → lb em inglês) — a unidade é `unidadePeso`. */
+export function pesoNumero(kg: number, idioma: Idioma, casas?: number): string {
+  return numero(idioma === 'pt' ? kg : kg * LIBRAS_POR_KG, idioma, casas)
+}
+
+export function unidadePeso(idioma: Idioma): string {
+  return idioma === 'pt' ? 'kg' : 'lb'
+}
+
+/** Peso digitado na tela (lb em inglês) → kg, que é o que a ficha guarda. */
+export function pesoDigitadoEmKg(valor: number, idioma: Idioma): number {
+  return idioma === 'pt' ? valor : valor / LIBRAS_POR_KG
+}
+
+/** Toda medida dentro de um texto ("9/36 m", "Pequeno (0,75 m)", "50 kg"): em inglês, vira pés/libras. */
+export function medidas(texto: string, idioma: Idioma): string {
+  if (idioma === 'pt') return texto
+  return texto.replace(/(\d+(?:[.,]\d+)?(?:\/\d+(?:[.,]\d+)?)*) ?(m|kg)\b/g, (_, nums: string, u: string) =>
+    nums
+      .split('/')
+      .map((x) => numero(u === 'm' ? emPes(Number(x.replace(',', '.'))) : Number(x.replace(',', '.')) * LIBRAS_POR_KG, idioma))
+      .join('/') + (u === 'm' ? ' ft' : ' lb'),
+  )
 }
 
 /** Mensagem de regra: lacuna de texto é nome de jogo e passa por `nome()`. */

@@ -9,6 +9,8 @@ import { useIdioma } from '../../idioma/IdiomaContexto'
 // mesa) e o texto de interpretação que vem do Shards (propósito, obstáculo,
 // personalidade, aparência, conexões). Texto do Shards é só leitura aqui —
 // quem edita é o Shards (premissas.md → "O Shards é SEMENTE; o app é dono da ficha").
+// No alto, "Na mesa": o que mora em outras abas e se consulta na sessão —
+// especialidades (Talentos) e o que está equipado (Inventário). Só leitura.
 
 type Props = {
   ficha: Ficha
@@ -42,6 +44,13 @@ export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, 
     [tx.personagem.aparencia, ficha.aparencia],
   ]
   const conexoes = ficha.conexoes.split('\n').map((l) => l.trim()).filter(Boolean)
+  const naMesa: [string, string][] = [
+    [tx.talentos.especialidades, ficha.especializacoes.map((e) => nome(e.nome)).join(' · ')],
+    [
+      tx.personagem.equipado,
+      [...ficha.armas.filter((a) => a.equipada), ...ficha.itens.filter((it) => it.equipado)].map((x) => nome(x.nome)).join(' · '),
+    ],
+  ]
 
   function adicionar() {
     const nome = novo.trim()
@@ -52,6 +61,17 @@ export default function Personagem({ ficha, alterarObjetivo, adicionarObjetivo, 
 
   return (
     <div className="secao personagem">
+      <section className="quadro-resumo na-mesa">
+        <h2 className="titulo-secao">{tx.personagem.naMesa}</h2>
+        <dl>
+          {naMesa.map(([rotulo, valor]) => (
+            <div key={rotulo}>
+              <dt>{rotulo}</dt>
+              <dd>{valor || tx.personagem.nadaAinda}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
       <h2 className="titulo-secao">{t(tx.personagem.objetivos)}</h2>
       <ul className="lista-objetivos">
         {objetivos.map(({ o, i }) => (

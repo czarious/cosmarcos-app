@@ -20,6 +20,7 @@ export const TALENTOS_GUERREIRO: Record<string, EntradaTalento> = {
     fonteEn: 'Warrior · Duelist',
     preRequisitos: 'Intimidação 2+; talento Postura da Chama',
     ativacao: '1acao',
+    custo: { foco: 2 },
     descricao:
       'Gasta 2 de foco para atacar corpo a corpo contra a defesa Cognitiva. Em acerto, o alvo perde uma ↻ e foco igual às suas graduações em Intimidação; em raspão, perde metade do foco (arredondado para cima) e mantém a ↻. Pode gastar uma Oportunidade para ganhar ▶, usável só para Golpear ou ativar uma postura.',
   },
@@ -90,6 +91,7 @@ export const TALENTOS_GUERREIRO: Record<string, EntradaTalento> = {
     fonteEn: 'Warrior · Duelist',
     preRequisitos: 'Intimidação 3+; talento Golpe de Finta',
     ativacao: '2acoes',
+    custo: { foco: 1 },
     descricao:
       'Gasta 1 de foco para atacar com arma corpo a corpo contra a defesa Cognitiva de um alvo com 0 de foco. Ignora a deflexão, causa 4d6 de dano extra no acerto e não pode ser raspão (só acerta ou erra). Dano extra por patamar: 6d6 no 3, 8d6 no 4, 10d6 no 5.',
   },
@@ -110,6 +112,7 @@ export const TALENTOS_GUERREIRO: Record<string, EntradaTalento> = {
     fonteEn: 'Warrior · Shardbearer',
     preRequisitos: 'Atletismo 3+; talento Postura do Sangue',
     ativacao: '2acoes',
+    custo: { foco: 2 },
     descricao:
       'Gasta 2 de foco, salta até 1/4 da taxa de movimento e ataca desarmado contra a defesa Física de cada personagem à escolha ao seu alcance. Vestindo Armadura Fractal, tem vantagem no teste. Rola o dobro dos dados de dano; em acerto, cada alvo com Força menor que a sua fica Prostrado.',
   },
@@ -130,6 +133,7 @@ export const TALENTOS_GUERREIRO: Record<string, EntradaTalento> = {
     fonteEn: 'Warrior · Shardbearer',
     preRequisitos: 'Percepção 3+; talento Golpe Estilhaçador',
     ativacao: 'reacao',
+    custo: { foco: 1 },
     descricao:
       'Antes de ser acertado por ataque corpo a corpo, gasta 1 de foco para tentar aparar. Desarmado: testa Atletismo, com desvantagem salvo contra Espada Fractal; pode gastar Oportunidade para desarmar o oponente e tomar a arma. Com arma: testa Armamento Leve ou Pesado (conforme a arma); com Espada Fractal contra arma não Investida, pode gastar Oportunidade para destruí-la. A CD é o resultado do ataque que acertou; em sucesso, o acerto vira raspão.',
   },
@@ -240,6 +244,7 @@ export const TALENTOS_GUERREIRO: Record<string, EntradaTalento> = {
     fonteEn: 'Warrior · Soldier',
     preRequisitos: 'talento Resistente',
     ativacao: '1acao',
+    custo: { foco: 1 },
     descricao:
       'Gasta 1 de foco para fazer uma segunda ação de Golpear com uma mão que já tenha usado para Golpear naquele turno.',
   },

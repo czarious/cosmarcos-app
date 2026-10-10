@@ -4,6 +4,7 @@ import type { Personagem, Item } from '../../tipos/personagem'
 import { pesoCarregado, pesoEmKg } from '../../regras/calculos'
 import { ICONE } from '../../variaveis'
 import { useIdioma } from '../../idioma/IdiomaContexto'
+import Sobreposicao from '../Sobreposicao'
 
 // Aba Inventário — resumo de peso carregado/máximo + marcos (moeda) editável no topo, botão
 // "Gerenciar Inventário" (adicionar/remover), Armas (com checkbox de
@@ -31,7 +32,7 @@ function GerenciarInventario({
   removerItem: (indice: number) => void
   aoFechar: () => void
 }) {
-  const { tx, t, nome: nomeJogo } = useIdioma()
+  const { tx, t, nome: nomeJogo, pesoEmKg } = useIdioma()
   const [nome, setNome] = useState('')
   const [tipo, setTipo] = useState('')
   const [peso, setPeso] = useState('')
@@ -42,7 +43,7 @@ function GerenciarInventario({
     adicionarItem({
       nome: nome.trim(),
       tipo: tipo.trim() || 'Outros',
-      peso: Number(peso) || 0,
+      peso: pesoEmKg(Number(peso) || 0),
       qtd: Number(qtd) || 1,
       equipado: false,
     })
@@ -53,7 +54,7 @@ function GerenciarInventario({
   }
 
   return (
-    <div className="cr-overlay" onClick={aoFechar}>
+    <Sobreposicao aoFechar={aoFechar}>
       <div className="cr-painel" onClick={(e) => e.stopPropagation()}>
         <div className="cr-cabeca">
           <span className="cr-titulo">{tx.inventario.gerenciar}</span>
@@ -117,12 +118,12 @@ function GerenciarInventario({
           </ul>
         )}
       </div>
-    </div>
+    </Sobreposicao>
   )
 }
 
 export default function Inventario({ ficha, alternarEquipada, alternarItemEquipado, definirMarcos, definirEquipamentoTexto, adicionarItem, removerItem }: Props) {
-  const { t, tx, nome, num: kg } = useIdioma()
+  const { t, tx, nome, pesoNum, unidadePeso } = useIdioma()
   const [editandoMarcos, setEditandoMarcos] = useState(false)
   const [valorMarcos, setValorMarcos] = useState('')
   const [gerenciando, setGerenciando] = useState(false)
@@ -158,8 +159,8 @@ export default function Inventario({ ficha, alternarEquipada, alternarItemEquipa
           <div className="inv-resumo-bloco">
             <span className="inv-resumo-rotulo">{tx.inventario.pesoCarregado}</span>
             <span className="inv-resumo-valor">
-              {kg(carregado, 2)} <i>kg</i>
-              {maximo > 0 && <span className="inv-peso-max"> / {maximo} kg</span>}
+              {pesoNum(carregado, 2)} <i>{unidadePeso}</i>
+              {maximo > 0 && <span className="inv-peso-max"> / {pesoNum(maximo)} {unidadePeso}</span>}
             </span>
             {maximo > 0 && (
               <span className={sobrecarregado ? 'inv-status inv-status-alerta' : 'inv-status'}>
@@ -212,9 +213,9 @@ export default function Inventario({ ficha, alternarEquipada, alternarItemEquipa
               <label className="linha-item" key={a.nome}>
                 <input type="checkbox" checked={a.equipada} onChange={() => alternarEquipada(a.nome)} />
                 <span>{nome(a.nome)}</span>
-                <span>{kg(a.peso)} kg</span>
+                <span>{pesoNum(a.peso)} {unidadePeso}</span>
                 <span>1</span>
-                <span>{kg(a.peso)} kg</span>
+                <span>{pesoNum(a.peso)} {unidadePeso}</span>
               </label>
             ))}
           </div>
@@ -252,9 +253,9 @@ export default function Inventario({ ficha, alternarEquipada, alternarItemEquipa
                       {item.deflexao !== undefined && <small className="inv-deflexao"> · {t(tx.inventario.deflexaoN, { n: item.deflexao })}</small>}
                       {(item.tracos ?? []).length > 0 && <small className="inv-deflexao"> · {(item.tracos ?? []).map((x) => nome(x)).join(', ')}</small>}
                     </span>
-                    <span>{kg(item.peso)} kg</span>
+                    <span>{pesoNum(item.peso)} {unidadePeso}</span>
                     <span>{item.qtd}</span>
-                    <span>{kg(item.peso * item.qtd, 2)} kg</span>
+                    <span>{pesoNum(item.peso * item.qtd, 2)} {unidadePeso}</span>
                   </label>
                 ))}
               </div>

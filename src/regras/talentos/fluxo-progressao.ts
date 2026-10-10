@@ -10,6 +10,7 @@ export const TALENTOS_FLUXO_PROGRESSAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Progression',
     preRequisitos: 'Dizer o Primeiro Ideal',
     ativacao: '2acoes',
+    custo: { investidura: 1 },
     descricao:
       'Gasta 1 de Investidura para fazer plantas crescerem explosivamente numa área. Faz um ataque de Progressão contra a defesa Física de cada personagem à sua escolha, causando 2d4 de dano impactante ou afiado.',
   },
@@ -39,6 +40,7 @@ export const TALENTOS_FLUXO_PROGRESSAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Progression',
     preRequisitos: 'Progressão 3+; Regeneração Estendida',
     ativacao: '3acoes',
+    custo: { investidura: 3 },
     descricao:
       'Gasta 3 de Investidura para restaurar a vida de um personagem voluntário que morreu no último minuto.',
   },

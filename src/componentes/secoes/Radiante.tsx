@@ -20,7 +20,7 @@ type Props = {
 }
 
 export default function Radiante({ ficha, escolhasTalento, alterarIdeal }: Props) {
-  const { t, tx, nome, num } = useIdioma()
+  const { t, tx, nome, distancia } = useIdioma()
   const [detalhe, setDetalhe] = useState<DetalhePericia | null>(null)
   const rad = ficha.radiante
 
@@ -50,7 +50,7 @@ export default function Radiante({ ficha, escolhasTalento, alterarIdeal }: Props
         </div>
         <div>
           <dt>{t(tx.radiante.alcanceVinculo)}</dt>
-          <dd>{num(rad.alcanceSpren)} m</dd>
+          <dd>{distancia(rad.alcanceSpren)}</dd>
         </div>
       </dl>
 

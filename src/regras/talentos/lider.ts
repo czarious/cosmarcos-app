@@ -10,6 +10,7 @@ export const TALENTOS_LIDER: Record<string, EntradaTalento> = {
     fonteEn: 'Key talent · Leader',
     preRequisitos: 'nenhum',
     ativacao: '1acao',
+    custo: { foco: 1 },
     descricao:
       'Ao adquirir, ganha um dado de comando: começa como d4 e sobe até d12 por outros talentos. Gasta 1 de foco e escolhe um aliado influenciável a até 6 m. No próximo teste que esse aliado fizer antes do fim do próprio próximo turno, ele rola o dado de comando junto dos demais dados e soma o resultado a uma das rolagens do teste (exceto o Dado de Trama). Outros talentos de Líder usam o dado de comando de outras formas, mesmo que um aliado já tenha um dado concedido por você.',
   },
@@ -90,6 +91,7 @@ export const TALENTOS_LIDER: Record<string, EntradaTalento> = {
     fonteEn: 'Champion · Leader',
     preRequisitos: 'Atletismo 1+; talento-chave Comando Decisivo',
     ativacao: '1acao',
+    custo: { foco: 1 },
     descricao:
       'Gasta 1 de foco, move-se até 3 m e testa Atletismo contra a defesa Espiritual de um inimigo influenciável. Em sucesso, o alvo sofre desvantagem em testes contra seus aliados até o fim do próximo turno dele. Se o alvo resistir, você ganha vantagem no próximo teste contra ele, desde que feito até o fim do seu próximo turno.',
   },
@@ -150,6 +152,7 @@ export const TALENTOS_LIDER: Record<string, EntradaTalento> = {
     fonteEn: 'Officer · Leader',
     preRequisitos: 'Liderança 3+; talento Autoridade',
     ativacao: '3acoes',
+    custo: { foco: 2 },
     descricao:
       'Gasta 2 de foco e testa Liderança contra a defesa Cognitiva de um inimigo que você possa sentir. Em sucesso, escolhe aliados até o valor das suas graduações em Liderança; em falha, apenas um aliado influenciável. No próximo turno de cada aliado escolhido, ele ganha uma ▶ que só pode ser usada para Golpear o alvo, sem contar para o limite de Golpes por mãos da arma.',
   },
@@ -200,6 +203,7 @@ export const TALENTOS_LIDER: Record<string, EntradaTalento> = {
     fonteEn: 'Politician · Leader',
     preRequisitos: 'Dissimulação 3+; talento Comando Efetivo',
     ativacao: '3acoes',
+    custo: { foco: 3 },
     descricao:
       'Gasta 3 de foco e testa Dissimulação, CD 15. Em sucesso, escolhe um detalhe estabelecido desde o início da última cena e revela que era um ardil. A revelação precisa ser plausível (esconder um artefato em outro lugar ou mover o exército para leste em vez de oeste, sim; transformar item mundano em artefato inestimável ou surgir com um exército que disse não ter, não). O MJ decide o que pode ser revelado.',
   },

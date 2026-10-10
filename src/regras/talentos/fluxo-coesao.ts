@@ -10,6 +10,7 @@ export const TALENTOS_FLUXO_COESAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Cohesion',
     preRequisitos: 'Dizer o Primeiro Ideal',
     ativacao: '2acoes',
+    custo: { investidura: 1 },
     descricao:
       'Gasta 1 de Investidura para fazer um ataque à distância de Coesão contra a defesa Física de um alvo a até 18 metros, causando 2d4 de dano impactante.',
   },
@@ -20,6 +21,7 @@ export const TALENTOS_FLUXO_COESAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Cohesion',
     preRequisitos: 'Lança de Pedra',
     ativacao: '1acao',
+    custo: { investidura: 1 },
     descricao:
       'Gasta 1 de Investidura e testa Coesão contra a defesa Cognitiva de alvos escolhidos sobre chão de pedra. Em sucesso, o alvo afunda no chão e fica Imobilizado.',
   },
@@ -30,6 +32,7 @@ export const TALENTOS_FLUXO_COESAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Cohesion',
     preRequisitos: 'Sumidouro',
     ativacao: '1acao',
+    custo: { investidura: 1 },
     descricao:
       'Gasta 1 de Investidura para se mover através de pedra como se fosse terreno difícil, deixando atrás de si um túnel de 1,5 metro.',
   },
@@ -60,6 +63,7 @@ export const TALENTOS_FLUXO_COESAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Cohesion',
     preRequisitos: 'Dizer o Primeiro Ideal',
     ativacao: '2acoes',
+    custo: { investidura: 1 },
     descricao:
       'Gasta 1 de Investidura para se comunicar com uma pedra que esteja tocando. Se a resposta exigir interpretação, testa Coesão (CD definida pelo Mestre).',
   },

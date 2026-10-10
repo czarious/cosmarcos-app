@@ -10,6 +10,7 @@ export const TALENTOS_FLUXO_ILUMINACAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Illumination',
     preRequisitos: 'Dizer o Primeiro Ideal',
     ativacao: '1acao',
+    custo: { investidura: 1 },
     descricao:
       'Gasta 1 de Investidura para criar uma ilusão de si mesmo ou de um aliado. Até um ataque errar esse alvo, ataques contra ele têm desvantagem e não podem atingir de raspão.',
   },
@@ -20,6 +21,7 @@ export const TALENTOS_FLUXO_ILUMINACAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Illumination',
     preRequisitos: '—',
     ativacao: '2acoes',
+    custo: { investidura: 1 },
     descricao:
       'Gasta 1 de Investidura para projetar luz numa área e testa Iluminação contra a defesa Cognitiva de cada personagem, deixando-o Desorientado.',
   },
@@ -50,6 +52,7 @@ export const TALENTOS_FLUXO_ILUMINACAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Illumination',
     preRequisitos: '—',
     ativacao: '1acao',
+    custo: { investidura: 2 },
     descricao: 'Gasta 2 de Investidura para deixar um aliado Determinado e Focado.',
   },
   'illumination::painful_truth': {
@@ -59,6 +62,7 @@ export const TALENTOS_FLUXO_ILUMINACAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Illumination',
     preRequisitos: '—',
     ativacao: '1acao',
+    custo: { investidura: 2 },
     descricao:
       'Gasta 2 de Investidura e testa Iluminação contra a defesa Espiritual de um alvo. Em sucesso, ele fica Lento e deve se Mover para longe no próximo turno, ou gastar foco para evitar.',
   },

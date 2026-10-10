@@ -10,6 +10,7 @@ export const TALENTOS_FLUXO_TRANSFORMACAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Transformation',
     preRequisitos: 'Transmutação Viva',
     ativacao: '2acoes',
+    custo: { investidura: 1 },
     descricao:
       'Gasta 1 de Investidura e testa Transformação (CD 15) para remover todo veneno do alvo e reduzir em 5 dias o tempo de recuperação de uma lesão.',
   },
@@ -49,6 +50,7 @@ export const TALENTOS_FLUXO_TRANSFORMACAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Transformation',
     preRequisitos: 'Dizer o Primeiro Ideal',
     ativacao: '2acoes',
+    custo: { investidura: 1 },
     descricao:
       'Gasta 1 de Investidura e faz um ataque corpo a corpo de Transformação contra a defesa Espiritual de um organismo vivo, causando 3d4 de dano espiritual. O alvo morre se chegar a 0 de vida.',
   },
@@ -69,6 +71,7 @@ export const TALENTOS_FLUXO_TRANSFORMACAO: Record<string, EntradaTalento> = {
     fonteEn: 'Surge · Transformation',
     preRequisitos: 'Dizer o Primeiro Ideal',
     ativacao: 'reacao',
+    custo: { investidura: 1 },
     descricao:
       'Antes de você ou um aliado ser atingido por um projétil, gasta 1 de Investidura e testa Transformação (CD igual ao ataque). Na falha, o projétil atinge de raspão; no sucesso, erra e vira uma Essência.',
   },

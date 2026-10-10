@@ -127,6 +127,7 @@ export const TALENTOS_ERUDITO: Record<string, EntradaTalento> = {
     fonteEn: 'Scholar · Strategist',
     preRequisitos: 'Saber 3+; talento Compostura',
     ativacao: 'reacao',
+    custo: { foco: 2 },
     descricao:
       'Depois que um aliado influenciável a até 6 metros rolar uma Complicação, pode gastar 2 pontos de foco para remover uma Complicação daquele teste.',
   },
@@ -187,6 +188,7 @@ export const TALENTOS_ERUDITO: Record<string, EntradaTalento> = {
     fonteEn: 'Scholar · Strategist',
     preRequisitos: 'Dedução 3+; talento Contingência',
     ativacao: '2acoes',
+    custo: { foco: 2 },
     descricao:
       'Uma vez por cena, gasta 2 pontos de foco e faz um teste de Dedução contra a defesa Cognitiva do líder inimigo da cena (é preciso senti-lo para mirá-lo); em turno lento, ganha vantagem no teste. Em sucesso, o personagem e os aliados que puder influenciar ganham uma ▶ adicional nos próximos turnos.',
   },
@@ -237,6 +239,7 @@ export const TALENTOS_ERUDITO: Record<string, EntradaTalento> = {
     fonteEn: 'Scholar · Surgeon',
     preRequisitos: 'Medicina 1+; talento-chave Erudição',
     ativacao: '1acao',
+    custo: { foco: 1 },
     descricao:
       'Gasta 1 ponto de foco e faz um teste de Medicina CD 15 tratando um personagem voluntário e consciente ao alcance, rolando o dado de recuperação do alvo como parte do teste (desvantagem se tratar a si mesmo). Em sucesso, o alvo recupera vida igual ao dado de recuperação mais as graduações do curador em Medicina; em falha, só o resultado do dado.',
   },

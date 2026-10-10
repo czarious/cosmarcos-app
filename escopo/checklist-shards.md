@@ -29,23 +29,23 @@
 | Marcos (moeda) | ✅ | Inventário, editável |
 | Vida · Foco · Investidura | ✅ | Topo fixo, ± e número |
 | Deflexão · movimento · dado de recuperação · carga · levantamento · sentidos | ✅ | Aba Principal |
-| Contador de talentos (total / heroico / saldo "-1") | 🔶 | Aba Talentos → "Contagem": por nível e bônus de ancestralidade, usados × previstos, e o saldo (01/Out/2026); falta o César ver na tela |
+| Contador de talentos (total / heroico / saldo "-1") | ✅ | Aba Talentos → "Contagem": por nível e bônus de ancestralidade, usados × previstos, e o saldo, inclusive os de fluxo (César conferiu, 07/Out/2026) |
 | 18 perícias com graduação e total | ✅ | Aba Perícias, total calculado e detalhado |
 | Ordenar perícias | ❌ | Baixa prioridade |
 | Propósito · obstáculo · personalidade · aparência · conexões | ✅ | Aba Personagem |
 | Objetivos (lista, marcos, concluir) | ✅ | Aba Personagem |
-| Ancestralidade → bônus (Humano: +1 talento heroico) | ❌ | Só aparece como nome |
-| Especialidades (adicionar, tipo, origem) | 🔶 | Aba Talentos mostra e liga às vagas; não adiciona especialidade avulsa |
+| Ancestralidade → bônus (Humano: +1 talento heroico) | ✅ | Vaga própria na "Contagem" da aba Talentos (ver "Contador de talentos") |
+| Especialidades (adicionar, tipo, origem) | 🔶 | Aba Talentos → "Especialidades": lista por categoria, adicionar/remover avulsa (volta pro Shards no export), as da cultura fixas, conta do livro ao tocar no número (07/Out/2026); falta o César ver na tela |
 | Lesões: deflexão da armadura, modificador, rolar lesão, duração | ✅ | Aba Condições, rolagem guiada |
 | Condições com detalhes e efeitos | ✅ | Aba Condições, 14 do livro, efeito na conta |
 | Notas | ✅ | Viram blocos na aba Anotações |
-| Trilhas heroicas: talentos com o texto da habilidade | 🔶 | Aba Talentos: todo talento de trilha heroica, ordem Radiante e Cantor tem nome PT, ativação, pré-requisitos e texto (07/Out/2026); falta o César ver na tela |
+| Trilhas heroicas: talentos com o texto da habilidade | ✅ | Aba Talentos: todo talento de trilha heroica, ordem Radiante e Cantor tem nome PT, ativação, pré-requisitos e texto (César conferiu com Eccho e Tiago, 07/Out/2026) |
 | Trilha radiante: ordem, Ideais com marcos, vínculo (nome, tipo, alcance) | ✅ | Aba Radiante |
 | Segunda ordem (vínculo duplo, raro) | ❌ | Nenhum personagem da mesa usa |
 | Fluxos: graduação, dado, tamanho, descrição | ✅ | Abas Radiante e Ações (guia de uso) |
-| Fluxos: habilidades separadas (Transporte: emoções, localizar, sentir Investidura) | 🔶 | O app lista no "Como usar"; o Shards dá um botão por habilidade |
-| Talentos de fluxo (+ Talent) | 🔶 | Os aprendidos: nome na aba Radiante e cartão com o texto na aba Talentos → "De fluxo"; contam na "Contagem" (07/Out/2026); falta o César ver na tela |
-| Notas de trilha | ❌ | Campo livre do Shards que o tradutor não lê |
+| Fluxos: habilidades separadas (Transporte: emoções, localizar, sentir Investidura) | 🔶 | Aba Ações: "Usar" próprio por habilidade em Transporte, Progressão e Abrasão (id do Shards), e os 10 fluxos com "Como usar" (07/Out/2026); falta o César ver na tela |
+| Talentos de fluxo (+ Talent) | 🔶 | Os aprendidos: nome na aba Radiante e cartão com o texto na aba Talentos → "De fluxo"; contam na "Contagem" (07/Out/2026); o grupo só aparece com talento de fluxo aprendido — ninguém da mesa tem ainda |
+| Notas de trilha | 🔶 | Os dois textos do cartão Path Notes viram blocos fixos da aba Anotações e voltam pro Shards no export (07/Out/2026); falta o César ver na tela |
 | Defesas Física · Cognitiva · Espiritual | ✅ | Aba Principal |
 | Armas equipadas (dano, alcance, perícia, bônus) | ✅ | Aba Ações, com Golpear no rastreador de turno |
 | Armadura equipada | ✅ | Inventário: vestir/tirar; deflexão soma na Principal e na rolagem de lesão; Desajeitada [X] deixa Lento e com desvantagem em Velocidade (v0.10.0) |
@@ -65,7 +65,7 @@
 | Testes rápidos (as perícias mais altas) e "todos os testes" | 🔶 | O app mostra os totais na aba Perícias. Atalho das mais altas no topo da Principal foi tentado na v0.12.0 e retirado na v0.12.1: o César não quer mexer na Principal nem nas abas |
 | Rolar teste de atributo, perícia, ataque, fluxo | ➖ | O dado é rolado na mão — [premissas](premissas.md) → "O dado é rolado na mão"; rolador é o 4.0 do [roadmap](roadmap.md) |
 | Lista de talentos | ✅ | Aba Talentos |
-| Referência da sessão: especialidades, objetivos ativos, equipamento à mão | 🔶 | Tudo existe, espalhado em abas; não há um resumo único |
+| Referência da sessão: especialidades, objetivos ativos, equipamento à mão | 🔶 | Aba Personagem → "Na mesa": especialidades e o que está equipado; os objetivos ficam logo abaixo (07/Out/2026); falta o César ver na tela |
 | Rolagens recentes | ❌ | Depende do rolador — roadmap 4.2 |
 | **Rastreador de turno (▶, ↻, custo pago na hora)** | ✅ | **O Shards não tem.** Aba Ações (30/Set/2026) |
 
@@ -93,7 +93,7 @@
 | Exportar todos os personagens | ❌ | Só faz sentido com o 4.4 |
 | PDF da ficha oficial · imprimir | ❌ | Não pedido |
 | Idioma (inglês / espanhol) | 🔶 | O app tem português e inglês (30/Set/2026): botões e nomes; as descrições de regra em inglês são a 2ª etapa |
-| Arrumar os painéis na ordem que quiser | ❌ | Roadmap 4.3 |
+| Arrumar os painéis na ordem que quiser | 🔶 | Menu de abas → "⇅ Reordenar" (▲▼, guardado no aparelho; vale pro arrastar) — roadmap 4.3 (07/Out/2026); falta o César ver na tela |
 | Unidades (imperial / métrico) | ➖ | O app é sempre métrico, pela convenção do livro |
 | Temas de cor (13+) | ➖ | Tema único claro — [premissas](premissas.md) → "Descartado — não repropor" |
 | Tutorial · reportar defeito | ❌ | Não pedido |

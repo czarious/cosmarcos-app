@@ -6,7 +6,8 @@ import PainelTurno from './componentes/PainelTurno'
 import MenuEngrenagem from './componentes/MenuEngrenagem'
 import AvisoAtualizacao from './componentes/AvisoAtualizacao'
 import CabecalhoFixo from './componentes/CabecalhoFixo'
-import SeletorSecao, { LISTA, type Secao } from './componentes/SeletorSecao'
+import SeletorSecao, { type Secao } from './componentes/SeletorSecao'
+import { useOrdemAbas } from './estado/useOrdemAbas'
 import CarrosselAbas from './componentes/CarrosselAbas'
 import Principal from './componentes/secoes/Principal'
 import Pericias from './componentes/secoes/Pericias'
@@ -44,6 +45,8 @@ export default function App() {
     adicionarAnotacao,
     editarAnotacao,
     removerAnotacao,
+    adicionarEspecializacao,
+    removerEspecializacao,
     alterarObjetivo,
     adicionarObjetivo,
     removerObjetivo,
@@ -79,6 +82,7 @@ export default function App() {
   )
   const turno = useTurno(ficha, apiTurno)
   const [secao, setSecao] = useState<Secao>('Principal')
+  const [ordemAbas, definirOrdemAbas] = useOrdemAbas()
   /**
    * Resultado da última importação/exportação, mostrado no rodapé. Mensagem
    * (escrita no idioma da hora) ou o erro do tradutor, que vem só em português.
@@ -142,7 +146,13 @@ export default function App() {
     ) : s === 'Perícias' ? (
       <Pericias ficha={ficha} escolhasTalento={escolhasTalento} />
     ) : s === 'Talentos' ? (
-      <Talentos ficha={ficha} escolhasTalento={escolhasTalento} definirEscolhaVaga={definirEscolhaVaga} />
+      <Talentos
+        ficha={ficha}
+        escolhasTalento={escolhasTalento}
+        definirEscolhaVaga={definirEscolhaVaga}
+        adicionarEspecializacao={adicionarEspecializacao}
+        removerEspecializacao={removerEspecializacao}
+      />
     ) : s === 'Ações' ? (
       <Acoes ficha={ficha} escolhasTalento={escolhasTalento} alterarCargas={alterarCargas} turno={turno} />
     ) : s === 'Fabriais' ? (
@@ -226,7 +236,7 @@ export default function App() {
             />
           }
         />
-        <SeletorSecao ativa={secao} aoTrocar={setSecao} />
+        <SeletorSecao ativa={secao} aoTrocar={setSecao} ordem={ordemAbas} aoReordenar={definirOrdemAbas} />
         <PainelTurno ficha={ficha} turno={turno} />
         <AvisoAtualizacao />
         {/* a ficha-semente do repositório ficou mais nova que o save — mesma faixa do aviso de versão */}
@@ -264,7 +274,7 @@ export default function App() {
             </span>
           </div>
         )}
-        <CarrosselAbas lista={LISTA} ativa={secao} aoTrocar={setSecao} desenhar={desenharSecao} />
+        <CarrosselAbas lista={ordemAbas} ativa={secao} aoTrocar={setSecao} desenhar={desenharSecao} />
       </main>
 
       {/* Rodapé: só o estado do save e o resultado da última importação/exportação.
